@@ -1,0 +1,272 @@
+name: CI
+
+on:
+
+  push:
+    branches:
+      - main
+    paths:
+      - include/**
+      - src/**
+      - docs/**
+      - .github/workflows/ci.yml
+
+jobs:
+
+  build-and-simulate-1:
+    name: Build and run case-1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+        with:
+          repository: 'NaokiHori/SimpleNavierStokesSolver'
+          ref: 'main'
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y install make libopenmpi-dev libfftw3-dev
+      - name: Compile
+        run: |
+          make all
+      - name: Create directories
+        run: |
+          make output
+      - name: Run
+        run: |
+          bash exec.sh
+      - name: Create directory for artifacts
+        run: |
+          mkdir artifacts
+          mkdir artifacts/log
+          mkdir artifacts/save
+          mkdir artifacts/stat
+      - name: Fetch only being used later
+        run: |
+          # log
+          cp output/log/nusselt.dat artifacts/log/nusselt.dat
+          cp output/log/divergence.dat artifacts/log/divergence.dat
+          # save, only last one
+          dname=$(ls -t output/save | head -n 1)
+          cp output/save/${dname}/* artifacts/save/
+          # stat, only last one
+          dname=$(ls -t output/stat | head -n 1)
+          cp output/stat/${dname}/* artifacts/stat/
+      - name: Write metadata used in ci.rst
+        run: |
+          echo "OS   :" $(cat /etc/os-release | grep PRETTY_NAME | awk -F "=" '{print $2}') >> artifacts/ci.txt
+          echo "Date :" $(date) >> artifacts/ci.txt
+          echo "Hash :" $(git rev-parse HEAD) >> artifacts/ci.txt
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: SimArtifacts1
+          path: artifacts
+
+  build-and-simulate-2:
+    name: Build and run case-2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+        with:
+          repository: 'NaokiHori/SimpleNavierStokesSolver'
+          ref: 'main'
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y install make libopenmpi-dev libfftw3-dev
+      - name: Compile
+        run: |
+          make all
+      - name: Create directories
+        run: |
+          make output
+      - name: First run
+        run: |
+          bash docs/source/examples/case2/data/exec1.sh
+      - name: Second run
+        run: |
+          dirname_restart=$(/bin/ls -t output/save | head -n 1)
+          export dirname_restart=output/save/${dirname_restart}
+          bash docs/source/examples/case2/data/exec2.sh
+      - name: Create directory for artifacts
+        run: |
+          mkdir artifacts
+          mkdir artifacts/log
+      - name: Fetch only being used later
+        run: |
+          # log
+          cp output/log/energy.dat artifacts/log/energy.dat
+      - name: Write metadata used in ci.rst
+        run: |
+          echo "OS   :" $(cat /etc/os-release | grep PRETTY_NAME | awk -F "=" '{print $2}') >> artifacts/ci.txt
+          echo "Date :" $(date) >> artifacts/ci.txt
+          echo "Hash :" $(git rev-parse HEAD) >> artifacts/ci.txt
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: SimArtifacts2
+          path: artifacts
+
+  build-and-simulate-3:
+    name: Build and run case-3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+        with:
+          repository: 'NaokiHori/SimpleNavierStokesSolver'
+          ref: 'main'
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y install make libopenmpi-dev libfftw3-dev
+      - name: Create directory for artifacts
+        run: |
+          mkdir artifacts
+          mkdir artifacts/log
+      - name: Compile
+        run: |
+          make all
+      - name: Run case 1
+        run: |
+          make datadel
+          make output
+          bash docs/source/examples/case3/data/exec1.sh
+          cp output/log/nusselt.dat artifacts/log/nusselt1.dat
+          cp output/log/divergence.dat artifacts/log/divergence1.dat
+      - name: Run case 2
+        run: |
+          make datadel
+          make output
+          bash docs/source/examples/case3/data/exec2.sh
+          cp output/log/nusselt.dat artifacts/log/nusselt2.dat
+      - name: Run case 3
+        run: |
+          make datadel
+          make output
+          bash docs/source/examples/case3/data/exec3.sh
+          cp output/log/nusselt.dat artifacts/log/nusselt3.dat
+      - name: Write metadata used in ci.rst
+        run: |
+          echo "OS   :" $(cat /etc/os-release | grep PRETTY_NAME | awk -F "=" '{print $2}') >> artifacts/ci.txt
+          echo "Date :" $(date) >> artifacts/ci.txt
+          echo "Hash :" $(git rev-parse HEAD) >> artifacts/ci.txt
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: SimArtifacts3
+          path: artifacts
+
+  build-doc:
+    name: Build documentation using sphinx
+    runs-on: ubuntu-latest
+    needs: [build-and-simulate-1, build-and-simulate-2, build-and-simulate-3]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+        with:
+          repository: 'NaokiHori/SimpleNavierStokesSolver'
+          ref: 'main'
+      - name: Download artifacts 1
+        uses: actions/download-artifact@v3
+        with:
+          name: SimArtifacts1
+          path: docs/source/examples/case1/data/artifacts
+      - name: Download artifacts 2
+        uses: actions/download-artifact@v3
+        with:
+          name: SimArtifacts2
+          path: docs/source/examples/case2/data/artifacts
+      - name: Download artifacts 3
+        uses: actions/download-artifact@v3
+        with:
+          name: SimArtifacts3
+          path: docs/source/examples/case3/data/artifacts
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
+      - name: Case 1 - Visualise flow field
+        run: |
+          cd docs/source/examples/case1/data/
+          python visualise.py artifacts/save visualise.png
+      - name: Case 1 - Compute standard deviations
+        run: |
+          cd docs/source/examples/case1/data/
+          mkdir stat
+          python statistics.py artifacts/stat
+      - name: Install Gnuplot
+        run: sudo apt-get -y install gnuplot
+      - name: Create eps and tex files
+        run: |
+          cd docs
+          cp create_figures/gnuplot.sh .
+          bash gnuplot.sh
+      - name: Convert eps to pdf
+        run: |
+          cd docs
+          cp create_figures/epstopdf.sh .
+          docker run \
+            --rm \
+            --volume ${PWD}:/project \
+            --workdir /project \
+            naokihori/texlive:gnuplot-epslatex \
+            /bin/sh epstopdf.sh
+      - name: Compile tex files
+        run: |
+          cd docs
+          cp create_figures/pdflatex.sh .
+          docker run \
+            --rm \
+            --volume ${PWD}:/project \
+            --workdir /project \
+            naokihori/texlive:gnuplot-epslatex \
+            /bin/sh pdflatex.sh
+      - name: Build documentation using Sphinx
+        run: |
+          echo "cd docs && make html" > sphinx.sh
+          docker run \
+            --rm \
+            --volume ${PWD}:/project \
+            --workdir /project \
+            sphinxdoc/sphinx:5.0.0 \
+            /bin/bash sphinx.sh
+      - name: Upload artifacts
+        # upload everything under docs/build/html/
+        uses: actions/upload-artifact@v3
+        with:
+          name: DocHTML
+          path: docs/build/html
+
+  publish-doc:
+    name: Push artifacts to gh-pages branch
+    runs-on: ubuntu-latest
+    needs: build-doc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+        with:
+          repository: 'NaokiHori/SimpleNavierStokesSolver'
+          ref: 'main'
+      - name: Download artifacts
+        # download to docs/
+        uses: actions/download-artifact@v3
+        with:
+          name: DocHTML
+          path: docs/
+      - name: Commit documentation changes
+        run: |
+          git switch -c gh-pages
+          cd docs/
+          touch .nojekyll
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update documentation" -a || true
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: gh-pages
+          directory: "."
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+          force: true
+

@@ -1,0 +1,8 @@
+.. |AMSDEN1970|     replace:: Amsden and Harlow, *J. Comput. Phys.* (**6**), 1970
+.. |VERZICCO1996|   replace:: Verzicco and Orlandi, *J. Comput. Phys.* (**123**), 1996
+.. |MORINISHI1998|  replace:: Morinishi et al., *J. Comput. Phys.* (**143**), 1998
+.. |KAJISHIMA1999|  replace:: Kajishima, Trans. *JSME* (**65-633, 1607**), 1999 (in Japanese)
+.. |HAM2002|        replace:: Ham et al., *J. Comput. Phys.* (**177**), 2002
+.. |COPPOLA2019|    replace:: Coppola et al., *Appl. Mech. Rev.* (**71**), 2019
+.. |HORVATH2000|    replace:: Horváth, *RANA* (**0015**), 2000
+.. |VANDERPOEL2013| replace:: van der Poel et al., *J. Fluid Mech.* (**736**), 2013
