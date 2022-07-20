@@ -33,8 +33,7 @@ reset
   set style line 2 lc rgb '#0000FF' lw 5
   set style line 3 lc rgb '#33AA00' lw 5
   set style line 4 lc rgb '#FF00FF' lw 5
-  set style line 5 lc rgb '#00FFFF' lw 5
-  set style line 6 lc rgb '#000000' lw 5 dt 2
+  set style line 5 lc rgb '#000000' lw 5 dt 2
   set key right bottom
   filename = 'artifacts/log/nusselt.dat'
   # van der Poel et al., JFM, 2013
@@ -44,8 +43,7 @@ reset
     filename u 1:3 notitle ls 2 w l, \
     filename u 1:4 notitle ls 3 w l, \
     filename u 1:5 notitle ls 4 w l, \
-    filename u 1:6 notitle ls 5 w l, \
-    refval notitle ls 6 w l
+    refval notitle ls 5 w l
 }
 
 reset

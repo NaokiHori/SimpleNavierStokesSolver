@@ -51,7 +51,7 @@ where :math:`\epsilon` and :math:`\Delta` are machine epsilon :math:`\sim 10^{-1
 Nusselt numbers
 ***************
 
-:math:`Nu` computed by different formula are shown, (red/blue) heat fluxes on the bottom/top walls, (green) energy injection, (magenta) kinetic energy dissipation, and (cyan) thermal energy dissipation, respectively.
+:math:`Nu` computed by different formula are shown, (red) heat fluxes on the walls, (blue) energy injection, (green) kinetic energy dissipation, and (magenta) thermal energy dissipation, respectively.
 
 Black-dashed line shows a reference value by |VANDERPOEL2013| with the same :math:`Ra` and :math:`Pr` but with a different domain geometry (box).
 

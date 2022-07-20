@@ -50,9 +50,9 @@ reset
     set style line 3 lc rgb '#33AA00' lw 5
     set key right top
     plot \
-      filenames[case] u 1:($4-abs(0.5*($2+$3))) t '$Nu_{u_x T}$'        ls 1 w l, \
-      filenames[case] u 1:($5-abs(0.5*($2+$3))) t '$Nu_{\epsilon_{k}}$' ls 2 w l, \
-      filenames[case] u 1:($6-abs(0.5*($2+$3))) t '$Nu_{\epsilon_{T}}$' ls 3 w l
+      filenames[case] u 1:($3-abs($2)) t '$Nu_{u_x T}$'        ls 1 w l, \
+      filenames[case] u 1:($4-abs($2)) t '$Nu_{\epsilon_{k}}$' ls 2 w l, \
+      filenames[case] u 1:($5-abs($2)) t '$Nu_{\epsilon_{T}}$' ls 3 w l
   }
 }
 
