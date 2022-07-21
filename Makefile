@@ -12,10 +12,11 @@ OUTPUTDIR := output
 TARGET    := a.out
 
 help:
-	@echo "all     : create $(TARGET)"
-	@echo "clean   : remove $(TARGET) and object files $(OBJSDIR)/*.o"
-	@echo "datadel : remove files dumped by simulator $(OUTPUTDIR)/*"
-	@echo "test    : (DEBUG USE) test parallel matrix transpose"
+	@echo "all     : create \"$(TARGET)\""
+	@echo "clean   : remove \"$(TARGET)\" and object files \"$(OBJSDIR)/*.o\""
+	@echo "output  : create \"$(OUTPUTDIR)\" and sub-directories"
+	@echo "datadel : remove \"$(OUTPUTDIR)\" and sub-directories"
+	@echo "test    : (FOR DEBUG USE) test parallel matrix transpose"
 	@echo "help    : show this help message"
 
 all: $(TARGET)
@@ -29,14 +30,8 @@ $(OBJSDIR)/%.o: $(SRCSDIR)/%.c
 	fi
 	$(CC) $(CFLAGS) $(DEPEND) $(INCLUDES) -c $< -o $@
 
-test:
-	$(CC) -DDEBUG_TEST $(CFLAGS) $(INCLUDES) src/common.c src/parallel/others.c src/parallel/transpose.c -o a.out
-
 clean:
 	$(RM) -r $(OBJSDIR) $(TARGET)
-
-datadel:
-	$(RM) -r $(OUTPUTDIR)
 
 output:
 	@if [ ! -e $(OUTPUTDIR)/save ]; then \
@@ -49,7 +44,13 @@ output:
 		mkdir -p $(OUTPUTDIR)/stat; \
 	fi
 
+datadel:
+	$(RM) -r $(OUTPUTDIR)
+
+test:
+	$(CC) -DDEBUG_TEST $(CFLAGS) $(INCLUDES) src/common.c src/parallel/others.c src/parallel/transpose.c -o a.out
+
 -include $(DEPS)
 
-.PHONY : help all test clean datadel output
+.PHONY : help all clean output datadel test
 
