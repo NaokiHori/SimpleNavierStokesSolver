@@ -46,7 +46,7 @@ Features
 
 * Strong connection between `theories <https://naokihori.github.io/SimpleNavierStokesSolver/governing_equations/index.html>`_, `numerics <https://naokihori.github.io/SimpleNavierStokesSolver/numerical_method/index.html>`_, `implementations <https://naokihori.github.io/SimpleNavierStokesSolver/implementation/index.html>`_ and `examples <https://naokihori.github.io/SimpleNavierStokesSolver/examples/index.html>`_ via `a documentation <https://naokihori.github.io/SimpleNavierStokesSolver/index.html>`_
 * `Automatic code validation <https://naokihori.github.io/SimpleNavierStokesSolver/examples/index.html>`_ thanks to `GitHub Actions <https://github.com/features/actions>`_ (`workflow <https://github.com/NaokiHori/SimpleNavierStokesSolver/blob/main/.github/workflows/ci.yml>`_)
-* Perfect (up to round-off errors) mass and momentum balances
+* `Perfect (up to round-off errors) mass and momentum balances <https://naokihori.github.io/SimpleNavierStokesSolver/examples/case1/main.html>`_
 * `Perfect (up to round-off errors) Nusselt number agreements <https://naokihori.github.io/SimpleNavierStokesSolver/examples/case3/main.html>`_
 * `Conservations of quadratic quantities (squared velocity and temperature) for inviscid fluids <https://naokihori.github.io/SimpleNavierStokesSolver/examples/case2/main.html>`_ and resulting extreme stability
 * `MPI parallelisation <https://naokihori.github.io/SimpleNavierStokesSolver/numerical_method/spatial_discretisation/domain.html>`_
@@ -65,9 +65,10 @@ Dependency
 
 Although not essential, these libraries are helpful:
 
-* `Git <https://git-scm.com>`_
-* `GNU Make <https://www.gnu.org/software/make/>`_
-* `Python <https://www.python.org>`_ with `NumPy <https://numpy.org>`_ and `Matplotlib <https://matplotlib.org>`_
+* `Git <https://git-scm.com>`_ (to clone this library)
+* `GNU Make <https://www.gnu.org/software/make/>`_ (to support compiling process)
+* `Python <https://www.python.org>`_ with `NumPy <https://numpy.org>`_ and `Matplotlib <https://matplotlib.org>`_ (to visualise results)
+* `Gnuplot <http://www.gnuplot.info>`_ (to monitor log files, e.g., ``gnuplot plot/nusselt.gp``)
 
 ====================
 Docker (recommended)
