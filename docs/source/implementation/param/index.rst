@@ -27,86 +27,57 @@ A structure :c-lang:`param_t` is defined in `include/param.h <https://github.com
 
 The meanings of each member are as follows:
 
-1. Initialisation: :c-lang:`load_flow_field`
+#. Initialisation: :c-lang:`load_flow_field`
 
    Whether flow fields (velocity, temperature, etc.) are loaded (:c-lang:`true`) or not (:c-lang:`false`).
-   If not, they are initialised; otherwise loaded from a restart file :c-lang:`FNAME_RESTART` defined in `include/param.h <https://github.com/NaokiHori/SimpleNavierStokesSolver/blob/main/include/param.h>`_.
+   If not, they are initialised; otherwise loaded from a specified directory :c-lang:`param->dirname_restart`.
 
-2. Temperature coupling
+#. Temperature coupling
 
    * :c-lang:`with_temperature`
 
-      Whether the thermal fields (temperature, buoyancy force) are solved (:c-lang:`true`) or not (:c-lang:`false`) with the flow fields.
+      Whether the temperature field is solved (:c-lang:`true`) or not (:c-lang:`false`) as well as the flow fields (velocity and pressure).
 
    * :c-lang:`with_thermal_forcing`
 
       Whether the buoyancy force is added (:c-lang:`true`) or not (:c-lang:`false`) to the momentum balance in :math:`x` direction (see :ref:`the governing equations <governing_equations>`).
-      If not, the temperature is a passive scalar merely transported by the fluid motion.
+      If not, the temperature is a passive scalar merely transported (advected and diffused) by the fluid motion.
 
-3. Schedulers
-
-   * :c-lang:`timemax`
-
-      Maximum simulation time (in simulation time units).
-      The run will be terminated if it reaches this number (see :ref:`src/main.c <main>`).
-
-   * :c-lang:`wtimemax`
-
-      Maximum simulation time (in wall time).
-      The run will be terminated if it reaches this number (see :ref:`src/main.c <main>`).
-
-   * :c-lang:`logtr`
-
-      Log files are dumped per this time units (see :ref:`src/main.c <main>`).
-
-   * :c-lang:`dumptr`
-
-      Flow fields are dumped per this time units (see :ref:`src/main.c <main>`).
-
-   * :c-lang:`stattr`
-
-      Statistics are collected per this time units (see :ref:`src/main.c <main>`).
-
-   * :c-lang:`stattafter`
-
-      Statistics are collected after this time units (see :ref:`src/main.c <main>`).
-
-   * :c-lang:`savetr`
-
-      Flow fields and collected statistics are saved per this time units (see :ref:`src/main.c <main>`).
-
-4. Domain size and coordinates
+#. Domain size and coordinates
 
    * :c-lang:`itot` and :c-lang:`jtot`
 
-      Numbers of cell centers (where pressure is defined) in :math:`x` and :math:`y` directions, respectively.
+      Numbers of cell centers (where pressure and temperature are defined) in :math:`x` and :math:`y` directions, respectively.
 
    * :c-lang:`lx` and :c-lang:`ly`
 
-      Domain sizes in :math:`x` and :math:`y` directions, respectively.
-
-      .. note::
-
-         It is recommended to use :c-lang:`lx = 1` since the governing equations assume :math:`l_x \equiv 1` when being normalised (see :ref:`the governing equations <governing_equations>`).
+      Physical domain sizes (lengths) in :math:`x` and :math:`y` directions, respectively.
+      :c-lang:`lx` is fixed to 1 since the governing equations assume :math:`l_x \equiv 1` when being normalised (see :ref:`the governing equations <governing_equations>`).
 
    * :c-lang:`stretch`
 
-      The amount of distortion of the grid in :math:`x` direction, from :c-lang:`0` (extremely stretched) to :c-lang:`itot` (uniform) (see :c-lang:`set_coordinate` in :ref:`src/param/init.c <param_init>`)
+      The amount of distortion of the grid in :math:`x` direction.
+      Roughly, the smaller (minimum is 0) this number is, the more stretched the grid is and more points exist in the vicinity of the walls.
+      See :c-lang:`set_coordinate` in :ref:`src/param/init.c <param_init>`.
 
-   * :c-lang:`xc` and :c-lang:`xf`
+   * :c-lang:`xf` and :c-lang:`xc`
 
       Coordinates in :math:`x` direction.
-      :c-lang:`xc` and :c-lang:`xf` are used to define cell-center and cell-face locations, respectively. (see :c-lang:`set_coordinate` in :ref:`src/param/init.c <param_init>`)
+      :c-lang:`xf` and :c-lang:`xc` are used to define cell-face and cell-center locations, respectively.
+      See :c-lang:`set_coordinate` in :ref:`src/param/init.c <param_init>`.
 
-   * :c-lang:`dxc` and :c-lang:`dxf`
+   * :c-lang:`dxf` and :c-lang:`dxc`
 
-      Distance between neighbouring :c-lang:`param->xc` and :c-lang:`param->xf`, respectively (see :c-lang:`set_coordinate` in :ref:`src/param/init.c <param_init>`)
+      Distance between neighbouring :c-lang:`param->xf` and :c-lang:`param->xc`, respectively.
+      See :c-lang:`set_coordinate` in :ref:`src/param/init.c <param_init>`.
 
    * :c-lang:`dy`
 
-      Grid size in :math:`y` direction (only uniform grid size is allowed for now)
+      Grid size in :math:`y` direction.
+      Since only uniform grid arrangements are allowed for now, a scalar value is sufficient.
+      :c-lang:`yf` and :c-lang:`yc` are, however, defined since they are useful for post-processings.
 
-5. Non-dimensional parameters
+#. Non-dimensional parameters
 
    * :c-lang:`Ra`
 
@@ -116,19 +87,11 @@ The meanings of each member are as follows:
 
       Prandtl number (see :ref:`the governing equations <governing_equations>`)
 
-6. Parameters relevant to temporal integration
+#. Parameters relevant to temporal integration
 
-   * :c-lang:`rk[abg]`
+   * :c-lang:`rkcoefs`
 
       Coefficients of Runge-Kutta scheme :math:`\alpha,\beta,\gamma` (see :ref:`Temporal discretisation <temporal_discretisation>`)
-
-   * :c-lang:`step`
-
-      Simulation time step
-
-   * :c-lang:`implicitx`, :c-lang:`implicity`
-
-      Whether the diffusive terms in each direction are treated implicitly (:c-lang:`1`) or not (:c-lang:`0`) (see :ref:`the temporal discretisation <temporal_discretisation>` and :ref:`src/param/decide_dt.c <param_decide_dt>`)
 
    * :c-lang:`time`
 
@@ -138,10 +101,52 @@ The meanings of each member are as follows:
 
       Time step size
 
+   * :c-lang:`step`
+
+      Number of steps (how many iterations have been done up to now)
+
+   * :c-lang:`implicitx`, :c-lang:`implicity`
+
+      Whether the diffusive terms in each direction are treated implicitly (:c-lang:`1`) or not (:c-lang:`0`).
+      See :ref:`the temporal discretisation <temporal_discretisation>` and :ref:`src/param/decide_dt.c <param_decide_dt>`.
+
    * :c-lang:`expimp_wtimes`
 
       Variable to store wall times which are needed to complete the whole procedures with explicit or implicit treatments of the diffusive terms.
       See :ref:`src/param/estimate_cost.c <param_estimate_cost>`.
 
-These parameters can be specified in ``exec.sh`` and are loaded by :c-lang:`load_config` in :ref:`src/param/init.c <param_init>`
+#. Schedulers
+
+   * :c-lang:`timemax`
+
+      Maximum simulation time (in simulation time units).
+      Simulation is terminated if :c-lang:`param->time` exceeds this parameter (see :ref:`src/main.c <main>`).
+
+   * :c-lang:`wtimemax`
+
+      Maximum simulation time (in wall time).
+      Simulation is terminated if :c-lang:`param->wtime` exceeds this parameter (see :ref:`src/main.c <main>`).
+
+   * :c-lang:`log`, :c-lang:`save`, c:-lang:`stat`
+
+      Decide timings of logging, saving flow fields, and collecting statistics, respectively.
+      Each member has three values:
+
+      #. :c-lang:`rate`
+
+         This process is repeated in each :c-lang:`rate` time units.
+         This is needed since (generally) we do not want to dump flow fields (MB or GB in sizes) every time step.
+
+      #. :c-lang:`after`
+
+         This process is only executed after :c-lang:`after` time units.
+         This is needed since (generally) we are only interested in flow statistics after the flow reaches the statistically-steady state.
+
+      #. :c-lang:`next`
+
+         This process will be executed at :c-lang:`next`.
+         This is used as a timer to trigger the next event.
+
+Although default values are assigned, these parameters can be specified as environmental variables and one can easily override them (see ``exec.sh``).
+When being given, the parameters are loaded by :c-lang:`load_config` in :ref:`src/param/init.c <param_init>`.
 

@@ -139,9 +139,12 @@ static int set_coordinate(param_t *param){
   double *dxc = param->dxc;
   double *yf = param->yf;
   double *yc = param->yc;
-  /* ! xf: cell face coordinates ! 24 ! */
+  /* ! xf: cell face coordinates ! 27 ! */
   {
-    const int stretch = param->stretch;
+    int stretch = param->stretch;
+    if(stretch < 0){
+      stretch = 0;
+    }
     if(stretch >= itot/2){
       // uniform grid
       const double dx = lx/itot;
