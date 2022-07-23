@@ -127,7 +127,7 @@ The meanings of each member are as follows:
       Maximum simulation time (in wall time).
       Simulation is terminated if :c-lang:`param->wtime` exceeds this parameter (see :ref:`src/main.c <main>`).
 
-   * :c-lang:`log`, :c-lang:`save`, c:-lang:`stat`
+   * :c-lang:`log`, :c-lang:`save`, :c-lang:`stat`
 
       Decide timings of logging, saving flow fields, and collecting statistics, respectively.
       Each member has three values:
