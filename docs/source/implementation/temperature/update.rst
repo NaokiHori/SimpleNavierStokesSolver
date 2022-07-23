@@ -103,32 +103,98 @@ Then, all source terms are evaluated at each location where :c-lang:`T` is defin
 
    Hereafter, superscript :math:`k`, which denotes Runge-Kutta step and should be on all :math:`\ux` and :math:`T`, are dropped for notational simplicity.
 
-1. Advective terms (:c-lang:`adv1`, :c-lang:`adv2`)
+0. Prerequisite: gradient of temperature :math:`\partial_i T`
 
-   .. math::
-      - \dder{\ux \dintrpa{T}{x}}{x}
-      - \dder{\uy \dintrpa{T}{y}}{y}
+   .. details:: Details
+
+      Gradient of :math:`T` appears both in the advective and diffusive terms.
+      :math:`\partial_x T` are needed at the neighbouring :math:`x` cell faces:
+
+      .. math::
+         \vat{
+            \dder{T}{x}
+         }{\pim, \pjc}
+         & =
+         \frac{
+            \vat{T}{\pic,  \pjc}
+            -
+            \vat{T}{\pimm, \pjc}
+         }{\vat{\Delta x}{\pim}}, \\
+         \vat{
+            \dder{T}{x}
+         }{\pip, \pjc}
+         & =
+         \frac{
+            \vat{T}{\pipp, \pjc}
+            -
+            \vat{T}{\pic,  \pjc}
+         }{\vat{\Delta x}{\pip}},
+
+      which are implemented as
+
+      .. myliteralinclude:: /../../src/temperature/update.c
+         :language: c
+         :tag: gradient of T in x
+
+      .. image:: image/update_dtdx.pdf
+         :width: 800
+
+      :math:`\partial_y T` are needed at the neighbouring :math:`y` cell faces:
+
+      .. math::
+         \vat{
+            \dder{T}{y}
+         }{\pic, \pjm}
+         & =
+         \frac{
+            \vat{T}{\pic, \pjc }
+            -
+            \vat{T}{\pic, \pjmm}
+         }{\Delta y}, \\
+         \vat{
+            \dder{T}{y}
+         }{\pic, \pjp}
+         & =
+         \frac{
+            \vat{T}{\pic, \pjpp}
+            -
+            \vat{T}{\pic, \pjc }
+         }{\Delta y},
+
+      which are implemented as
+
+      .. myliteralinclude:: /../../src/temperature/update.c
+         :language: c
+         :tag: gradient of T in y
+
+      .. image:: image/update_dtdy.pdf
+         :width: 800
+
+1. Advective terms (:c-lang:`adv1`, :c-lang:`adv2`)
 
    1. :c-lang:`adv1`: Advection of :math:`T` by :math:`\ux`
 
       .. math::
-         - \frac{
-            \vat{\ux}{\pip, \pjc}
-            \vat{\dintrpa{T}{x}}{\pip, \pjc}
-            -
-            \vat{\ux}{\pim, \pjc}
-            \vat{\dintrpa{T}{x}}{\pim, \pjc}
-         }{\Delta x_{\pic}}
+         -
+         \vat{
+            \dintrpv{
+               \ux
+               \dder{T}{x}
+            }{x}
+         }{\pic, \pjc}
 
       .. details:: Details
 
-         :math:`\ux` can be used directly since they are defined at these locations, while :math:`T` is interpolated as
+         Discrete derivatives are given above at :math:`x` cell faces.
+         The *widehat* symbol is used to indicate the volume interpolation:
 
          .. math::
-            \begin{alignedat}{3}
-               & \vat{\dintrpa{T}{x}}{\pim,\pjc} & & = \frac{1}{2} \vat{T}{\pimm,\pjc } & & + \frac{1}{2} \vat{T}{\pic ,\pjc }, \\
-               & \vat{\dintrpa{T}{x}}{\pip,\pjc} & & = \frac{1}{2} \vat{T}{\pic ,\pjc } & & + \frac{1}{2} \vat{T}{\pipp,\pjc }.
-            \end{alignedat}
+            \vat{C}{\pim}
+            & =
+            \frac{\Delta x_{\pim}}{2 \Delta x_{\pic}}, \\
+            \vat{C}{\pip}
+            & =
+            \frac{\Delta x_{\pip}}{2 \Delta x_{\pic}}.
 
          The implementation leads
 
@@ -136,38 +202,24 @@ Then, all source terms are evaluated at each location where :c-lang:`T` is defin
             :language: c
             :tag: T is transported by ux
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update1.pdf
+         .. image:: image/update_adv_x.pdf
             :width: 800
-
-         .. note::
-
-            Recall that the boundary values of the temperature are defined on the walls.
-            Strictly speaking, we should use these boundary values (:c-lang:`TEMP(0,j)` for :math:`\vat{T}{\frac{1}{2},j}`, :c-lang:`TEMP(itot+1,j)` for :math:`\vat{T}{\text{itot}+\frac{1}{2},j}`) directly instead of the interpolated values.
-
-            Since impermeable walls :math:`\ux \equiv 0` are assumed, however, they give null eventually and thus we use the same notation for simplicity here.
 
    2. :c-lang:`adv2`: Advection of :math:`T` by :math:`\uy`
 
       .. math::
-         - \frac{
-            \vat{\uy}{\pic, \pjp}
-            \vat{\dintrpa{T}{y}}{\pic, \pjp}
-            -
-            \vat{\uy}{\pic, \pjm}
-            \vat{\dintrpa{T}{y}}{\pic, \pjm}
-         }{\Delta y}
+         -
+         \vat{
+            \dintrpa{
+               \uy
+               \dder{T}{y}
+            }{y}
+         }{\pic, \pjc}
 
       .. details:: Details
 
-         :math:`\uy` can be used directly since they are defined at these locations, while :math:`T` is interpolated as
-
-         .. math::
-            \begin{alignedat}{3}
-               & \vat{\dintrpa{T}{y}}{\pic,\pjm} & & = \frac{1}{2} \vat{T}{\pic,\pjmm} & & + \frac{1}{2} \vat{T}{\pic,\pjc }, \\
-               & \vat{\dintrpa{T}{y}}{\pic,\pjp} & & = \frac{1}{2} \vat{T}{\pic,\pjc } & & + \frac{1}{2} \vat{T}{\pic,\pjpp}.
-            \end{alignedat}
+         Discrete derivatives are given above at :math:`y` cell faces.
+         *Overline* symbol denotes arithmetic average.
 
          The implementation leads
 
@@ -175,47 +227,19 @@ Then, all source terms are evaluated at each location where :c-lang:`T` is defin
             :language: c
             :tag: T is transported by uy
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update2.pdf
+         .. image:: image/update_adv_y.pdf
             :width: 800
 
 2. Diffusive terms (:c-lang:`dif1`, :c-lang:`dif2`)
 
-   .. math::
-      \frac{1}{\sqrt{Pr} \sqrt{Ra}} \left\{
-         \dder{}{x} \left( \dder{T}{x} \right)
-         +
-         \dder{}{y} \left( \dder{T}{y} \right)
-      \right\}
-
    1. :c-lang:`dif1`: Diffusion of :math:`T` in :math:`x` direction
 
       .. math::
-         \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
-              \vat{\dder{T}{x}}{\pip, \pjc}
-            - \vat{\dder{T}{x}}{\pim, \pjc}
-         }{\Delta x_{\pic}}
+         \vat{
+            \frac{1}{\sqrt{Pr} \sqrt{Ra}} \dder{}{x} \left( \dder{T}{x} \right)
+         }{\pic, \pjc}
 
       .. details:: Details
-
-         The differentiations lead
-
-         .. math::
-            \vat{\dder{T}{x}}{\pip, \pjc}
-            & =
-            \frac{
-               \vat{T}{\pipp, \pjc}
-               -
-               \vat{T}{\pic,  \pjc}
-            }{\Delta x_{\pip}}, \\
-            \vat{\dder{T}{x}}{\pim, \pjc}
-            & =
-            \frac{
-               \vat{T}{\pic,  \pjc}
-               -
-               \vat{T}{\pimm, \pjc}
-            }{\Delta x_{\pim}}.
 
          The implementation leads
 
@@ -223,9 +247,7 @@ Then, all source terms are evaluated at each location where :c-lang:`T` is defin
             :language: c
             :tag: T is diffused in x
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update3.pdf
+         .. image:: image/update_dif_x.pdf
             :width: 800
 
          .. note::
@@ -235,30 +257,11 @@ Then, all source terms are evaluated at each location where :c-lang:`T` is defin
    2. :c-lang:`dif2`: Diffusion of :math:`T` in :math:`y` direction
 
       .. math::
-         \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
-              \vat{\dder{T}{y}}{\pic, \pjp}
-            - \vat{\dder{T}{y}}{\pic, \pjm}
-         }{\Delta y}
+         \vat{
+            \frac{1}{\sqrt{Pr} \sqrt{Ra}} \dder{}{y} \left( \dder{T}{y} \right)
+         }{\pic, \pjc}
 
       .. details:: Details
-
-         The differentiations lead
-
-         .. math::
-            \vat{\dder{T}{y}}{\pic, \pjp}
-            & =
-            \frac{
-               \vat{T}{\pic, \pjpp}
-               -
-               \vat{T}{\pic, \pjc }
-            }{\Delta y}, \\
-            \vat{\dder{T}{y}}{\pic, \pjm}
-            & =
-            \frac{
-               \vat{T}{\pic, \pjc }
-               -
-               \vat{T}{\pic, \pjmm}
-            }{\Delta y}.
 
          The implementation leads
 
@@ -266,9 +269,7 @@ Then, all source terms are evaluated at each location where :c-lang:`T` is defin
             :language: c
             :tag: T is diffused in y
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update4.pdf
+         .. image:: image/update_dif_y.pdf
             :width: 800
 
 After all source terms are evaluated, they are assigned to the corresponding variable.
@@ -381,6 +382,10 @@ Based on these relations, the updating procedure is as follows.
 
       .. math::
          \vat{\frac{\delta^2 \left( \delta T^{\prime} \right)}{\delta x^2}}{\pic, \pjc}
+         =
+         \vat{
+            \dder{}{x} \left\{ \dder{\left( \delta T^{\prime} \right)}{x} \right\}
+         }{\pic, \pjc}
          = c_{\pimm} \vat{\left( \delta T^{\prime} \right)}{\pimm, \pjc}
          + c_{\pic } \vat{\left( \delta T^{\prime} \right)}{\pic , \pjc}
          + c_{\pipp} \vat{\left( \delta T^{\prime} \right)}{\pipp, \pjc},
@@ -392,7 +397,7 @@ Based on these relations, the updating procedure is as follows.
          c_{\pipp} & = \frac{1}{\Delta x_{\pic} \Delta x_{\pip}}, \\
          c_{\pic } & = -c_{\pimm}-c_{\pipp}.
 
-      .. image:: image/update5.pdf
+      .. image:: image/update_linear_system_x.pdf
          :width: 800
 
       Thus, the equation of :math:`\delta T^{\prime}` can be discretised as
@@ -498,7 +503,7 @@ Based on these relations, the updating procedure is as follows.
 
       Also see the schematic below for an intuitive understanding, where a domain whose sizes are :c-lang:`itot=7` and :c-lang:`jtot=11` is drawn:
 
-      .. image:: image/update6.pdf
+      .. image:: image/update_domain_decomp.pdf
         :width: 800
 
       Here :c-lang:`qx` (left figure) is transposed to :c-lang:`qy` (right figure) and the alignment is modified to :math:`y` direction (note that memory is contiguous in :math:`y` direction after being transposed, which was contiguous in :math:`x` direction before).
@@ -519,6 +524,10 @@ Based on these relations, the updating procedure is as follows.
 
       .. math::
          \vat{\frac{\delta^2 \left( \delta T^{\prime\prime} \right)}{\delta y^2}}{\pic, \pjc}
+         =
+         \vat{
+            \dder{}{y} \left\{ \dder{\left( \delta T^{\prime\prime} \right)}{y} \right\}
+         }{\pic, \pjc}
          = c_{\pjmm} \vat{\left( \delta T^{\prime\prime} \right)}{\pic, \pjmm}
          + c_{\pjc } \vat{\left( \delta T^{\prime\prime} \right)}{\pic, \pjc }
          + c_{\pjpp} \vat{\left( \delta T^{\prime\prime} \right)}{\pic, \pjpp},
@@ -530,7 +539,7 @@ Based on these relations, the updating procedure is as follows.
          c_{\pjpp} & = \frac{1}{\Delta y^2}, \\
          c_{\pjc } & = -c_{\pjmm}-c_{\pjpp},
 
-      .. image:: image/update7.pdf
+      .. image:: image/update_linear_system_y.pdf
          :width: 800
 
       Based on this, the equation of :math:`T^{\prime\prime}` can be discretised as

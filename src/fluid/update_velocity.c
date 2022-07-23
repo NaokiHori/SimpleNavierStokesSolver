@@ -33,13 +33,23 @@ static int compute_src_ux(const param_t *param, const parallel_t *parallel, flui
   // UX(i=1, j) and UX(itot+1, j) are fixed to 0
   for(int j=1; j<=jsize; j++){
     for(int i=2; i<=itot; i++){
+      /* ! velocity-gradient tensor L_xx ! 2 ! */
+      double duxdx_xm = (-UX(i-1, j  )+UX(i  , j  ))/DXF(i-1);
+      double duxdx_xp = (-UX(i  , j  )+UX(i+1, j  ))/DXF(i  );
+      /* ! velocity-gradient tensor L_xy ! 2 ! */
+      double duxdy_ym = (-UX(i  , j-1)+UX(i  , j  ))/dy;
+      double duxdy_yp = (-UX(i  , j  )+UX(i  , j+1))/dy;
       /* advection */
-      /* ! x-momentum is transported by ux ! 6 ! */
+      /* ! x-momentum is transported by ux ! 10 ! */
       double adv1;
       {
+        double c_xm = DXF(i-1)/(2.*DXC(i));
+        double c_xp = DXF(i  )/(2.*DXC(i));
         double ux_xm = 0.5*UX(i-1, j  )+0.5*UX(i  , j  );
         double ux_xp = 0.5*UX(i  , j  )+0.5*UX(i+1, j  );
-        adv1 = -(ux_xp*ux_xp-ux_xm*ux_xm)/DXC(i);
+        adv1 =
+          -c_xm*ux_xm*duxdx_xm
+          -c_xp*ux_xp*duxdx_xp;
       }
       /* ! x-momentum is transported by uy ! 10 ! */
       double adv2;
@@ -48,25 +58,21 @@ static int compute_src_ux(const param_t *param, const parallel_t *parallel, flui
         double c_xp = DXF(i  )/(2.*DXC(i));
         double uy_ym = c_xm*UY(i-1, j  )+c_xp*UY(i  , j  );
         double uy_yp = c_xm*UY(i-1, j+1)+c_xp*UY(i  , j+1);
-        double ux_ym = 0.5 *UX(i  , j-1)+0.5 *UX(i  , j  );
-        double ux_yp = 0.5 *UX(i  , j  )+0.5 *UX(i  , j+1);
-        adv2 = -(uy_yp*ux_yp-uy_ym*ux_ym)/dy;
+        adv2 =
+          -0.5*uy_ym*duxdy_ym
+          -0.5*uy_yp*duxdy_yp;
       }
       /* diffusion */
-      /* ! x-momentum is diffused in x ! 7 ! */
+      /* ! x-momentum is diffused in x ! 5 ! */
       double dif1;
       {
         const double prefactor = sqrt(Pr)/sqrt(Ra);
-        double duxdx_xm = (UX(i  , j  )-UX(i-1, j  ))/DXF(i-1);
-        double duxdx_xp = (UX(i+1, j  )-UX(i  , j  ))/DXF(i  );
         dif1 = prefactor*(duxdx_xp-duxdx_xm)/DXC(i);
       }
-      /* ! x-momentum is diffused in y ! 7 ! */
+      /* ! x-momentum is diffused in y ! 5 ! */
       double dif2;
       {
         const double prefactor = sqrt(Pr)/sqrt(Ra);
-        double duxdy_ym = (UX(i  , j  )-UX(i  , j-1))/dy;
-        double duxdy_yp = (UX(i  , j+1)-UX(i  , j  ))/dy;
         dif2 = prefactor*(duxdy_yp-duxdy_ym)/dy;
       }
       /* pressure gradient */
@@ -121,38 +127,44 @@ static int compute_src_uy(const param_t *param, const parallel_t *parallel, flui
   /* ! uy is computed from i=1 to itot ! 2 ! */
   for(int j=1; j<=jsize; j++){
     for(int i=1; i<=itot; i++){
+      /* ! velocity-gradient tensor L_yx ! 2 ! */
+      double duydx_xm = (-UY(i-1, j  )+UY(i  , j  ))/DXC(i  );
+      double duydx_xp = (-UY(i  , j  )+UY(i+1, j  ))/DXC(i+1);
+      /* ! velocity-gradient tensor L_yy ! 2 ! */
+      double duydy_ym = (-UY(i  , j-1)+UY(i  , j  ))/dy;
+      double duydy_yp = (-UY(i  , j  )+UY(i  , j+1))/dy;
       /* advection */
-      /* ! y-momentum is transported by ux ! 8 ! */
+      /* ! y-momentum is transported by ux ! 10 ! */
       double adv1;
       {
+        double c_xm = DXC(i  )/(2.*DXF(i));
+        double c_xp = DXC(i+1)/(2.*DXF(i));
         double ux_xm = 0.5*UX(i  , j-1)+0.5*UX(i  , j  );
         double ux_xp = 0.5*UX(i+1, j-1)+0.5*UX(i+1, j  );
-        double uy_xm = 0.5*UY(i-1, j  )+0.5*UY(i  , j  );
-        double uy_xp = 0.5*UY(i  , j  )+0.5*UY(i+1, j  );
-        adv1 = -(ux_xp*uy_xp-ux_xm*uy_xm)/DXF(i);
+        adv1 =
+          -c_xm*ux_xm*duydx_xm
+          -c_xp*ux_xp*duydx_xp;
       }
-      /* ! y-momentum is transported by uy ! 6 ! */
+      /* ! y-momentum is transported by uy ! 8 ! */
       double adv2;
       {
-        double uy_ym  = 0.5*UY(i  , j-1)+0.5*UY(i  , j  );
-        double uy_yp  = 0.5*UY(i  , j  )+0.5*UY(i  , j+1);
-        adv2 = -(uy_yp*uy_yp-uy_ym*uy_ym)/dy;
+        double uy_ym = 0.5*UY(i  , j-1)+0.5*UY(i  , j  );
+        double uy_yp = 0.5*UY(i  , j  )+0.5*UY(i  , j+1);
+        adv2 =
+          -0.5*uy_ym*duydy_ym
+          -0.5*uy_yp*duydy_yp;
       }
       /* diffusion */
-      /* ! y-momentum is diffused in x ! 7 ! */
+      /* ! y-momentum is diffused in x ! 5 ! */
       double dif1;
       {
         const double prefactor = sqrt(Pr)/sqrt(Ra);
-        double duydx_xm = (UY(i  , j  )-UY(i-1, j  ))/DXC(i  );
-        double duydx_xp = (UY(i+1, j  )-UY(i  , j  ))/DXC(i+1);
         dif1 = prefactor*(duydx_xp-duydx_xm)/DXF(i);
       }
-      /* ! y-momentum is diffused in y ! 7 ! */
+      /* ! y-momentum is diffused in y ! 5 ! */
       double dif2;
       {
         const double prefactor = sqrt(Pr)/sqrt(Ra);
-        double duydy_ym = (UY(i  , j  )-UY(i  , j-1))/dy;
-        double duydy_yp = (UY(i  , j+1)-UY(i  , j  ))/dy;
         dif2 = prefactor*(duydy_yp-duydy_ym)/dy;
       }
       /* pressure gradient */

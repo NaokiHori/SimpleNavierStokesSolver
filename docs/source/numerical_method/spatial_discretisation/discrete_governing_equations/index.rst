@@ -29,9 +29,9 @@ In this project, we focus on the following two features:
 
    #. Dissipative terms reduce the total amount of quantity
 
-   #. :math:`\int k dV` is conserved if the mass and momentum balances are satisfied (inviscid limit)
+   #. :math:`K \equiv \int k dV` is conserved if the mass and momentum balances are satisfied (inviscid limit)
 
-   #. :math:`\int h dV` is conserved if the mass and thermal energy balances are satisfied (inviscid limit)
+   #. :math:`H \equiv \int h dV` is conserved if the mass and thermal energy balances are satisfied (inviscid limit)
 
    #. Several ways to compute Nusselt number give an identical result (in a statistical sense).
 
@@ -88,14 +88,14 @@ Momentum balance in :math:`x` direction at :math:`\left( \xic, \xjc \right)`:
 .. math::
    \der{\ux}{t}
    +
-   \dder{
+   \dintrpv{
       \dintrpa{\ux}{x}
-      \dintrpa{\ux}{x}
+      \dder{\ux}{x}
    }{x}
    +
-   \dder{
+   \dintrpa{
       \dintrpv{\uy}{x}
-      \dintrpa{\ux}{y}
+      \dder{\ux}{y}
    }{y}
    =
    -\dder{p}{x}
@@ -115,14 +115,14 @@ Momentum balance in :math:`y` direction at :math:`\left( \yic, \yjc \right)`:
 .. math::
    \der{\uy}{t}
    +
-   \dder{
+   \dintrpv{
       \dintrpa{\ux}{y}
-      \dintrpa{\uy}{x}
+      \dder{\uy}{x}
    }{x}
    +
-   \dder{
+   \dintrpa{
       \dintrpa{\uy}{y}
-      \dintrpa{\uy}{y}
+      \dder{\uy}{y}
    }{y}
    =
    -\dder{p}{y}
@@ -140,14 +140,14 @@ Internal energy balance at :math:`\left( \pic, \pjc \right)`:
 .. math::
    \der{T}{t}
    +
-   \dder{
+   \dintrpv{
       \ux
-      \dintrpa{T}{x}
+      \dder{T}{x}
    }{x}
    +
-   \dder{
+   \dintrpa{
       \uy
-      \dintrpa{T}{y}
+      \dder{T}{y}
    }{y}
    =
    \frac{1}{\sqrt{Pr} \sqrt{Ra}} \left\{

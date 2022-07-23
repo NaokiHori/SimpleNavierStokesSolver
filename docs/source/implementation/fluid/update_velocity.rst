@@ -105,45 +105,121 @@ Then, all source terms are evaluated at each location where :c-lang:`ux` is defi
 
    Hereafter, superscript :math:`k`, which denotes Runge-Kutta step and should be on all :math:`\ux` and :math:`\uy`, are dropped for notational simplicity.
 
-1. Advective terms (:c-lang:`adv1`, :c-lang:`adv2`)
+0. Prerequisite: velocity-gradient tensor :math:`\partial_j \ux`
 
-   .. math::
-      -
-      \dder{
-         \dintrpa{\ux}{x}
-         \dintrpa{\ux}{x}
-      }{x}
-      -
-      \dder{
-         \dintrpv{\uy}{x}
-         \dintrpa{\ux}{y}
-      }{y}
+   .. details:: Details
+
+      Discrete velocity-gradient tensor
+
+      .. math::
+         L_{xj}
+         \equiv
+         \dder{\ux}{x_j}
+
+      appears both in the advective and diffusive terms.
+      :math:`L_{xx}` are requested at the neighbouring cell centers:
+
+      .. math::
+         \vat{
+            \dder{\ux}{x}
+         }{\xim, \xjc}
+         & =
+         \frac{
+            \vat{
+               \ux
+            }{\xic,  \xjc}
+            -
+            \vat{
+               \ux
+            }{\ximm, \xjc}
+         }{\vat{\Delta x}{\xim}}, \\
+         \vat{
+            \dder{\ux}{x}
+         }{\xip, \xjc}
+         & =
+         \frac{
+            \vat{
+               \ux
+            }{\xipp, \xjc}
+            -
+            \vat{
+               \ux
+            }{\xic,  \xjc}
+         }{\vat{\Delta x}{\xip}},
+
+      which are implemented as
+
+      .. myliteralinclude:: /../../src/fluid/update_velocity.c
+         :language: c
+         :tag: velocity-gradient tensor L_xx
+
+      .. image:: image/update_velocity_lxx.pdf
+         :width: 800
+
+      :math:`L_{xy}` are needed at the neighbouring cell corners:
+
+      .. math::
+         \vat{
+            \dder{\ux}{y}
+         }{\xic, \xjm}
+         & =
+         \frac{
+            \vat{
+               \ux
+            }{\xic, \xjc }
+            -
+            \vat{
+               \ux
+            }{\xic, \xjmm}
+         }{\Delta y}, \\
+         \vat{
+            \dder{\ux}{y}
+         }{\xic, \xjp}
+         & =
+         \frac{
+            \vat{
+               \ux
+            }{\xic, \xjpp}
+            -
+            \vat{
+               \ux
+            }{\xic, \xjc }
+         }{\Delta y},
+
+      which are implemented as
+
+      .. myliteralinclude:: /../../src/fluid/update_velocity.c
+         :language: c
+         :tag: velocity-gradient tensor L_xy
+
+      .. image:: image/update_velocity_lxy.pdf
+         :width: 800
+
+1. Advective terms (:c-lang:`adv1`, :c-lang:`adv2`)
 
    1. :c-lang:`adv1`: Advection of :math:`\ux` by :math:`\ux`
 
       .. math::
          -
-         \frac{
-            \vat{\dintrpa{\ux}{x}}{\xip, \xjc}
-            \vat{\dintrpa{\ux}{x}}{\xip, \xjc}
-            -
-            \vat{\dintrpa{\ux}{x}}{\xim, \xjc}
-            \vat{\dintrpa{\ux}{x}}{\xim, \xjc}
-         }{\Delta x_{\xic}}
+         \vat{
+            \dintrpv{
+               \dintrpa{\ux}{x}
+               \dder{\ux}{x}
+            }{x}
+         }{\xic, \xjc}
 
       .. details:: Details
 
-         :math:`\ux` is interpolated as
+         Discrete derivatives are given above.
+         *Overline* symbol denotes arithmetic average, while the *widehat* symbol is used to indicate the volume interpolation:
 
          .. math::
-            \begin{alignedat}{3}
-               & \vat{\dintrpa{\ux}{x}}{\xim, \xjc} & & =
-                    \frac{1}{2} \vat{\ux}{\ximm, \xjc } & &
-                  + \frac{1}{2} \vat{\ux}{\xic , \xjc }, \\
-               & \vat{\dintrpa{\ux}{x}}{\xip, \xjc} & & =
-                    \frac{1}{2} \vat{\ux}{\xic , \xjc } & &
-                  + \frac{1}{2} \vat{\ux}{\xipp, \xjc }. \\
-            \end{alignedat}
+            \vat{C}{\xim}
+            & =
+            \frac{\Delta x_{\xim}}{2 \Delta x_{\xic}}, \\
+            \vat{C}{\xip}
+            & =
+            \frac{\Delta x_{\xip}}{2 \Delta x_{\xic}}.
 
          The implementation leads
 
@@ -151,50 +227,24 @@ Then, all source terms are evaluated at each location where :c-lang:`ux` is defi
             :language: c
             :tag: x-momentum is transported by ux
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update_velocity1.pdf
+         .. image:: image/update_velocity_adv_x_x.pdf
             :width: 800
 
    2. :c-lang:`adv2`: Advection of :math:`\ux` by :math:`\uy`
 
       .. math::
          -
-         \frac{
-            \vat{\dintrpv{\uy}{x}}{\xic, \yjp}
-            \vat{\dintrpa{\ux}{y}}{\xic, \yjp}
-            -
-            \vat{\dintrpv{\uy}{x}}{\xic, \yjm}
-            \vat{\dintrpa{\ux}{y}}{\xic, \yjm}
-         }{\Delta y}
+         \vat{
+            \dintrpa{
+               \dintrpv{\uy}{x}
+               \dder{\ux}{y}
+            }{y}
+         }{\xic, \xjc}
 
       .. details:: Details
 
-         :math:`\ux` is interpolated as
-
-         .. math::
-            \begin{alignedat}{3}
-               & \vat{\dintrpa{\ux}{y}}{\xic, \xjm} & & =
-                    \frac{1}{2} \vat{\ux}{\xic, \xjmm} & &
-                  + \frac{1}{2} \vat{\ux}{\xic, \xjc }, \\
-               & \vat{\dintrpa{\ux}{y}}{\xic, \xjp} & & =
-                    \frac{1}{2} \vat{\ux}{\xic, \xjc } & &
-                  + \frac{1}{2} \vat{\ux}{\xic, \xjpp}, \\
-            \end{alignedat}
-
-         while :math:`\uy` is interpolated as
-
-         .. math::
-            \begin{alignedat}{3}
-               & \vat{\dintrpv{\uy}{x}}{\xic, \xjm} & & =
-                    \vat{C}{\xim} \vat{\uy}{\xim, \xjm} & &
-                  + \vat{C}{\xip} \vat{\uy}{\xip, \xjm}, \\
-               & \vat{\dintrpv{\uy}{x}}{\xic, \xjp} & & =
-                    \vat{C}{\xim} \vat{\uy}{\xim, \xjp} & &
-                  + \vat{C}{\xip} \vat{\uy}{\xip, \xjp}, \\
-            \end{alignedat}
-
-         where coefficients are
+         Discrete derivatives are given above.
+         *Overline* symbol denotes arithmetic average, while the *widehat* symbol is used to indicate the volume interpolation:
 
          .. math::
             \vat{C}{\xim}
@@ -210,48 +260,19 @@ Then, all source terms are evaluated at each location where :c-lang:`ux` is defi
             :language: c
             :tag: x-momentum is transported by uy
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update_velocity2.pdf
+         .. image:: image/update_velocity_adv_x_y.pdf
             :width: 800
 
 2. Diffusive terms (:c-lang:`dif1`, :c-lang:`dif2`)
 
-   .. math::
-      \frac{\sqrt{Pr}}{\sqrt{Ra}} \left\{
-         \dder{}{x} \left( \dder{\ux}{x} \right)
-         +
-         \dder{}{y} \left( \dder{\ux}{y} \right)
-      \right\}
-
    1. :c-lang:`dif1`: Diffusion of :math:`\ux` in :math:`x` direction
 
       .. math::
-         \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
-            \vat{\dder{\ux}{x}}{\xip, \xjc}
-            -
-            \vat{\dder{\ux}{x}}{\xim, \xjc}
-         }{\Delta x_{\xic}}
+         \vat{
+            \frac{\sqrt{Pr}}{\sqrt{Ra}} \dder{}{x} \left( \dder{\ux}{x} \right)
+         }{\xic, \xjc}
 
       .. details:: Details
-
-         The differentiations lead
-
-         .. math::
-            \vat{\dder{\ux}{x}}{\xip, \xjc}
-            =
-            \frac{
-               \vat{\ux}{\xipp, \xjc}
-               -
-               \vat{\ux}{\xic,  \xjc}
-            }{\Delta x_{\xip}}, \\
-            \vat{\dder{\ux}{x}}{\xim, \xjc}
-            =
-            \frac{
-               \vat{\ux}{\xic,  \xjc}
-               -
-               \vat{\ux}{\ximm, \xjc}
-            }{\Delta x_{\xim}}.
 
          The implementation leads
 
@@ -259,39 +280,17 @@ Then, all source terms are evaluated at each location where :c-lang:`ux` is defi
             :language: c
             :tag: x-momentum is diffused in x
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update_velocity1.pdf
+         .. image:: image/update_velocity_dif_x_x.pdf
             :width: 800
 
    2. :c-lang:`dif2`: Diffusion of :math:`\ux` in :math:`y` direction
 
       .. math::
-         \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
-            \vat{\dder{\ux}{y}}{\xic, \xjp}
-            -
-            \vat{\dder{\ux}{y}}{\xic, \xjm}
-         }{\Delta y}
+         \vat{
+            \frac{\sqrt{Pr}}{\sqrt{Ra}} \dder{}{y} \left( \dder{\ux}{y} \right)
+         }{\xic, \xjc}
 
       .. details:: Details
-
-         The differentiations lead
-
-         .. math::
-            \vat{\dder{\ux}{y}}{\xic, \xjp}
-            =
-            \frac{
-               \vat{\ux}{\xic, \xjpp}
-               -
-               \vat{\ux}{\xic, \xjc }
-            }{\Delta y}, \\
-            \vat{\dder{\ux}{y}}{\xic, \xjm}
-            =
-            \frac{
-               \vat{\ux}{\xic, \xjc }
-               -
-               \vat{\ux}{\xic, \xjmm}
-            }{\Delta y}.
 
          The implementation leads
 
@@ -299,15 +298,16 @@ Then, all source terms are evaluated at each location where :c-lang:`ux` is defi
             :language: c
             :tag: x-momentum is diffused in y
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update_velocity3.pdf
+         .. image:: image/update_velocity_dif_x_y.pdf
             :width: 800
 
 3. Pressure-gradient term (:c-lang:`pre`)
 
    .. math::
-      -\dder{p}{x}
+      -
+      \vat{
+         \dder{p}{x}
+      }{\xic, \xjc}
 
    .. details:: Details
 
@@ -317,21 +317,18 @@ Then, all source terms are evaluated at each location where :c-lang:`ux` is defi
          :language: c
          :tag: pressure gradient in x
 
-      :ref:`The domain setup <domain>` is described here again for convenience.
-
-      .. image:: image/update_velocity4.pdf
-          :width: 800
-
 4. Buoyancy term (:c-lang:`tmp`)
 
    .. math::
-      \dintrpa{T}{x}
+      \vat{
+         \dintrpa{T}{x}
+      }{\xic, \xjc}
 
    .. details:: Details
 
       .. seealso::
 
-         It is computed in :ref:`src/temperature/force.c <temperature_force>`.
+         It is computed in :ref:`src/temperature/force.c <temperature_force>`, so that this forcing term can be easily switched off (c.f., :ref:`param->with_thermal_forcing <param>`).
 
       The implementation leads
 
@@ -361,7 +358,7 @@ Pressure gradient term (:c-lang:`pre`) is always treated implicitly.
 
 .. note::
 
-   The inner loop (with respect to :c-lang:`i`, :math:`x` locations) does not contain :c-lang:`i=1` and :c-lang:`i=itot+1`, which are on the boundaries and thus whose values are known a priori as boundary conditions.
+   The inner loop (with respect to :c-lang:`i`, :math:`x` locations) does not contain :c-lang:`i=1` and :c-lang:`i=itot+1`, which are on the boundaries and the values are known a priori as boundary conditions.
    In particular, :c-lang:`UX(1, j) = UX(itot+1, j) = 0` since this project assumes impermeable walls.
 
 **************
@@ -408,57 +405,121 @@ Then, all source terms are evaluated at each location where :c-lang:`uy` is defi
 
    Hereafter, superscript :math:`k`, which denotes Runge-Kutta step and should be on all :math:`\ux` and :math:`\uy`, are dropped for notational simplicity.
 
-1. Advective terms (:c-lang:`adv1`, :c-lang:`adv2`)
+0. Prerequisite: velocity-gradient tensor :math:`\partial_j \uy`
 
-   .. math::
-      -
-      \dder{
-         \dintrpa{\ux}{y}
-         \dintrpa{\uy}{x}
-      }{x}
-      -
-      \dder{
-         \dintrpa{\uy}{y}
-         \dintrpa{\uy}{y}
-      }{y}
+   .. details:: Details
+
+      Discrete velocity-gradient tensor
+
+      .. math::
+         L_{yj}
+         \equiv
+         \dder{\uy}{x_j}
+
+      appears both in the advective and diffusive terms.
+      :math:`L_{yx}` are requested at the neighbouring cell corners:
+
+      .. math::
+         \vat{
+            \dder{\uy}{x}
+         }{\yim, \yjc}
+         & =
+         \frac{
+            \vat{
+               \uy
+            }{\yic,  \yjc}
+            -
+            \vat{
+               \uy
+            }{\yimm, \yjc}
+         }{\vat{\Delta x}{\yim}}, \\
+         \vat{
+            \dder{\uy}{x}
+         }{\yip, \yjc}
+         & =
+         \frac{
+            \vat{
+               \uy
+            }{\yipp, \yjc}
+            -
+            \vat{
+               \uy
+            }{\yic,  \yjc}
+         }{\vat{\Delta x}{\yip}},
+
+      which are implemented as
+
+      .. myliteralinclude:: /../../src/fluid/update_velocity.c
+         :language: c
+         :tag: velocity-gradient tensor L_yx
+
+      .. image:: image/update_velocity_lyx.pdf
+         :width: 800
+
+      :math:`L_{yy}` are needed at the neighbouring cell centers:
+
+      .. math::
+         \vat{
+            \dder{\uy}{y}
+         }{\yic, \yjm}
+         & =
+         \frac{
+            \vat{
+               \uy
+            }{\yic, \yjc }
+            -
+            \vat{
+               \uy
+            }{\yic, \yjmm}
+         }{\Delta y}, \\
+         \vat{
+            \dder{\uy}{y}
+         }{\yic, \yjp}
+         & =
+         \frac{
+            \vat{
+               \uy
+            }{\yic, \yjpp}
+            -
+            \vat{
+               \uy
+            }{\yic, \yjc }
+         }{\Delta y}.
+
+      which are implemented as
+
+      .. myliteralinclude:: /../../src/fluid/update_velocity.c
+         :language: c
+         :tag: velocity-gradient tensor L_yy
+
+      .. image:: image/update_velocity_lyy.pdf
+         :width: 800
+
+1. Advective terms (:c-lang:`adv1`, :c-lang:`adv2`)
 
    1. :c-lang:`adv1`: Advection of :math:`\uy` by :math:`\ux`
 
       .. math::
          -
-         \frac{
-            \vat{\dintrpa{\ux}{y}}{\yip, \yjc}
-            \vat{\dintrpa{\uy}{x}}{\yip, \yjc}
-            -
-            \vat{\dintrpa{\ux}{y}}{\yim, \yjc}
-            \vat{\dintrpa{\uy}{x}}{\yim, \yjc}
-         }{\Delta x_{\yic}}
+         \vat{
+            \dintrpv{
+               \dintrpa{\ux}{y}
+               \dder{\uy}{x}
+            }{x}
+         }{\yic, \yjc}
 
       .. details:: Details
 
-         :math:`\ux` is interpolated as
+         Discrete derivatives are given above.
+         *Overline* symbol denotes arithmetic average, while the *widehat* symbol is used to indicate the volume interpolation:
 
          .. math::
-            \begin{alignedat}{3}
-               & \vat{\dintrpa{\ux}{y}}{\yim, \yjc} & & =
-                    \frac{1}{2} \vat{\ux}{\yim, \yjm} & &
-                  + \frac{1}{2} \vat{\ux}{\yim, \yjp}, \\
-               & \vat{\dintrpa{\ux}{y}}{\yip, \yjc} & & =
-                    \frac{1}{2} \vat{\ux}{\yip, \yjm} & &
-                  + \frac{1}{2} \vat{\ux}{\yip, \yjp}, \\
-            \end{alignedat}
-
-         while :math:`\uy` is interpolated as
-
-         .. math::
-            \begin{alignedat}{3}
-               & \vat{\dintrpa{\uy}{x}}{\yim, \yjc} & & =
-                    \frac{1}{2} \vat{\uy}{\yimm, \yjc} & &
-                  + \frac{1}{2} \vat{\uy}{\yic,  \yjc}, \\
-               & \vat{\dintrpa{\uy}{x}}{\yip, \yjc} & & =
-                    \frac{1}{2} \vat{\uy}{\yic,  \yjc} & &
-                  + \frac{1}{2} \vat{\uy}{\yipp, \yjc}. \\
-            \end{alignedat}
+            \vat{C}{\yim}
+            & =
+            \frac{\Delta x_{\yim}}{2 \Delta x_{\yic}}, \\
+            \vat{C}{\yip}
+            & =
+            \frac{\Delta x_{\yip}}{2 \Delta x_{\yic}}.
 
          The implementation leads
 
@@ -466,43 +527,24 @@ Then, all source terms are evaluated at each location where :c-lang:`uy` is defi
             :language: c
             :tag: y-momentum is transported by ux
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update_velocity5.pdf
-           :width: 800
-
-         .. note::
-
-            Recall that the boundary values of :math:`\uy` are defined on the walls.
-            Strictly speaking, we should use these boundary values directly instead of the interpolated values.
-
-            Since impermeable walls (:math:`\ux \equiv 0`) are assumed, however, they give null eventually and thus we use the same notation for simplicity here.
+         .. image:: image/update_velocity_adv_y_x.pdf
+            :width: 800
 
    2. :c-lang:`adv2`: Advection of :math:`\uy` by :math:`\uy`
 
       .. math::
          -
-         \frac{
-            \vat{\dintrpa{\uy}{y}}{\yic, \yjp}
-            \vat{\dintrpa{\uy}{y}}{\yic, \yjp}
-            -
-            \vat{\dintrpa{\uy}{y}}{\yic, \yjm}
-            \vat{\dintrpa{\uy}{y}}{\yic, \yjm}
-         }{\Delta y}
+         \vat{
+            \dintrpa{
+               \dintrpa{\uy}{y}
+               \dder{\uy}{y}
+            }{y}
+         }{\yic, \yjc}
 
       .. details:: Details
 
-         :math:`\uy` is interpolated as
-
-         .. math::
-            \begin{alignedat}{3}
-               & \vat{\dintrpa{\uy}{x}}{\yic, \yjm} & & =
-                    \frac{1}{2} \vat{\uy}{\yic, \yjmm} & &
-                  + \frac{1}{2} \vat{\uy}{\yic, \yjc }, \\
-               & \vat{\dintrpa{\uy}{x}}{\yic, \yjc} & & =
-                    \frac{1}{2} \vat{\uy}{\yic, \yjc } & &
-                  + \frac{1}{2} \vat{\uy}{\yic, \yjpp}. \\
-            \end{alignedat}
+         Discrete derivatives are given above.
+         *Overline* symbol denotes arithmetic average.
 
          The implementation leads
 
@@ -510,48 +552,19 @@ Then, all source terms are evaluated at each location where :c-lang:`uy` is defi
             :language: c
             :tag: y-momentum is transported by uy
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update_velocity6.pdf
-            :width: 400
+         .. image:: image/update_velocity_adv_y_y.pdf
+            :width: 800
 
 2. Diffusive terms (:c-lang:`dif1`, :c-lang:`dif2`)
-
-   .. math::
-      \frac{\sqrt{Pr}}{\sqrt{Ra}} \left\{
-         \dder{}{x} \left( \dder{\uy}{x} \right)
-         +
-         \dder{}{y} \left( \dder{\uy}{y} \right)
-      \right\}
 
    1. :c-lang:`dif1`: Diffusion of :math:`\uy` in :math:`x` direction
 
       .. math::
-         \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
-            \vat{\dder{\uy}{x}}{\yip, \yjc}
-            -
-            \vat{\dder{\uy}{x}}{\yim, \yjc}
-         }{\Delta x_{\yic}}
+         \vat{
+            \frac{\sqrt{Pr}}{\sqrt{Ra}} \dder{}{x} \left( \dder{\uy}{x} \right)
+         }{\yic, \yjc}
 
       .. details:: Details
-
-         The differentiations lead
-
-         .. math::
-            \vat{\dder{\uy}{x}}{\yip, \yjc}
-            =
-            \frac{
-               \vat{\uy}{\yipp, \yjc}
-               -
-               \vat{\uy}{\yic,  \yjc}
-            }{\Delta x_{\yip}}, \\
-            \vat{\dder{\uy}{x}}{\yim, \yjc}
-            =
-            \frac{
-               \vat{\uy}{\yic,  \yjc}
-               -
-               \vat{\uy}{\yimm, \yjc}
-            }{\Delta x_{\yim}}.
 
          The implementation leads
 
@@ -559,43 +572,17 @@ Then, all source terms are evaluated at each location where :c-lang:`uy` is defi
             :language: c
             :tag: y-momentum is diffused in x
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update_velocity7.pdf
-           :width: 800
-
-         .. note::
-
-            :c-lang:`DXC` already includes the boundary corrections (see :c-lang:`set_coordinate` in :ref:`src/param/init.c <param_init>` and :ref:`spatial discretisation <spatial_discretisation>`).
+         .. image:: image/update_velocity_dif_y_x.pdf
+            :width: 800
 
    2. :c-lang:`dif2`: Diffusion of :math:`\uy` in :math:`y` direction
 
       .. math::
-         \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
-            \vat{\dder{\uy}{y}}{\yic, \yjp}
-            -
-            \vat{\dder{\uy}{y}}{\yic, \yjm}
-         }{\Delta y}
+         \vat{
+            \frac{\sqrt{Pr}}{\sqrt{Ra}} \dder{}{y} \left( \dder{\uy}{y} \right)
+         }{\yic, \yjc}
 
       .. details:: Details
-
-         The differentiations lead
-
-         .. math::
-            \vat{\dder{\uy}{y}}{\yic, \yjp}
-            =
-            \frac{
-               \vat{\uy}{\yic, \yjpp}
-               -
-               \vat{\uy}{\yic, \yjc }
-            }{\Delta y}, \\
-            \vat{\dder{\uy}{y}}{\yic, \yjm}
-            =
-            \frac{
-               \vat{\uy}{\yic, \yjc }
-               -
-               \vat{\uy}{\yic, \yjmm}
-            }{\Delta y}.
 
          The implementation leads
 
@@ -603,15 +590,16 @@ Then, all source terms are evaluated at each location where :c-lang:`uy` is defi
             :language: c
             :tag: y-momentum is diffused in y
 
-         :ref:`The domain setup <domain>` is described here again for convenience.
-
-         .. image:: image/update_velocity6.pdf
-            :width: 400
+         .. image:: image/update_velocity_dif_y_y.pdf
+            :width: 800
 
 3. Pressure-gradient term (:c-lang:`pre`)
 
    .. math::
-      -\dder{p}{y}
+      -
+      \vat{
+         \dder{p}{y}
+      }{\yic, \yjc}
 
    .. details:: Details
 
@@ -620,11 +608,6 @@ Then, all source terms are evaluated at each location where :c-lang:`uy` is defi
       .. myliteralinclude:: /../../src/fluid/update_velocity.c
          :language: c
          :tag: pressure gradient in y
-
-      :ref:`The domain setup <domain>` is described here again for convenience.
-
-      .. image:: image/update_velocity8.pdf
-        :width: 400
 
 After all source terms are evaluated, they are assigned to the corresponding variable.
 
@@ -758,9 +741,6 @@ Based on these relations, the updating procedure is as follows.
             c_{\xic } & = -c_{\ximm}-c_{\xipp}.
          \end{aligned}
 
-      .. image:: image/update_velocity9.pdf
-         :width: 800
-
       Thus, the equation of :math:`q^{\prime}` can be discretised as
 
       .. math::
@@ -877,7 +857,7 @@ Based on these relations, the updating procedure is as follows.
 
       Also see the schematic below for an intuitive understanding, where a domain whose sizes are :c-lang:`itot=7` (thus size of :c-lang:`qx` in :math:`x` direction is :c-lang:`8`) and :c-lang:`jtot=11` is drawn:
 
-      .. image:: image/update_velocity10.pdf
+      .. image:: image/update_velocity_domain_decomp_x.pdf
          :width: 800
 
       Here :c-lang:`qx` (left figure) is transposed to :c-lang:`qy` (right figure) and the alignment is modified to :math:`y` direction (note that memory is contiguous in :math:`y` direction after being transposed, which was contiguous in :math:`x` direction before).
@@ -916,9 +896,6 @@ Based on these relations, the updating procedure is as follows.
             c_{\xjpp} & = \frac{1}{\Delta y^2}, \\
             c_{\xjc } & = -c_{\xjmm}-c_{\xjpp}.
          \end{aligned}
-
-      .. image:: image/update_velocity11.pdf
-         :width: 800
 
       Thus, the equation of :math:`q^{\prime\prime}` can be discretised as
 
@@ -1130,9 +1107,6 @@ Based on these relations, the updating procedure is as follows.
          c_{\yipp} & = \frac{1}{\Delta x_{\yic} \Delta x_{\yip}}, \\
          c_{\yic } & = -c_{\yimm}-c_{\yipp},
 
-      .. image:: image/update_velocity12.pdf
-         :width: 800
-
       Based on this, the equation of :math:`\uy^{\prime}` can be discretised as
 
       .. math::
@@ -1236,7 +1210,7 @@ Based on these relations, the updating procedure is as follows.
 
       Also see the schematic below for an intuitive understanding, where a domain whose sizes are :c-lang:`itot=7` (thus size of :c-lang:`qx` in :math:`x` direction is :c-lang:`8`) and :c-lang:`jtot=11` is drawn:
 
-      .. image:: image/update_velocity13.pdf
+      .. image:: image/update_velocity_domain_decomp_y.pdf
          :width: 800
 
       Here :c-lang:`qx` (left figure) is transposed to :c-lang:`qy` (right figure) and the alignment is modified to :math:`y` direction (note that memory is contiguous in :math:`y` direction after being transposed, which was contiguous in :math:`x` direction before).
@@ -1275,9 +1249,6 @@ Based on these relations, the updating procedure is as follows.
             c_{\yjpp} & = \frac{1}{\Delta y^2}, \\
             c_{\yjc } & = -c_{\yjmm}-c_{\yjpp},
          \end{aligned}
-
-      .. image:: image/update_velocity14.pdf
-         :width: 400
 
       Thus, the equation of :math:`q^{\prime\prime}` can be discretised as
 

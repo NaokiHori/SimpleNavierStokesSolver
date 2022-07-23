@@ -42,7 +42,9 @@ By default, Dirichlet boundary conditions are used:
    :language: c
    :tag: set boundary values of temp
 
-Also halo cells are communicated here:
+The boundary values :c-lang:`TEMP_XM` and :c-lang:`TEMP_XP` are fixed in ``include/temperature.h`` to satisfy :math:`\Delta T = 1`.
+
+Also halo cells in :math:`y` direction are communicated here:
 
 .. myliteralinclude:: /../../src/temperature/boundary_conditions.c
    :language: c
@@ -50,12 +52,12 @@ Also halo cells are communicated here:
 
 where :c-lang:`parallel_update_halo_ym` is responsible for the communication with the lower process:
 
-.. image:: image/boundary_conditions1.pdf
+.. image:: image/boundary_conditions_lower.pdf
    :width: 800
 
 while :c-lang:`parallel_update_halo_yp` is responsible for the communication with the upper process:
 
-.. image:: image/boundary_conditions2.pdf
+.. image:: image/boundary_conditions_upper.pdf
    :width: 800
 
 Note that values only between :c-lang:`i=1` and :c-lang:`i=itot` (:c-lang:`itot` components) are communicated in each function, i.e., boundary values are not communicated, which is because their values are fixed and thus not necessary to be exchanged.

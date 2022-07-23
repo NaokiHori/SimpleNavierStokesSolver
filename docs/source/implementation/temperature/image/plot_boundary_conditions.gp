@@ -1,7 +1,7 @@
 reset
 {
   set terminal epslatex color standalone header '\usepackage{amsmath}' size 16,6 font ',20'
-  set output 'boundary_conditions1.tex'
+  set output 'boundary_conditions_lower.tex'
   unset border
   set noxtics
   set noytics
@@ -86,7 +86,7 @@ reset
 reset
 {
   set terminal epslatex color standalone header '\usepackage{amsmath}' size 16,6 font ',20'
-  set output 'boundary_conditions2.tex'
+  set output 'boundary_conditions_upper.tex'
   unset border
   set noxtics
   set noytics

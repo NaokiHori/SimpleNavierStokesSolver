@@ -31,40 +31,44 @@ static int compute_src(const param_t *param, const parallel_t *parallel, const f
   memcpy(srctempb, srctempa, SRCTEMPA_MEMSIZE);
   for(int j=1; j<=jsize; j++){
     for(int i=1; i<=itot; i++){
+      /* ! gradient of T in x ! 2 ! */
+      double dtdx_xm = (-TEMP(i-1, j  )+TEMP(i  , j  ))/DXC(i  );
+      double dtdx_xp = (-TEMP(i  , j  )+TEMP(i+1, j  ))/DXC(i+1);
+      /* ! gradient of T in y ! 2 ! */
+      double dtdy_ym = (-TEMP(i  , j-1)+TEMP(i  , j  ))/dy;
+      double dtdy_yp = (-TEMP(i  , j  )+TEMP(i  , j+1))/dy;
       /* advection */
-      /* ! T is transported by ux ! 8 ! */
+      /* ! T is transported by ux ! 10 ! */
       double adv1;
       {
+        double c_xm = DXC(i  )/(2.*DXF(i));
+        double c_xp = DXC(i+1)/(2.*DXF(i));
         double ux_xm = UX(i  , j  );
         double ux_xp = UX(i+1, j  );
-        double t_xm = 0.5*TEMP(i-1, j  )+0.5*TEMP(i  , j  );
-        double t_xp = 0.5*TEMP(i  , j  )+0.5*TEMP(i+1, j  );
-        adv1 = -(ux_xp*t_xp-ux_xm*t_xm)/DXF(i);
+        adv1 =
+          -c_xm*ux_xm*dtdx_xm
+          -c_xp*ux_xp*dtdx_xp;
       }
       /* ! T is transported by uy ! 8 ! */
       double adv2;
       {
         double uy_ym = UY(i  , j  );
         double uy_yp = UY(i  , j+1);
-        double t_ym = 0.5*TEMP(i  , j-1)+0.5*TEMP(i  , j  );
-        double t_yp = 0.5*TEMP(i  , j  )+0.5*TEMP(i  , j+1);
-        adv2 = -(uy_yp*t_yp-uy_ym*t_ym)/dy;
+        adv2 =
+          -0.5*uy_ym*dtdy_ym
+          -0.5*uy_yp*dtdy_yp;
       }
       /* diffusion */
-      /* ! T is diffused in x ! 7 ! */
+      /* ! T is diffused in x ! 5 ! */
       double dif1;
       {
         const double prefactor = 1./sqrt(Pr)/sqrt(Ra);
-        double dtdx_xm = (TEMP(i  , j  )-TEMP(i-1, j  ))/DXC(i  );
-        double dtdx_xp = (TEMP(i+1, j  )-TEMP(i  , j  ))/DXC(i+1);
         dif1 = prefactor*(dtdx_xp-dtdx_xm)/DXF(i);
       }
-      /* ! T is diffused in y ! 7 ! */
+      /* ! T is diffused in y ! 5 ! */
       double dif2;
       {
         const double prefactor = 1./sqrt(Pr)/sqrt(Ra);
-        double dtdy_ym = (TEMP(i  , j  )-TEMP(i  , j-1))/dy;
-        double dtdy_yp = (TEMP(i  , j+1)-TEMP(i  , j  ))/dy;
         dif2 = prefactor*(dtdy_yp-dtdy_ym)/dy;
       }
       /* summation */

@@ -43,14 +43,14 @@ The following discrete equations are directly implemented in the code.
 .. math::
    \der{T}{t}
    +
-   \dder{
+   \dintrpv{
       \ux
-      \dintrpa{T}{x}
+      \dder{T}{x}
    }{x}
    +
-   \dder{
+   \dintrpa{
       \uy
-      \dintrpa{T}{y}
+      \dder{T}{y}
    }{y}
    =
    \frac{1}{\sqrt{Pr} \sqrt{Ra}} \left\{

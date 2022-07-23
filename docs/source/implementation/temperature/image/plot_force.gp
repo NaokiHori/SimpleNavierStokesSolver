@@ -1,7 +1,7 @@
 reset
 {
   set terminal epslatex standalone color size 10,3 font ',17'
-  set output 'force1.tex'
+  set output 'force.tex'
   unset border
   set lmargin 0.
   set rmargin 0.
@@ -65,8 +65,8 @@ reset
 # T
   set object circle center first ox+xc[1], first oy+yc size first 0.125*al fs solid 1.0 fc rgb '#888888' lw 3
   set object circle center first ox+xc[2], first oy+yc size first 0.125*al fs solid 1.0 fc rgb '#888888' lw 3
-  set label '$TEMP \left( i-1, j \right)$' center at first ox+xc[1],oy+yc+0.25 front
-  set label '$TEMP \left( i  , j \right)$' center at first ox+xc[2],oy+yc+0.25 front
+  set label '$T \left( i-1, j \right)$' center at first ox+xc[1],oy+yc+0.25 front
+  set label '$T \left( i  , j \right)$' center at first ox+xc[2],oy+yc+0.25 front
   plot \
     NaN notitle
 }

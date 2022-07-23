@@ -61,14 +61,14 @@ Momentum balance in :math:`x` direction at :math:`\left( \xic, \xjc \right)`:
 .. math::
    \der{\ux}{t}
    +
-   \dder{
+   \dintrpv{
       \dintrpa{\ux}{x}
-      \dintrpa{\ux}{x}
+      \dder{\ux}{x}
    }{x}
    +
-   \dder{
+   \dintrpa{
       \dintrpv{\uy}{x}
-      \dintrpa{\ux}{y}
+      \dder{\ux}{y}
    }{y}
    =
    -\dder{p}{x}
@@ -86,14 +86,14 @@ Momentum balance in :math:`y` direction at :math:`\left( \yic, \yjc \right)`:
 .. math::
    \der{\uy}{t}
    +
-   \dder{
+   \dintrpv{
       \dintrpa{\ux}{y}
-      \dintrpa{\uy}{x}
+      \dder{\uy}{x}
    }{x}
    +
-   \dder{
+   \dintrpa{
       \dintrpa{\uy}{y}
-      \dintrpa{\uy}{y}
+      \dder{\uy}{y}
    }{y}
    =
    -\dder{p}{y}
@@ -220,7 +220,7 @@ Note that interpolations :math:`\dintrpu{\uy}{x}` and :math:`\dintrpu{\ux}{y}` a
       =
       \der{u_j u_i}{x_j}.
 
-   Note that the second term in the left-hand-side is the incompressibility constraint weighted by :math:`\ux`.
+   Note that the second term in the left-hand-side is the incompressibility constraint weighted by :math:`u_i`.
    Thus, when the incompressibility constraint is satisfied, the advective term can be written in a conservative form, which is named as the *divergence form*.
 
    Since they are inherently momentum-conservative, we discretise this form instead of the gradient form, giving
@@ -249,7 +249,8 @@ Note that interpolations :math:`\dintrpu{\uy}{x}` and :math:`\dintrpu{\ux}{y}` a
          \dintrpu{\uy}{y}
       }{y}
 
-   at :math:`\left( \yic, \yjc \right)`, which are discretely-conservative.
+   at :math:`\left( \yic, \yjc \right)`.
+   It is readily apparent that they are discretely-conservative.
 
    .. note::
 
@@ -261,7 +262,7 @@ Note that interpolations :math:`\dintrpu{\uy}{x}` and :math:`\dintrpu{\ux}{y}` a
 
       We take the second option since it is consistent with the other direction :math:`\dintrpu{\uy}{x} \dintrpu{\ux}{y}`.
 
-   Placeholders :math:`\dintrpu{q}{x}` and :math:`\dintrpu{q}{y}` can be partially replaced by arithmetic averages :math:`\dintrpa{q}{x}` and :math:`\dintrpa{q}{y}` since cell center locates in the middle of the surrounding two cell faces.
+   Placeholders :math:`\dintrpu{q}{x}` and :math:`\dintrpu{q}{y}` can be partially replaced by arithmetic averages :math:`\dintrpa{q}{x}` and :math:`\dintrpa{q}{y}` since cell center locates in the middle of the surrounding two cell faces in this project (see :ref:`the domain setup <domain>`).
    This partially reveals the advective terms
 
    .. math::
@@ -748,11 +749,12 @@ Note that interpolations :math:`\dintrpv{\uy}{x}` and :math:`\dintrpa{\ux}{y}`, 
 3. Gradient form of advective terms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We find that the advective terms can also be written as
+Finally we find that the advective terms can be written as
 
 .. math::
    \dintrpv{
-      \dintrpa{\ux}{x} \dder{\ux}{x}
+      \dintrpa{\ux}{x}
+      \dder{\ux}{x}
    }{x}
    +
    \dintrpa{
@@ -764,7 +766,8 @@ at :math:`\left( \xic, \xjc \right)` and
 
 .. math::
    \dintrpv{
-      \dintrpa{\ux}{y} \dder{\uy}{x}
+      \dintrpa{\ux}{y}
+      \dder{\uy}{x}
    }{x}
    +
    \dintrpa{
