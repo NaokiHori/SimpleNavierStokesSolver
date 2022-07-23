@@ -5,6 +5,11 @@
 Implementation
 ##############
 
+Various parameters in ``param_t`` can be specified as environmental variables, whose example can be seen in ``exec.sh``:
+
+.. literalinclude:: /../../exec.sh
+   :language: sh
+
 (Forward) declarations of structures (:c-lang:`param_t`, :c-lang:`parallel_t`, :c-lang:`fluid_t`, :c-lang:`temperature_t`, and :c-lang:`statistics_t`) and all functions are included in `include <https://github.com/NaokiHori/SimpleNavierStokesSolver/tree/master/include>`_ directory.
 
 .. code-block:: text
@@ -29,7 +34,7 @@ Implementation
   ├── structure.h
   └── temperature.h
 
-All numerical algorithms (i.e., definitions of functions) are implemented under `src <https://github.com/NaokiHori/SimpleNavierStokesSolver/tree/master/src>`_ directory.
+All functions are implemented under `src <https://github.com/NaokiHori/SimpleNavierStokesSolver/tree/master/src>`_ directory.
 
 .. code-block:: text
 
