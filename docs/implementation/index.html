@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Implementation &#8212; Simple Navier-Stokes Solver 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="analyses.c" href="analyses.html" />
+    <link rel="prev" title="Appendix: General coordinate system and energy-conserving scheme" href="../numerical_method/spatial_discretisation/discrete_governing_equations/appendix_general_coordinate.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Simple Navier-Stokes Solver</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleNavierStokesSolver&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../governing_equations/index.html">Governing equations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical_method/index.html">Numerical method</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Implementation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="analyses.html">analyses.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">common.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileio/main.html">fileio.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fluid/index.html">fluid/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linalg.html">linalg.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">logging.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel/index.html">parallel/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="param/index.html">param/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="save.html">save.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simple_npyio.html">simple_npy_io.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="statistics/index.html">statistics/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temperature/index.html">temperature/</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../numerical_method/spatial_discretisation/discrete_governing_equations/appendix_general_coordinate.html" title="previous chapter">Appendix: General coordinate system and energy-conserving scheme</a></li>
+      <li>Next: <a href="analyses.html" title="next chapter">analyses.c</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="implementation">
+<span id="id1"></span><h1>Implementation<a class="headerlink" href="#implementation" title="Permalink to this heading">¶</a></h1>
+<p>Various parameters in <code class="docutils literal notranslate"><span class="pre">param_t</span></code> can be specified as environmental variables, whose example can be seen in <code class="docutils literal notranslate"><span class="pre">exec.sh</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">## directory name containing flow fields to restart</span>
+<span class="c1"># export dirname_restart=&quot;output/save/stepxxxxxxxxxx&quot;</span>
+
+<span class="c1">## flags</span>
+<span class="c1"># couple temperature field or not</span>
+<span class="nb">export</span> <span class="nv">with_temperature</span><span class="o">=</span><span class="nb">true</span>
+<span class="c1"># thermal forcing is added to x-momentum</span>
+<span class="nb">export</span> <span class="nv">with_thermal_forcing</span><span class="o">=</span><span class="nb">true</span>
+
+<span class="c1">## durations</span>
+<span class="c1"># maximum duration (in free-fall time)</span>
+<span class="nb">export</span> <span class="nv">timemax</span><span class="o">=</span><span class="m">2</span>.0e+2
+<span class="c1"># maximum duration (in wall time [s])</span>
+<span class="nb">export</span> <span class="nv">wtimemax</span><span class="o">=</span><span class="m">6</span>.0e+2
+<span class="c1"># logging rate (in free-fall time)</span>
+<span class="nb">export</span> <span class="nv">log_rate</span><span class="o">=</span><span class="m">2</span>.0e-1
+<span class="c1"># logging after (in free-fall time)</span>
+<span class="nb">export</span> <span class="nv">log_after</span><span class="o">=</span><span class="m">0</span>.0e+0
+<span class="c1"># save rate (in free-fall time)</span>
+<span class="nb">export</span> <span class="nv">save_rate</span><span class="o">=</span><span class="m">2</span>.0e+1
+<span class="c1"># save after (in free-fall time)</span>
+<span class="nb">export</span> <span class="nv">save_after</span><span class="o">=</span><span class="m">0</span>.0e+0
+<span class="c1"># statistics collection rate (in free-fall time)</span>
+<span class="nb">export</span> <span class="nv">stat_rate</span><span class="o">=</span><span class="m">1</span>.0e-1
+<span class="c1"># statistics collection after (in free-fall time)</span>
+<span class="nb">export</span> <span class="nv">stat_after</span><span class="o">=</span><span class="m">1</span>.0e+2
+
+<span class="c1">## domain</span>
+<span class="c1"># domain lengths</span>
+<span class="nb">export</span> <span class="nv">ly</span><span class="o">=</span><span class="m">2</span>.0e+0
+<span class="c1"># number of grids</span>
+<span class="nb">export</span> <span class="nv">itot</span><span class="o">=</span><span class="m">128</span>
+<span class="nb">export</span> <span class="nv">jtot</span><span class="o">=</span><span class="m">192</span>
+<span class="c1"># grid stretching in x (i) direction (clipped-Chebyshev)</span>
+<span class="c1"># number of grids which are clipped</span>
+<span class="nb">export</span> <span class="nv">stretch</span><span class="o">=</span><span class="m">3</span>
+
+<span class="c1">## physical parameters</span>
+<span class="nb">export</span> <span class="nv">Ra</span><span class="o">=</span><span class="m">1</span>.0e+8
+<span class="nb">export</span> <span class="nv">Pr</span><span class="o">=</span><span class="m">1</span>.0e+1
+
+<span class="nb">export</span> <span class="nv">OMPI_MCA_btl_vader_single_copy_mechanism</span><span class="o">=</span>none
+
+mpirun -n <span class="m">1</span> --oversubscribe ./a.out
+</pre></div>
+</div>
+<p>(Forward) declarations of structures (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">param_t</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">parallel_t</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">fluid_t</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">temperature_t</span><span class="w"></span></code>, and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">statistics_t</span><span class="w"></span></code>) and all functions are included in <a class="reference external" href="https://github.com/NaokiHori/SimpleNavierStokesSolver/tree/master/include">include</a> directory.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>include
+├── analyses.h
+├── arrays
+│  ├── fluid.h
+│  ├── param.h
+│  ├── statistics.h
+│  └── temperature.h
+├── common.h
+├── fileio.h
+├── fluid.h
+├── linalg.h
+├── logging.h
+├── parallel.h
+├── param.h
+├── save.h
+├── simple_npyio.h
+├── statistics.h
+├── structure.h
+└── temperature.h
+</pre></div>
+</div>
+<p>All functions are implemented under <a class="reference external" href="https://github.com/NaokiHori/SimpleNavierStokesSolver/tree/master/src">src</a> directory.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>src
+├── analyses.c
+├── common.c
+├── fileio.c
+├── fluid
+│  ├── boundary_conditions.c
+│  ├── compute_potential.c
+│  ├── correct_velocity.c
+│  ├── finalise.c
+│  ├── init.c
+│  ├── update_pressure.c
+│  └── update_velocity.c
+├── linalg.c
+├── logging.c
+├── main.c
+├── parallel
+│  ├── finalise.c
+│  ├── halo.c
+│  ├── init.c
+│  ├── others.c
+│  └── transpose.c
+├── param
+│  ├── decide_dt.c
+│  ├── estimate_cost.c
+│  ├── finalise.c
+│  └── init.c
+├── save.c
+├── simple_npyio.c
+├── statistics
+│  ├── collect.c
+│  ├── finalise.c
+│  ├── init.c
+│  └── output.c
+└── temperature
+   ├── boundary_conditions.c
+   ├── finalise.c
+   ├── force.c
+   ├── init.c
+   └── update.c
+</pre></div>
+</div>
+<p>Documentation for each source file can be found here:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="analyses.html">analyses.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common.html">common.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fileio/main.html">fileio.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fluid/index.html">fluid/</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">linalg.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">logging.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel/index.html">parallel/</a></li>
+<li class="toctree-l1"><a class="reference internal" href="param/index.html">param/</a></li>
+<li class="toctree-l1"><a class="reference internal" href="save.html">save.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simple_npyio.html">simple_npy_io.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistics/index.html">statistics/</a></li>
+<li class="toctree-l1"><a class="reference internal" href="temperature/index.html">temperature/</a></li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/implementation/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>param/decide_dt.c &#8212; Simple Navier-Stokes Solver 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script>window.MathJax = {"TeX": {"Macros": {"der": ["{\\frac{\\partial #1}{\\partial #2}}", 2], "dder": ["{\\frac{\\delta #1}{\\delta #2}}", 2], "mst": ["{\\gamma^{#1 #2}}", 2], "gx": ["{\\xi}"], "gy": ["{\\eta}"], "ux": ["{u_x}"], "uy": ["{u_y}"], "intrp": ["{\\overline{#1}^{#2}}", 2], "diffe": ["{\\delta_{#2} {#1}}", 2], "vat": ["{\\left. {#1} \\right|_{#2}}", 2], "ave": ["{\\left\\langle {#1} \\right\\rangle_{#2}}", 2], "pimm": ["i-1           "], "pim": ["i-\\frac{1}{2}"], "pic": ["i             "], "pip": ["i+\\frac{1}{2}"], "pipp": ["i+1           "], "pjmm": ["j-1           "], "pjm": ["j-\\frac{1}{2}"], "pjc": ["j             "], "pjp": ["j+\\frac{1}{2}"], "pjpp": ["j+1           "], "ximm": ["i-\\frac{1}{2}"], "xim": ["i             "], "xic": ["i+\\frac{1}{2}"], "xip": ["i+1           "], "xipp": ["i+\\frac{3}{2}"], "xjmm": ["j-1           "], "xjm": ["j-\\frac{1}{2}"], "xjc": ["j             "], "xjp": ["j+\\frac{1}{2}"], "xjpp": ["j+1           "], "yimm": ["i-1           "], "yim": ["i-\\frac{1}{2}"], "yic": ["i             "], "yip": ["i+\\frac{1}{2}"], "yipp": ["i+1           "], "yjmm": ["j-\\frac{1}{2}"], "yjm": ["j             "], "yjc": ["j+\\frac{1}{2}"], "yjp": ["j+1           "], "yjpp": ["j+\\frac{3}{2}"], "dintrpa": ["{\\overline{#1}^{#2}}", 2], "dintrpv": ["{\\widehat {#1}^{#2}}", 2], "dintrpu": ["{\\widetilde {#1}^{#2}}", 2]}}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="param/estimate_cost.c" href="estimate_cost.html" />
+    <link rel="prev" title="param/" href="index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Simple Navier-Stokes Solver</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleNavierStokesSolver&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../governing_equations/index.html">Governing equations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical_method/index.html">Numerical method</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Implementation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analyses.html">analyses.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../common.html">common.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fileio/main.html">fileio.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fluid/index.html">fluid/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../linalg.html">linalg.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">logging.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../main.html">main.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../parallel/index.html">parallel/</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">param/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../save.html">save.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../simple_npyio.html">simple_npy_io.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../statistics/index.html">statistics/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../temperature/index.html">temperature/</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Implementation</a><ul>
+  <li><a href="index.html">param/</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">param/</a></li>
+      <li>Next: <a href="estimate_cost.html" title="next chapter">param/estimate_cost.c</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="param-decide-dt">
+<span id="id1"></span><h1><a class="reference external" href="https://github.com/NaokiHori/SimpleNavierStokesSolver/blob/main/src/param/decide_dt.c">param/decide_dt.c</a><a class="headerlink" href="#param-decide-dt" title="Permalink to this heading">¶</a></h1>
+<p>Decide time step size <strong>dt</strong> to be used to integrate the governing equations, as well as explicit/implicit treatments of the diffusive terms.</p>
+<section id="id2">
+<h2>param_decide_dt<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<section id="definition">
+<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">param_decide_dt</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">param_t</span><span class="w"> </span><span class="o">*</span><span class="n">param</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">parallel_t</span><span class="w"> </span><span class="o">*</span><span class="n">parallel</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">fluid_t</span><span class="w"> </span><span class="o">*</span><span class="n">fluid</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>intent</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>param</p></td>
+<td><p>in/out</p></td>
+<td><p>general parameters (in), time step size &amp; implicit flags (out)</p></td>
+</tr>
+<tr class="row-odd"><td><p>parallel</p></td>
+<td><p>in</p></td>
+<td><p>MPI parameters</p></td>
+</tr>
+<tr class="row-even"><td><p>fluid</p></td>
+<td><p>in</p></td>
+<td><p>velocity</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h3>
+<p>Two restrictions for the time step size should be considered in this project.
+One comes from the advective terms in the governing equations, where the information should not travel longer distance than the local grid size.
+This constraint can be written as</p>
+<div class="math notranslate nohighlight">
+\[\Delta t_{adv} &lt; \min \left[ \min \left( \Delta x / u_x \right), \min \left( \Delta y / u_y \right) \right],\]</div>
+<p>which should always be satisfied in this project:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">28</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">dt_adv</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">29</span><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">30</span><span class="w">    </span><span class="c1">// sufficiently small number</span>
+<span class="linenos">31</span><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">small</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="n">e</span><span class="mi">-8</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">32</span><span class="w">    </span><span class="c1">// grid-size/velocity</span>
+<span class="linenos">33</span><span class="w">    </span><span class="n">dt_adv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.</span><span class="n">e</span><span class="mi">-2</span><span class="p">;</span><span class="w"> </span><span class="c1">// max dt_adv</span>
+<span class="linenos">34</span><span class="w">    </span><span class="c1">// ux</span>
+<span class="linenos">35</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;=</span><span class="n">jsize</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">36</span><span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">37</span><span class="w">        </span><span class="c1">// to avoid zero-division</span>
+<span class="linenos">38</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">vel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmax</span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">UX</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)),</span><span class="w"> </span><span class="n">small</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">39</span><span class="w">        </span><span class="n">dt_adv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmin</span><span class="p">(</span><span class="n">dt_adv</span><span class="p">,</span><span class="w"> </span><span class="n">DXC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">vel</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">40</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">41</span><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">42</span><span class="w">    </span><span class="c1">// uy</span>
+<span class="linenos">43</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;=</span><span class="n">jsize</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">44</span><span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">45</span><span class="w">        </span><span class="c1">// to avoid zero-division</span>
+<span class="linenos">46</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">vel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmax</span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">UY</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)),</span><span class="w"> </span><span class="n">small</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">47</span><span class="w">        </span><span class="n">dt_adv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmin</span><span class="p">(</span><span class="n">dt_adv</span><span class="p">,</span><span class="w"> </span><span class="n">dy</span><span class="o">/</span><span class="n">vel</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">48</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">49</span><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">50</span><span class="w">    </span><span class="n">MPI_Allreduce</span><span class="p">(</span><span class="n">MPI_IN_PLACE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dt_adv</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_DOUBLE</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_MIN</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_COMM_WORLD</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">51</span><span class="w">    </span><span class="n">dt_adv</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">safe_factors</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">52</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The other restriction is imposed by the diffusive terms.
+Although the same story holds (information should travel shorter than the grid size), the diffusive time and length scales have the relation: <span class="math notranslate nohighlight">\(\Delta t \sim \Delta x^2\)</span>, i.e., <span class="math notranslate nohighlight">\(\Delta t\)</span> shrinks with a speed which is proportional to <span class="math notranslate nohighlight">\(\Delta x^2\)</span>, which can be much severer (<span class="math notranslate nohighlight">\(\Delta t_{dif} \ll \Delta t_{adv}\)</span>) and results in an extensive slow down.
+In particular, this restriction can be written as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; \Delta t_{dif,x} &lt; \frac{Re \left[ \min \left( \Delta x \right) \right]^2}{4}, \\
+   &amp; \Delta t_{dif,y} &lt; \frac{Re \left( \Delta y \right)^2}{4},
+\end{aligned}\end{split}\]</div>
+<p>in each direction:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">54</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">dt_dif_x</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dif_y</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">55</span><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">56</span><span class="w">    </span><span class="c1">// find minimum grid size in x direction</span>
+<span class="linenos">57</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dx</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">58</span><span class="w">    </span><span class="n">dx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lx</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">59</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">60</span><span class="w">      </span><span class="n">dx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmin</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">DXC</span><span class="p">(</span><span class="n">i</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">61</span><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">62</span><span class="w">    </span><span class="n">dt_dif_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.25</span><span class="o">/</span><span class="n">diffusivity</span><span class="o">*</span><span class="n">pow</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="mf">2.</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">63</span><span class="w">    </span><span class="n">dt_dif_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.25</span><span class="o">/</span><span class="n">diffusivity</span><span class="o">*</span><span class="n">pow</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span><span class="w"> </span><span class="mf">2.</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">64</span><span class="w">    </span><span class="n">dt_dif_x</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">safe_factors</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">65</span><span class="w">    </span><span class="n">dt_dif_y</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">safe_factors</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">66</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that appropriate numbers (smaller than 1)</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">13</span><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">safe_factors</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mf">0.7</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+<p>are multiplied to these two <span class="math notranslate nohighlight">\(\Delta t\)</span> values for safety.</p>
+<p>Although the diffusive restrictions can be eliminated by treating them implicitly (see <a class="reference internal" href="../../numerical_method/temporal_discretisation/index.html#temporal-discretisation"><span class="std std-ref">temporal discretisation</span></a>), additional and non-trivial costs should be paid, which are <a class="reference internal" href="estimate_cost.html#param-estimate-cost"><span class="std std-ref">estimated a priori</span></a>.
+Based on this information, an optimal combination in each direction is chosen:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">68</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="n">e</span><span class="mi">-2</span><span class="p">;</span><span class="w"> </span><span class="c1">// put an arbitrary value to avoid a compiler warning</span>
+<span class="linenos">69</span><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">70</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">optimal_wtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DBL_MAX</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">71</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">optimal_implicitx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">72</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">optimal_implicity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">73</span><span class="w">    </span><span class="c1">// check all explicit/implicit combinations</span>
+<span class="linenos">74</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">implicity</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">implicity</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">implicity</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">75</span><span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">implicitx</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">implicitx</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">implicitx</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">76</span><span class="w">        </span><span class="c1">// dt restriction for this combination</span>
+<span class="linenos">77</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">dt_of_this_combination</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="linenos">78</span><span class="w">          </span><span class="n">implicitx</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">implicity</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">dt_adv</span><span class="w">                                  </span><span class="c1">// implicit(x)-implicit(y)</span>
+<span class="linenos">79</span><span class="w">                                </span><span class="o">:</span><span class="w"> </span><span class="n">fmin</span><span class="p">(</span><span class="n">dt_adv</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dif_y</span><span class="p">)</span><span class="w">                  </span><span class="c1">// implicit(x)-explicit(y)</span>
+<span class="linenos">80</span><span class="w">                    </span><span class="o">:</span><span class="w"> </span><span class="n">implicity</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">fmin</span><span class="p">(</span><span class="n">dt_adv</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dif_x</span><span class="p">)</span><span class="w">                  </span><span class="c1">// explicit(x)-implicit(y)</span>
+<span class="linenos">81</span><span class="w">                                </span><span class="o">:</span><span class="w"> </span><span class="n">fmin</span><span class="p">(</span><span class="n">dt_adv</span><span class="p">,</span><span class="w"> </span><span class="n">fmin</span><span class="p">(</span><span class="n">dt_dif_x</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dif_y</span><span class="p">));</span><span class="w"> </span><span class="c1">// explicit(x)-implicit(y)</span>
+<span class="linenos">82</span><span class="w">        </span><span class="c1">// estimated number of iterations needed to integrate for 1 free-fall time unit</span>
+<span class="linenos">83</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">niter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">/</span><span class="n">dt_of_this_combination</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">84</span><span class="w">        </span><span class="c1">// estimated walltime to complete this procedure</span>
+<span class="linenos">85</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">wtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">param</span><span class="o">-&gt;</span><span class="n">expimp_wtimes</span><span class="p">[</span><span class="n">implicity</span><span class="p">][</span><span class="n">implicitx</span><span class="p">]</span><span class="o">*</span><span class="n">niter</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">86</span><span class="w">        </span><span class="c1">// find the most efficient combination in terms of walltime</span>
+<span class="linenos">87</span><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">wtime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">optimal_wtime</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">88</span><span class="w">          </span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt_of_this_combination</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">89</span><span class="w">          </span><span class="n">optimal_wtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wtime</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">90</span><span class="w">          </span><span class="n">optimal_implicitx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">implicitx</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">91</span><span class="w">          </span><span class="n">optimal_implicity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">implicity</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">92</span><span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">93</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">94</span><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">95</span><span class="w">    </span><span class="n">param</span><span class="o">-&gt;</span><span class="n">implicitx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">optimal_implicitx</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where a variable <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">param</span><span class="o">-&gt;</span><span class="n">expimp_wtimes</span><span class="w"></span></code> contains the costs of all possible diffusive treatments computed in <a class="reference internal" href="estimate_cost.html#param-estimate-cost"><span class="std std-ref">src/param/estimate_cost.c</span></a>.</p>
+<p>This function is completed by assigning the decided time step size (advective restriction since diffusive ones are eliminated) to <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">param</span><span class="o">-&gt;</span><span class="n">dt</span><span class="w"></span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">99</span><span class="w">  </span><span class="n">param</span><span class="o">-&gt;</span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although implicit treatments can indeed eliminate the stability restriction, monotonicity (e.g., temperature is bounded between 0 and 1) is <strong>not</strong> guaranteed.
+Unfortunately, in order to keep the monotonicity, <span class="math notranslate nohighlight">\(\Delta t \propto \Delta x^2\)</span> should be again satisfied with the Crank-Nicolson scheme (see e.g. Horváth, <em>RANA</em> (<strong>0015</strong>), 2000).
+Although this restriction disappears by adopting the Euler backward scheme (at the expense of the temporal accuracy), this fact is neglected in this project for now.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/implementation/param/decide_dt.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

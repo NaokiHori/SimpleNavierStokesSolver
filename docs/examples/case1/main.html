@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Case 1 - Run default case &#8212; Simple Navier-Stokes Solver 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script>window.MathJax = {"TeX": {"Macros": {"der": ["{\\frac{\\partial #1}{\\partial #2}}", 2], "dder": ["{\\frac{\\delta #1}{\\delta #2}}", 2], "mst": ["{\\gamma^{#1 #2}}", 2], "gx": ["{\\xi}"], "gy": ["{\\eta}"], "ux": ["{u_x}"], "uy": ["{u_y}"], "intrp": ["{\\overline{#1}^{#2}}", 2], "diffe": ["{\\delta_{#2} {#1}}", 2], "vat": ["{\\left. {#1} \\right|_{#2}}", 2], "ave": ["{\\left\\langle {#1} \\right\\rangle_{#2}}", 2], "pimm": ["i-1           "], "pim": ["i-\\frac{1}{2}"], "pic": ["i             "], "pip": ["i+\\frac{1}{2}"], "pipp": ["i+1           "], "pjmm": ["j-1           "], "pjm": ["j-\\frac{1}{2}"], "pjc": ["j             "], "pjp": ["j+\\frac{1}{2}"], "pjpp": ["j+1           "], "ximm": ["i-\\frac{1}{2}"], "xim": ["i             "], "xic": ["i+\\frac{1}{2}"], "xip": ["i+1           "], "xipp": ["i+\\frac{3}{2}"], "xjmm": ["j-1           "], "xjm": ["j-\\frac{1}{2}"], "xjc": ["j             "], "xjp": ["j+\\frac{1}{2}"], "xjpp": ["j+1           "], "yimm": ["i-1           "], "yim": ["i-\\frac{1}{2}"], "yic": ["i             "], "yip": ["i+\\frac{1}{2}"], "yipp": ["i+1           "], "yjmm": ["j-\\frac{1}{2}"], "yjm": ["j             "], "yjc": ["j+\\frac{1}{2}"], "yjp": ["j+1           "], "yjpp": ["j+\\frac{3}{2}"], "dintrpa": ["{\\overline{#1}^{#2}}", 2], "dintrpv": ["{\\widehat {#1}^{#2}}", 2], "dintrpu": ["{\\widetilde {#1}^{#2}}", 2]}}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Case 2 - Conservation of quadratic quantities" href="../case2/main.html" />
+    <link rel="prev" title="Examples" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Simple Navier-Stokes Solver</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleNavierStokesSolver&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../governing_equations/index.html">Governing equations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical_method/index.html">Numerical method</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/index.html">Implementation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Case 1 - Run default case</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../case2/main.html">Case 2 - Conservation of quadratic quantities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../case3/main.html">Case 3 - Nusselt number agreements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../case4/main.html">Case 4 - Turbulent statistics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Examples</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Examples</a></li>
+      <li>Next: <a href="../case2/main.html" title="next chapter">Case 2 - Conservation of quadratic quantities</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="example-case1"></span><section id="case-1-run-default-case">
+<h1>Case 1 - Run default case<a class="headerlink" href="#case-1-run-default-case" title="Permalink to this heading">¶</a></h1>
+<p>Run <a class="reference external" href="https://github.com/NaokiHori/SimpleNavierStokesSolver/blob/main/exec.sh">exec.sh</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This section is updated automatically.</p>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>OS   : &quot;Ubuntu 20.04.4 LTS&quot;
+Date : Sun Jul 24 02:34:01 UTC 2022
+Hash : ab34be394f0dae6e13d260cb0510f084a31fef36
+</pre></div>
+</div>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/bin/bash</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="c1">## directory name containing flow fields to restart</span>
+<span class="linenos"> 4</span><span class="c1"># export dirname_restart=&quot;output/save/stepxxxxxxxxxx&quot;</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="c1">## flags</span>
+<span class="linenos"> 7</span><span class="c1"># couple temperature field or not</span>
+<span class="linenos"> 8</span><span class="nb">export</span> <span class="nv">with_temperature</span><span class="o">=</span><span class="nb">true</span>
+<span class="linenos"> 9</span><span class="c1"># thermal forcing is added to x-momentum</span>
+<span class="linenos">10</span><span class="nb">export</span> <span class="nv">with_thermal_forcing</span><span class="o">=</span><span class="nb">true</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="c1">## durations</span>
+<span class="linenos">13</span><span class="c1"># maximum duration (in free-fall time)</span>
+<span class="linenos">14</span><span class="nb">export</span> <span class="nv">timemax</span><span class="o">=</span><span class="m">2</span>.0e+2
+<span class="linenos">15</span><span class="c1"># maximum duration (in wall time [s])</span>
+<span class="linenos">16</span><span class="nb">export</span> <span class="nv">wtimemax</span><span class="o">=</span><span class="m">6</span>.0e+2
+<span class="linenos">17</span><span class="c1"># logging rate (in free-fall time)</span>
+<span class="linenos">18</span><span class="nb">export</span> <span class="nv">log_rate</span><span class="o">=</span><span class="m">2</span>.0e-1
+<span class="linenos">19</span><span class="c1"># logging after (in free-fall time)</span>
+<span class="linenos">20</span><span class="nb">export</span> <span class="nv">log_after</span><span class="o">=</span><span class="m">0</span>.0e+0
+<span class="linenos">21</span><span class="c1"># save rate (in free-fall time)</span>
+<span class="linenos">22</span><span class="nb">export</span> <span class="nv">save_rate</span><span class="o">=</span><span class="m">2</span>.0e+1
+<span class="linenos">23</span><span class="c1"># save after (in free-fall time)</span>
+<span class="linenos">24</span><span class="nb">export</span> <span class="nv">save_after</span><span class="o">=</span><span class="m">0</span>.0e+0
+<span class="linenos">25</span><span class="c1"># statistics collection rate (in free-fall time)</span>
+<span class="linenos">26</span><span class="nb">export</span> <span class="nv">stat_rate</span><span class="o">=</span><span class="m">1</span>.0e-1
+<span class="linenos">27</span><span class="c1"># statistics collection after (in free-fall time)</span>
+<span class="linenos">28</span><span class="nb">export</span> <span class="nv">stat_after</span><span class="o">=</span><span class="m">1</span>.0e+2
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="c1">## domain</span>
+<span class="linenos">31</span><span class="c1"># domain lengths</span>
+<span class="linenos">32</span><span class="nb">export</span> <span class="nv">ly</span><span class="o">=</span><span class="m">2</span>.0e+0
+<span class="linenos">33</span><span class="c1"># number of grids</span>
+<span class="linenos">34</span><span class="nb">export</span> <span class="nv">itot</span><span class="o">=</span><span class="m">128</span>
+<span class="linenos">35</span><span class="nb">export</span> <span class="nv">jtot</span><span class="o">=</span><span class="m">192</span>
+<span class="linenos">36</span><span class="c1"># grid stretching in x (i) direction (clipped-Chebyshev)</span>
+<span class="linenos">37</span><span class="c1"># number of grids which are clipped</span>
+<span class="linenos">38</span><span class="nb">export</span> <span class="nv">stretch</span><span class="o">=</span><span class="m">3</span>
+<span class="linenos">39</span>
+<span class="linenos">40</span><span class="c1">## physical parameters</span>
+<span class="linenos">41</span><span class="nb">export</span> <span class="nv">Ra</span><span class="o">=</span><span class="m">1</span>.0e+8
+<span class="linenos">42</span><span class="nb">export</span> <span class="nv">Pr</span><span class="o">=</span><span class="m">1</span>.0e+1
+<span class="linenos">43</span>
+<span class="linenos">44</span><span class="nb">export</span> <span class="nv">OMPI_MCA_btl_vader_single_copy_mechanism</span><span class="o">=</span>none
+<span class="linenos">45</span>
+<span class="linenos">46</span>mpirun -n <span class="m">1</span> --oversubscribe ./a.out
+</pre></div>
+</div>
+</section>
+<section id="visualisations">
+<h2>Visualisations<a class="headerlink" href="#visualisations" title="Permalink to this heading">¶</a></h2>
+<p>Temperature field at the end of the run is visualised here.</p>
+<a class="reference internal image-reference" href="../../_images/visualise.png"><img alt="../../_images/visualise.png" src="../../_images/visualise.png" style="width: 800px;" /></a>
+</section>
+<section id="incompressibility-constraint">
+<h2>Incompressibility constraint<a class="headerlink" href="#incompressibility-constraint" title="Permalink to this heading">¶</a></h2>
+<p>Thanks to <a class="reference internal" href="../../implementation/fluid/compute_potential.html#fluid-compute-potential"><span class="std std-ref">the direct Poisson solver</span></a>, local divergence of the velocity field should be sufficiently small, i.e.,</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{O} \left( \epsilon / \Delta \right),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\epsilon\)</span> and <span class="math notranslate nohighlight">\(\Delta\)</span> are machine epsilon <span class="math notranslate nohighlight">\(\sim 10^{-16}\)</span> and the representative grid size, respectively.</p>
+<a class="reference internal image-reference" href="../../_images/divergence.pdf"><img alt="../../_images/divergence.pdf" src="../../_images/divergence.pdf" style="width: 800px;" /></a>
+</section>
+<section id="nusselt-numbers">
+<h2>Nusselt numbers<a class="headerlink" href="#nusselt-numbers" title="Permalink to this heading">¶</a></h2>
+<p><span class="math notranslate nohighlight">\(Nu\)</span> computed by different formula are shown, (red) heat fluxes on the walls, (blue) energy injection, (green) kinetic energy dissipation, and (magenta) thermal energy dissipation, respectively.</p>
+<p>Black-dashed line shows a reference value by van der Poel et al., <em>J. Fluid Mech.</em> (<strong>736</strong>), 2013 with the same <span class="math notranslate nohighlight">\(Ra\)</span> and <span class="math notranslate nohighlight">\(Pr\)</span> but with a different domain geometry (box).</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../../numerical_method/spatial_discretisation/discrete_governing_equations/nusselt_number_relations.html#nusselt-number-relations"><span class="std std-ref">Nusselt number relations</span></a> for the definition of each <span class="math notranslate nohighlight">\(Nu\)</span>, and <a class="reference internal" href="../../implementation/logging.html#logging"><span class="std std-ref">src/logging.c</span></a> for how they are computed.</p>
+</div>
+<a class="reference internal image-reference" href="../../_images/nusselt.pdf"><img alt="../../_images/nusselt.pdf" src="../../_images/nusselt.pdf" style="width: 800px;" /></a>
+</section>
+<section id="statistics">
+<h2>Statistics<a class="headerlink" href="#statistics" title="Permalink to this heading">¶</a></h2>
+<p>Variances of (red) <span class="math notranslate nohighlight">\(\ux\)</span>, (blue) <span class="math notranslate nohighlight">\(\uy\)</span>, and (green) <span class="math notranslate nohighlight">\(T\)</span> are plotted here.</p>
+<a class="reference internal image-reference" href="../../_images/stat.pdf"><img alt="../../_images/stat.pdf" src="../../_images/stat.pdf" style="width: 800px;" /></a>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/examples/case1/main.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

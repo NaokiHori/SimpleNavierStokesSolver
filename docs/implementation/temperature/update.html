@@ -1,0 +1,773 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>temperature/update.c &#8212; Simple Navier-Stokes Solver 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script>window.MathJax = {"TeX": {"Macros": {"der": ["{\\frac{\\partial #1}{\\partial #2}}", 2], "dder": ["{\\frac{\\delta #1}{\\delta #2}}", 2], "mst": ["{\\gamma^{#1 #2}}", 2], "gx": ["{\\xi}"], "gy": ["{\\eta}"], "ux": ["{u_x}"], "uy": ["{u_y}"], "intrp": ["{\\overline{#1}^{#2}}", 2], "diffe": ["{\\delta_{#2} {#1}}", 2], "vat": ["{\\left. {#1} \\right|_{#2}}", 2], "ave": ["{\\left\\langle {#1} \\right\\rangle_{#2}}", 2], "pimm": ["i-1           "], "pim": ["i-\\frac{1}{2}"], "pic": ["i             "], "pip": ["i+\\frac{1}{2}"], "pipp": ["i+1           "], "pjmm": ["j-1           "], "pjm": ["j-\\frac{1}{2}"], "pjc": ["j             "], "pjp": ["j+\\frac{1}{2}"], "pjpp": ["j+1           "], "ximm": ["i-\\frac{1}{2}"], "xim": ["i             "], "xic": ["i+\\frac{1}{2}"], "xip": ["i+1           "], "xipp": ["i+\\frac{3}{2}"], "xjmm": ["j-1           "], "xjm": ["j-\\frac{1}{2}"], "xjc": ["j             "], "xjp": ["j+\\frac{1}{2}"], "xjpp": ["j+1           "], "yimm": ["i-1           "], "yim": ["i-\\frac{1}{2}"], "yic": ["i             "], "yip": ["i+\\frac{1}{2}"], "yipp": ["i+1           "], "yjmm": ["j-\\frac{1}{2}"], "yjm": ["j             "], "yjc": ["j+\\frac{1}{2}"], "yjp": ["j+1           "], "yjpp": ["j+\\frac{3}{2}"], "dintrpa": ["{\\overline{#1}^{#2}}", 2], "dintrpv": ["{\\widehat {#1}^{#2}}", 2], "dintrpu": ["{\\widetilde {#1}^{#2}}", 2]}}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Examples" href="../../examples/index.html" />
+    <link rel="prev" title="temperature/init.c" href="init.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Simple Navier-Stokes Solver</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleNavierStokesSolver&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../governing_equations/index.html">Governing equations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical_method/index.html">Numerical method</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Implementation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analyses.html">analyses.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../common.html">common.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fileio/main.html">fileio.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fluid/index.html">fluid/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../linalg.html">linalg.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">logging.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../main.html">main.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../parallel/index.html">parallel/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../param/index.html">param/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../save.html">save.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../simple_npyio.html">simple_npy_io.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../statistics/index.html">statistics/</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">temperature/</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Implementation</a><ul>
+  <li><a href="index.html">temperature/</a><ul>
+      <li>Previous: <a href="init.html" title="previous chapter">temperature/init.c</a></li>
+      <li>Next: <a href="../../examples/index.html" title="next chapter">Examples</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="temperature-update">
+<span id="id1"></span><h1><a class="reference external" href="https://github.com/NaokiHori/SimpleNavierStokesSolver/blob/main/src/temperature/update.c">temperature/update.c</a><a class="headerlink" href="#temperature-update" title="Permalink to this heading">¶</a></h1>
+<p>Update temperature from <span class="math notranslate nohighlight">\(T^k\)</span> to <span class="math notranslate nohighlight">\(T^{k+1}\)</span>.</p>
+<p>See <a class="reference internal" href="../../numerical_method/temporal_discretisation/index.html#temporal-discretisation"><span class="std std-ref">the temporal discretisation</span></a> and <a class="reference internal" href="../../numerical_method/spatial_discretisation/index.html#spatial-discretisation"><span class="std std-ref">the spatial discretisation</span></a> for details.</p>
+<section id="temperature-update-temp">
+<h2>temperature_update_temp<a class="headerlink" href="#temperature-update-temp" title="Permalink to this heading">¶</a></h2>
+<section id="definition">
+<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">temperature_update_temp</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">param_t</span><span class="w"> </span><span class="o">*</span><span class="n">param</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">parallel_t</span><span class="w"> </span><span class="o">*</span><span class="n">parallel</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">fluid_t</span><span class="w"> </span><span class="o">*</span><span class="n">fluid</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">temperature_t</span><span class="w"> </span><span class="o">*</span><span class="n">temperature</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>intent</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>param</p></td>
+<td><p>in</p></td>
+<td><p>general parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p>parallel</p></td>
+<td><p>in</p></td>
+<td><p>MPI parameters</p></td>
+</tr>
+<tr class="row-even"><td><p>fluid</p></td>
+<td><p>in</p></td>
+<td><p>velocity</p></td>
+</tr>
+<tr class="row-odd"><td><p>temperature</p></td>
+<td><p>in/out</p></td>
+<td><p>temperature</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h3>
+<p>Now we try to update the temperature field of the previous Runge-Kutta step <span class="math notranslate nohighlight">\(T^k\)</span> to the new step <span class="math notranslate nohighlight">\(T^{k+1}\)</span>, whose method is presented in <a class="reference internal" href="../../numerical_method/temporal_discretisation/temperature.html#temperature-integration"><span class="std std-ref">the temporal discretisation</span></a>.</p>
+<p>Source terms in the right-hand-side (<span class="math notranslate nohighlight">\(A^k\)</span> and <span class="math notranslate nohighlight">\(D^k\)</span>) are computed:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">235</span><span class="w">  </span><span class="n">compute_src</span><span class="p">(</span><span class="n">param</span><span class="p">,</span><span class="w"> </span><span class="n">parallel</span><span class="p">,</span><span class="w"> </span><span class="n">fluid</span><span class="p">,</span><span class="w"> </span><span class="n">temperature</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>which is followed by</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">237</span><span class="w">  </span><span class="n">update_temp</span><span class="p">(</span><span class="n">param</span><span class="p">,</span><span class="w"> </span><span class="n">parallel</span><span class="p">,</span><span class="w"> </span><span class="n">rkstep</span><span class="p">,</span><span class="w"> </span><span class="n">temperature</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where the temperature field is updated.</p>
+<p>For more information about these 2 functions, see below.</p>
+</section>
+</section>
+<section id="compute-src">
+<h2>compute_src<a class="headerlink" href="#compute-src" title="Permalink to this heading">¶</a></h2>
+<section id="id2">
+<h3>Definition<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">compute_src</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">param_t</span><span class="w"> </span><span class="o">*</span><span class="n">param</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">parallel_t</span><span class="w"> </span><span class="o">*</span><span class="n">parallel</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">fluid_t</span><span class="w"> </span><span class="o">*</span><span class="n">fluid</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">temperature_t</span><span class="w"> </span><span class="o">*</span><span class="n">temperature</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>intent</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>param</p></td>
+<td><p>in</p></td>
+<td><p>general parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p>parallel</p></td>
+<td><p>in</p></td>
+<td><p>MPI parameters</p></td>
+</tr>
+<tr class="row-even"><td><p>fluid</p></td>
+<td><p>in</p></td>
+<td><p>velocity</p></td>
+</tr>
+<tr class="row-odd"><td><p>temperature</p></td>
+<td><p>in/out</p></td>
+<td><p>temperature (in), source terms (in/out)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id3">
+<h3>Description<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<p>Compute source terms of the Runge-Kutta integration (<span class="math notranslate nohighlight">\(A^k\)</span> and <span class="math notranslate nohighlight">\(D^k\)</span>, see the equations above) of the internal energy equation.</p>
+<p>First of all, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">srctempa</span><span class="w"></span></code> (the last character <strong>a</strong> implies <span class="math notranslate nohighlight">\(\alpha\)</span>), which contains the information of the previous Runge-Kutta step, is copied to <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">srctempb</span><span class="w"></span></code> (the last character <strong>b</strong> implies <span class="math notranslate nohighlight">\(\beta\)</span>), so that new values can be assigned to <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">srctempa</span><span class="w"></span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">31</span><span class="w">  </span><span class="n">memcpy</span><span class="p">(</span><span class="n">srctempb</span><span class="p">,</span><span class="w"> </span><span class="n">srctempa</span><span class="p">,</span><span class="w"> </span><span class="n">SRCTEMPA_MEMSIZE</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Then, all source terms are evaluated at each location where <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">T</span><span class="w"></span></code> is defined.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The spatial discretisations and their derivations are extensively discussed in the section <a class="reference internal" href="../../numerical_method/spatial_discretisation/discrete_governing_equations/thermal_energy_balance_and_quadratic_quantity.html#thermal-energy-balance"><span class="std std-ref">“thermal energy balance and quadratic quantity”</span></a>.</p>
+<p>Hereafter, superscript <span class="math notranslate nohighlight">\(k\)</span>, which denotes Runge-Kutta step and should be on all <span class="math notranslate nohighlight">\(\ux\)</span> and <span class="math notranslate nohighlight">\(T\)</span>, are dropped for notational simplicity.</p>
+</div>
+<ol class="arabic" start="0">
+<li><p>Prerequisite: gradient of temperature <span class="math notranslate nohighlight">\(\partial_i T\)</span></p>
+<details>
+<summary>
+Details</summary><p>Gradient of <span class="math notranslate nohighlight">\(T\)</span> appears both in the advective and diffusive terms.
+<span class="math notranslate nohighlight">\(\partial_x T\)</span> are needed at the neighbouring <span class="math notranslate nohighlight">\(x\)</span> cell faces:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\vat{
+   \dder{T}{x}
+}{\pim, \pjc}
+&amp; =
+\frac{
+   \vat{T}{\pic,  \pjc}
+   -
+   \vat{T}{\pimm, \pjc}
+}{\vat{\Delta x}{\pim}}, \\
+\vat{
+   \dder{T}{x}
+}{\pip, \pjc}
+&amp; =
+\frac{
+   \vat{T}{\pipp, \pjc}
+   -
+   \vat{T}{\pic,  \pjc}
+}{\vat{\Delta x}{\pip}},\end{split}\]</div>
+<p>which are implemented as</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">35</span><span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">dtdx_xm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">-</span><span class="n">TEMP</span><span class="p">(</span><span class="n">i</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">  </span><span class="p">)</span><span class="o">+</span><span class="n">TEMP</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">  </span><span class="p">))</span><span class="o">/</span><span class="n">DXC</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">);</span><span class="w"></span>
+<span class="linenos">36</span><span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">dtdx_xp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">-</span><span class="n">TEMP</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">  </span><span class="p">)</span><span class="o">+</span><span class="n">TEMP</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">  </span><span class="p">))</span><span class="o">/</span><span class="n">DXC</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/update_dtdx.pdf"><img alt="../../_images/update_dtdx.pdf" src="../../_images/update_dtdx.pdf" style="width: 800px;" /></a>
+<p><span class="math notranslate nohighlight">\(\partial_y T\)</span> are needed at the neighbouring <span class="math notranslate nohighlight">\(y\)</span> cell faces:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\vat{
+   \dder{T}{y}
+}{\pic, \pjm}
+&amp; =
+\frac{
+   \vat{T}{\pic, \pjc }
+   -
+   \vat{T}{\pic, \pjmm}
+}{\Delta y}, \\
+\vat{
+   \dder{T}{y}
+}{\pic, \pjp}
+&amp; =
+\frac{
+   \vat{T}{\pic, \pjpp}
+   -
+   \vat{T}{\pic, \pjc }
+}{\Delta y},\end{split}\]</div>
+<p>which are implemented as</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">38</span><span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">dtdy_ym</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">-</span><span class="n">TEMP</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="mi">-1</span><span class="p">)</span><span class="o">+</span><span class="n">TEMP</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">  </span><span class="p">))</span><span class="o">/</span><span class="n">dy</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">39</span><span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">dtdy_yp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">-</span><span class="n">TEMP</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">  </span><span class="p">)</span><span class="o">+</span><span class="n">TEMP</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="n">dy</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/update_dtdy.pdf"><img alt="../../_images/update_dtdy.pdf" src="../../_images/update_dtdy.pdf" style="width: 800px;" /></a>
+</details></li>
+<li><p>Advective terms (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">adv1</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">adv2</span><span class="w"></span></code>)</p>
+<ol class="arabic">
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">adv1</span><span class="w"></span></code>: Advection of <span class="math notranslate nohighlight">\(T\)</span> by <span class="math notranslate nohighlight">\(\ux\)</span></p>
+<div class="math notranslate nohighlight">
+\[-
+\vat{
+   \dintrpv{
+      \ux
+      \dder{T}{x}
+   }{x}
+}{\pic, \pjc}\]</div>
+<details>
+<summary>
+Details</summary><p>Discrete derivatives are given above at <span class="math notranslate nohighlight">\(x\)</span> cell faces.
+The <em>widehat</em> symbol is used to indicate the volume interpolation:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\vat{C}{\pim}
+&amp; =
+\frac{\Delta x_{\pim}}{2 \Delta x_{\pic}}, \\
+\vat{C}{\pip}
+&amp; =
+\frac{\Delta x_{\pip}}{2 \Delta x_{\pic}}.\end{split}\]</div>
+<p>The implementation leads</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">42</span><span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">adv1</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">43</span><span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">44</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">c_xm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DXC</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">DXF</span><span class="p">(</span><span class="n">i</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">45</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">c_xp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DXC</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">DXF</span><span class="p">(</span><span class="n">i</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">46</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">ux_xm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UX</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">  </span><span class="p">);</span><span class="w"></span>
+<span class="linenos">47</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">ux_xp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UX</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">  </span><span class="p">);</span><span class="w"></span>
+<span class="linenos">48</span><span class="w">        </span><span class="n">adv1</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="linenos">49</span><span class="w">          </span><span class="o">-</span><span class="n">c_xm</span><span class="o">*</span><span class="n">ux_xm</span><span class="o">*</span><span class="n">dtdx_xm</span><span class="w"></span>
+<span class="linenos">50</span><span class="w">          </span><span class="o">-</span><span class="n">c_xp</span><span class="o">*</span><span class="n">ux_xp</span><span class="o">*</span><span class="n">dtdx_xp</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">51</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/update_adv_x.pdf"><img alt="../../_images/update_adv_x.pdf" src="../../_images/update_adv_x.pdf" style="width: 800px;" /></a>
+</details></li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">adv2</span><span class="w"></span></code>: Advection of <span class="math notranslate nohighlight">\(T\)</span> by <span class="math notranslate nohighlight">\(\uy\)</span></p>
+<div class="math notranslate nohighlight">
+\[-
+\vat{
+   \dintrpa{
+      \uy
+      \dder{T}{y}
+   }{y}
+}{\pic, \pjc}\]</div>
+<details>
+<summary>
+Details</summary><p>Discrete derivatives are given above at <span class="math notranslate nohighlight">\(y\)</span> cell faces.
+<em>Overline</em> symbol denotes arithmetic average.</p>
+<p>The implementation leads</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">53</span><span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">adv2</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">54</span><span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">55</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">uy_ym</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UY</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">  </span><span class="p">);</span><span class="w"></span>
+<span class="linenos">56</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">uy_yp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UY</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">57</span><span class="w">        </span><span class="n">adv2</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="linenos">58</span><span class="w">          </span><span class="mf">-0.5</span><span class="o">*</span><span class="n">uy_ym</span><span class="o">*</span><span class="n">dtdy_ym</span><span class="w"></span>
+<span class="linenos">59</span><span class="w">          </span><span class="mf">-0.5</span><span class="o">*</span><span class="n">uy_yp</span><span class="o">*</span><span class="n">dtdy_yp</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">60</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/update_adv_y.pdf"><img alt="../../_images/update_adv_y.pdf" src="../../_images/update_adv_y.pdf" style="width: 800px;" /></a>
+</details></li>
+</ol>
+</li>
+<li><p>Diffusive terms (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">dif1</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">dif2</span><span class="w"></span></code>)</p>
+<ol class="arabic">
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">dif1</span><span class="w"></span></code>: Diffusion of <span class="math notranslate nohighlight">\(T\)</span> in <span class="math notranslate nohighlight">\(x\)</span> direction</p>
+<div class="math notranslate nohighlight">
+\[\vat{
+   \frac{1}{\sqrt{Pr} \sqrt{Ra}} \dder{}{x} \left( \dder{T}{x} \right)
+}{\pic, \pjc}\]</div>
+<details>
+<summary>
+Details</summary><p>The implementation leads</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">63</span><span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">dif1</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">64</span><span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">65</span><span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">prefactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Pr</span><span class="p">)</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Ra</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">66</span><span class="w">        </span><span class="n">dif1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prefactor</span><span class="o">*</span><span class="p">(</span><span class="n">dtdx_xp</span><span class="o">-</span><span class="n">dtdx_xm</span><span class="p">)</span><span class="o">/</span><span class="n">DXF</span><span class="p">(</span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">67</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/update_dif_x.pdf"><img alt="../../_images/update_dif_x.pdf" src="../../_images/update_dif_x.pdf" style="width: 800px;" /></a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">DXC</span><span class="w"></span></code> already includes the boundary corrections (see <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">set_coordinate</span><span class="w"></span></code> in <a class="reference internal" href="../param/init.html#param-init"><span class="std std-ref">src/param/init.c</span></a> and <a class="reference internal" href="../../numerical_method/spatial_discretisation/index.html#spatial-discretisation"><span class="std std-ref">spatial discretisation</span></a>).</p>
+</div>
+</details></li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">dif2</span><span class="w"></span></code>: Diffusion of <span class="math notranslate nohighlight">\(T\)</span> in <span class="math notranslate nohighlight">\(y\)</span> direction</p>
+<div class="math notranslate nohighlight">
+\[\vat{
+   \frac{1}{\sqrt{Pr} \sqrt{Ra}} \dder{}{y} \left( \dder{T}{y} \right)
+}{\pic, \pjc}\]</div>
+<details>
+<summary>
+Details</summary><p>The implementation leads</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">69</span><span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">dif2</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">70</span><span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">71</span><span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">prefactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Pr</span><span class="p">)</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Ra</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">72</span><span class="w">        </span><span class="n">dif2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prefactor</span><span class="o">*</span><span class="p">(</span><span class="n">dtdy_yp</span><span class="o">-</span><span class="n">dtdy_ym</span><span class="p">)</span><span class="o">/</span><span class="n">dy</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">73</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/update_dif_y.pdf"><img alt="../../_images/update_dif_y.pdf" src="../../_images/update_dif_y.pdf" style="width: 800px;" /></a>
+</details></li>
+</ol>
+</li>
+</ol>
+<p>After all source terms are evaluated, they are assigned to the corresponding variable.</p>
+<p>Terms which are treated explicitly are summed up to <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">srctempa</span><span class="w"></span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">76</span><span class="w">      </span><span class="n">SRCTEMPA</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="linenos">77</span><span class="w">        </span><span class="o">+</span><span class="p">(</span><span class="n">adv1</span><span class="o">+</span><span class="n">adv2</span><span class="p">)</span><span class="w"></span>
+<span class="linenos">78</span><span class="w">        </span><span class="o">+</span><span class="p">(</span><span class="mf">1.-1.</span><span class="o">*</span><span class="n">implicitx</span><span class="p">)</span><span class="o">*</span><span class="n">dif1</span><span class="w"></span>
+<span class="linenos">79</span><span class="w">        </span><span class="o">+</span><span class="p">(</span><span class="mf">1.-1.</span><span class="o">*</span><span class="n">implicity</span><span class="p">)</span><span class="o">*</span><span class="n">dif2</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Advective terms (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">adv1</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">adv2</span><span class="w"></span></code>) are involved here since they are always treated explicitly.</p>
+<p>Diffusive terms are summed up here when treated explicitly (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">implicitx</span><span class="w"></span></code> or <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">implicity</span><span class="w"></span></code> is <span class="math notranslate nohighlight">\(0\)</span>), while are neglected here when treated implicitly (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">implicitx</span><span class="w"></span></code> or <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">implicity</span><span class="w"></span></code> is <span class="math notranslate nohighlight">\(1\)</span>).
+Instead, they are summed up to <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">srctempg</span><span class="w"></span></code> when treated implicitly:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">81</span><span class="w">      </span><span class="n">SRCTEMPG</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="linenos">82</span><span class="w">        </span><span class="o">+</span><span class="p">(</span><span class="w">  </span><span class="o">+</span><span class="mf">1.</span><span class="o">*</span><span class="n">implicitx</span><span class="p">)</span><span class="o">*</span><span class="n">dif1</span><span class="w"></span>
+<span class="linenos">83</span><span class="w">        </span><span class="o">+</span><span class="p">(</span><span class="w">  </span><span class="o">+</span><span class="mf">1.</span><span class="o">*</span><span class="n">implicity</span><span class="p">)</span><span class="o">*</span><span class="n">dif2</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="update-temp">
+<h2>update_temp<a class="headerlink" href="#update-temp" title="Permalink to this heading">¶</a></h2>
+<section id="id4">
+<h3>Definition<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">update_temp</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">param_t</span><span class="w"> </span><span class="o">*</span><span class="n">param</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">parallel_t</span><span class="w"> </span><span class="o">*</span><span class="n">parallel</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">temperature_t</span><span class="w"> </span><span class="o">*</span><span class="n">temperature</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>intent</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>param</p></td>
+<td><p>in</p></td>
+<td><p>general parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p>parallel</p></td>
+<td><p>in</p></td>
+<td><p>MPI parameters</p></td>
+</tr>
+<tr class="row-even"><td><p>temperature</p></td>
+<td><p>in/out</p></td>
+<td><p>source terms (in), temperature (out)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id5">
+<h3>Description<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<p>New temperature <span class="math notranslate nohighlight">\(T^{k+1}\)</span> is obtained by using the source terms computed in <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">compute_src</span><span class="w"></span></code>.</p>
+<p>First of all, the increment of temperature <span class="math notranslate nohighlight">\(\delta T \equiv T^{k+1} - T^{k}\)</span> is computed:</p>
+<div class="math notranslate nohighlight">
+\[\delta T = \left(
+     \alpha^k \mathcal{A}
+   + \beta^k  \mathcal{B}
+   + \gamma^k \mathcal{G}
+\right) \Delta t,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{A}\)</span>, <span class="math notranslate nohighlight">\(\mathcal{B}\)</span>, and <span class="math notranslate nohighlight">\(\mathcal{G}\)</span> are source terms which are already computed in <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">compute_src</span><span class="w"></span></code> and correspond to <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">srctempa</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">srctempb</span><span class="w"></span></code>, and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">srctempg</span><span class="w"></span></code>, respectively.</p>
+<p>As discussed in <a class="reference internal" href="../../numerical_method/temporal_discretisation/temperature.html#temperature-integration"><span class="std std-ref">the temporal discretisation</span></a>, the update process differs for different diffusive treatments.
+When all diffusive terms are treated explicitly in time, we simply have</p>
+<div class="math notranslate nohighlight">
+\[T^{k+1} = T^k + \delta T.\]</div>
+<p>When the diffusive terms are partially treated implicitly (e.g., only <span class="math notranslate nohighlight">\(x\)</span> direction), we have</p>
+<div class="math notranslate nohighlight">
+\[T^{k+1} = T^k + \left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2}{\delta x^2} \right)^{-1} \delta T,\]</div>
+<p>where linear systems in <span class="math notranslate nohighlight">\(x\)</span> direction needs to be solved before being added to <span class="math notranslate nohighlight">\(T^k\)</span>.</p>
+<p>When all diffusive terms are treated implicitly, we have</p>
+<div class="math notranslate nohighlight">
+\[T^{k+1} = T^k + \left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2}{\delta y^2} \right)^{-1} \left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2}{\delta x^2} \right)^{-1} \delta T,\]</div>
+<p>where linear systems in each direction should be solved before being added to <span class="math notranslate nohighlight">\(T^k\)</span>.</p>
+<p>Based on these relations, the updating procedure is as follows.</p>
+<ol class="arabic">
+<li><p>Compute <span class="math notranslate nohighlight">\(\delta T\)</span></p>
+<details>
+<summary>
+Details</summary><p>The temperature increment <span class="math notranslate nohighlight">\(\delta T\)</span> is computed and assigned to a variable <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">qx</span><span class="w"></span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">115</span><span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;=</span><span class="n">jsize</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">116</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">117</span><span class="w">      </span><span class="n">QX</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="linenos">118</span><span class="w">        </span><span class="o">+</span><span class="n">alpha</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">SRCTEMPA</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<span class="linenos">119</span><span class="w">        </span><span class="o">+</span><span class="n">beta</span><span class="w"> </span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">SRCTEMPB</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<span class="linenos">120</span><span class="w">        </span><span class="o">+</span><span class="n">gamma</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">SRCTEMPG</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">121</span><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">122</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</details></li>
+<li><p>Solve linear systems in <span class="math notranslate nohighlight">\(x\)</span> direction (<strong>only when</strong> the diffusive term in <span class="math notranslate nohighlight">\(x\)</span> direction is treated implicitly)</p>
+<details>
+<summary>
+Details</summary><p>We consider</p>
+<div class="math notranslate nohighlight">
+\[\delta T^{\prime} \equiv \left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2}{\delta x^2} \right)^{-1} \delta T\]</div>
+<p>or in other words</p>
+<div class="math notranslate nohighlight">
+\[\left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2}{\delta x^2} \right) \delta T^{\prime}
+= \delta T^{\prime} - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2 \left( \delta T^{\prime} \right)}{\delta x^2}
+= \delta T.\]</div>
+<p>The second-order derivative of <span class="math notranslate nohighlight">\(\delta T^{\prime}\)</span> in <span class="math notranslate nohighlight">\(x\)</span> direction should be discretised with the same discrete operator used to compute the diffusive term, i.e.,</p>
+<div class="math notranslate nohighlight">
+\[\vat{\frac{\delta^2 \left( \delta T^{\prime} \right)}{\delta x^2}}{\pic, \pjc}
+=
+\vat{
+   \dder{}{x} \left\{ \dder{\left( \delta T^{\prime} \right)}{x} \right\}
+}{\pic, \pjc}
+= c_{\pimm} \vat{\left( \delta T^{\prime} \right)}{\pimm, \pjc}
++ c_{\pic } \vat{\left( \delta T^{\prime} \right)}{\pic , \pjc}
++ c_{\pipp} \vat{\left( \delta T^{\prime} \right)}{\pipp, \pjc},\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}c_{\pimm} &amp; = \frac{1}{\Delta x_{\pic} \Delta x_{\pim}}, \\
+c_{\pipp} &amp; = \frac{1}{\Delta x_{\pic} \Delta x_{\pip}}, \\
+c_{\pic } &amp; = -c_{\pimm}-c_{\pipp}.\end{split}\]</div>
+<a class="reference internal image-reference" href="../../_images/update_linear_system_x.pdf"><img alt="../../_images/update_linear_system_x.pdf" src="../../_images/update_linear_system_x.pdf" style="width: 800px;" /></a>
+<p>Thus, the equation of <span class="math notranslate nohighlight">\(\delta T^{\prime}\)</span> can be discretised as</p>
+<div class="math notranslate nohighlight">
+\[-            \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} c_{\pimm}         \vat{\left( \delta T^{\prime} \right)}{\pimm, \pjc}
++ \left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} c_{\pic } \right) \vat{\left( \delta T^{\prime} \right)}{\pic , \pjc}
+-            \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} c_{\pipp}         \vat{\left( \delta T^{\prime} \right)}{\pipp, \pjc}
+= \vat{\delta T}{\pic, \pjc}.\]</div>
+<p>For simplicity, we write this as</p>
+<div class="math notranslate nohighlight">
+\[l_{\pic, \pjc} \vat{\delta T^{\prime}}{\pimm, \pjc}
++ c_{\pic, \pjc} \vat{\delta T^{\prime}}{\pic , \pjc}
++ u_{\pic, \pjc} \vat{\delta T^{\prime}}{\pipp, \pjc}
+= \vat{\delta T}{\pic, \pjc},\]</div>
+<p>which is implemented as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">141</span><span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">142</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">prefactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">gamma</span><span class="o">*</span><span class="n">dt</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Pr</span><span class="p">)</span><span class="o">*</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Ra</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">143</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">coef_xm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">/</span><span class="n">DXF</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">DXC</span><span class="p">(</span><span class="n">i</span><span class="w">  </span><span class="p">);</span><span class="w"></span>
+<span class="linenos">144</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">coef_xp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">/</span><span class="n">DXF</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">DXC</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">145</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">coef_x0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">coef_xm</span><span class="o">-</span><span class="n">coef_xp</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">146</span><span class="w">        </span><span class="n">TDM_L</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">   </span><span class="o">-</span><span class="n">prefactor</span><span class="o">*</span><span class="n">coef_xm</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">147</span><span class="w">        </span><span class="n">TDM_U</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">   </span><span class="o">-</span><span class="n">prefactor</span><span class="o">*</span><span class="n">coef_xp</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">148</span><span class="w">        </span><span class="n">TDM_C</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">-</span><span class="n">prefactor</span><span class="o">*</span><span class="n">coef_x0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">149</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This can be written as a linear system (whose size is <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">itot</span><span class="w"></span></code>) for each <span class="math notranslate nohighlight">\(j\)</span> (<span class="math notranslate nohighlight">\(j\)</span> is omitted for simplicity):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\newcommand\ia{1}
+\newcommand\ib{2}
+\newcommand\ic{3}
+\newcommand\id{i-1}
+\newcommand\ie{i  }
+\newcommand\if{i+1}
+\newcommand\ig{\text{itot}-2}
+\newcommand\ih{\text{itot}-1}
+\newcommand\ii{\text{itot}  }
+\begin{bmatrix}
+   c_{\ia} &amp; u_{\ia} &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   l_{\ib} &amp; c_{\ib} &amp; u_{\ib} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   0       &amp; l_{\ic} &amp; c_{\ic} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; c_{\id} &amp; u_{\id} &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; l_{\ie} &amp; c_{\ie} &amp; u_{\ie} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; l_{\if} &amp; c_{\if} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; c_{\ig} &amp; u_{\ig} &amp; 0       \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; l_{\ih} &amp; c_{\ih} &amp; u_{\ih} \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; l_{\ii} &amp; c_{\ii}
+\end{bmatrix}
+\begin{bmatrix}
+   \vat{\delta T^{\prime}}{\ia} \\
+   \vat{\delta T^{\prime}}{\ib} \\
+   \vat{\delta T^{\prime}}{\ic} \\
+   \vdots                       \\
+   \vat{\delta T^{\prime}}{\id} \\
+   \vat{\delta T^{\prime}}{\ie} \\
+   \vat{\delta T^{\prime}}{\if} \\
+   \vdots                       \\
+   \vat{\delta T^{\prime}}{\ig} \\
+   \vat{\delta T^{\prime}}{\ih} \\
+   \vat{\delta T^{\prime}}{\ii}
+\end{bmatrix}
+=
+\begin{bmatrix}
+   \vat{\delta T}{\ia} \\
+   \vat{\delta T}{\ib} \\
+   \vat{\delta T}{\ic} \\
+   \vdots              \\
+   \vat{\delta T}{\id} \\
+   \vat{\delta T}{\ie} \\
+   \vat{\delta T}{\if} \\
+   \vdots              \\
+   \vat{\delta T}{\ig} \\
+   \vat{\delta T}{\ih} \\
+   \vat{\delta T}{\ii}
+\end{bmatrix},\end{split}\]</div>
+<p>where the first matrix in the left-hand-side is the tri-diagonal matrix, which can be solved by the <a class="reference external" href="https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm">tri-diagonal matrix algorithm</a>.
+See <a class="reference internal" href="../linalg.html#linalg"><span class="std std-ref">src/linalg.c</span></a> for details.</p>
+<p>Since the coefficients are assigned, the linear system is ready to be solved:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">151</span><span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">152</span><span class="w">        </span><span class="n">TDM_Q</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QX</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">153</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">154</span><span class="w">      </span><span class="n">my_dgtsv_b</span><span class="p">(</span><span class="n">itot</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_l</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_c</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_u</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_q</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">155</span><span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">156</span><span class="w">        </span><span class="n">QX</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TDM_Q</span><span class="p">(</span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">157</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</details></li>
+<li><p>Solve linear systems in <span class="math notranslate nohighlight">\(y\)</span> direction (<strong>only when</strong> the diffusive term in <span class="math notranslate nohighlight">\(y\)</span> direction is treated implicitly)</p>
+<details>
+<summary>
+Details</summary><p>We consider</p>
+<div class="math notranslate nohighlight">
+\[\delta T^{\prime\prime} \equiv \left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2}{\delta y^2} \right)^{-1} \delta T^{\prime}.\]</div>
+<p>To do so, all <span class="math notranslate nohighlight">\(y\)</span> values at each <span class="math notranslate nohighlight">\(x\)</span> location should be contained by one processor.
+This is not the case since the domain is split in <span class="math notranslate nohighlight">\(y\)</span> direction by default.
+Thus the matrix must be transposed beforehand, which is achieved as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">171</span><span class="w">    </span><span class="n">parallel_transpose</span><span class="p">(</span><span class="n">itot</span><span class="p">,</span><span class="w"> </span><span class="n">jtot</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">),</span><span class="w"> </span><span class="n">MPI_DOUBLE</span><span class="p">,</span><span class="w"> </span><span class="n">qx</span><span class="p">,</span><span class="w"> </span><span class="n">qy</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Also see the schematic below for an intuitive understanding, where a domain whose sizes are <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">itot</span><span class="o">=</span><span class="mi">7</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">jtot</span><span class="o">=</span><span class="mi">11</span><span class="w"></span></code> is drawn:</p>
+<a class="reference internal image-reference" href="../../_images/update_domain_decomp.pdf"><img alt="../../_images/update_domain_decomp.pdf" src="../../_images/update_domain_decomp.pdf" style="width: 800px;" /></a>
+<p>Here <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">qx</span><span class="w"></span></code> (left figure) is transposed to <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">qy</span><span class="w"></span></code> (right figure) and the alignment is modified to <span class="math notranslate nohighlight">\(y\)</span> direction (note that memory is contiguous in <span class="math notranslate nohighlight">\(y\)</span> direction after being transposed, which was contiguous in <span class="math notranslate nohighlight">\(x\)</span> direction before).</p>
+<p>We consider</p>
+<div class="math notranslate nohighlight">
+\[\delta T^{\prime\prime} \equiv \left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2}{\delta y^2} \right)^{-1} \delta T^{\prime}\]</div>
+<p>or in other words</p>
+<div class="math notranslate nohighlight">
+\[\left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2}{\delta y^2} \right) \delta T^{\prime\prime}
+= \delta T^{\prime\prime} - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} \frac{\delta^2 \left( \delta T^{\prime\prime} \right)}{\delta y^2}
+= \delta T^{\prime}.\]</div>
+<p>The second-order derivative of <span class="math notranslate nohighlight">\(\delta T^{\prime\prime}\)</span> in <span class="math notranslate nohighlight">\(y\)</span> direction should be discretised with the same discrete operator used to compute the diffusive term, i.e.,</p>
+<div class="math notranslate nohighlight">
+\[\vat{\frac{\delta^2 \left( \delta T^{\prime\prime} \right)}{\delta y^2}}{\pic, \pjc}
+=
+\vat{
+   \dder{}{y} \left\{ \dder{\left( \delta T^{\prime\prime} \right)}{y} \right\}
+}{\pic, \pjc}
+= c_{\pjmm} \vat{\left( \delta T^{\prime\prime} \right)}{\pic, \pjmm}
++ c_{\pjc } \vat{\left( \delta T^{\prime\prime} \right)}{\pic, \pjc }
++ c_{\pjpp} \vat{\left( \delta T^{\prime\prime} \right)}{\pic, \pjpp},\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}c_{\pjmm} &amp; = \frac{1}{\Delta y^2}, \\
+c_{\pjpp} &amp; = \frac{1}{\Delta y^2}, \\
+c_{\pjc } &amp; = -c_{\pjmm}-c_{\pjpp},\end{split}\]</div>
+<a class="reference internal image-reference" href="../../_images/update_linear_system_y.pdf"><img alt="../../_images/update_linear_system_y.pdf" src="../../_images/update_linear_system_y.pdf" style="width: 800px;" /></a>
+<p>Based on this, the equation of <span class="math notranslate nohighlight">\(T^{\prime\prime}\)</span> can be discretised as</p>
+<div class="math notranslate nohighlight">
+\[-            \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} c_{\pjmm}         \vat{\delta T^{\prime\prime}}{\pic, \pjmm}
++ \left( 1 - \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} c_{\pjc } \right) \vat{\delta T^{\prime\prime}}{\pic, \pjc }
+-            \frac{\gamma^k \Delta t}{2 \sqrt{Pr} \sqrt{Ra}} c_{\pjpp}         \vat{\delta T^{\prime\prime}}{\pic, \pjpp}
+= \vat{\delta T^{\prime}}{\pic, \pjc},\]</div>
+<p>For simplicity, we write this as</p>
+<div class="math notranslate nohighlight">
+\[l_{\pic, \pjc} \vat{\delta T^{\prime\prime}}{\pic, \pjmm}
++ c_{\pic, \pjc} \vat{\delta T^{\prime\prime}}{\pic, \pjc }
++ u_{\pic, \pjc} \vat{\delta T^{\prime\prime}}{\pic, \pjpp}
+= \vat{\delta T^{\prime}}{\pic, \pjc},\]</div>
+<p>which is implemented as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">189</span><span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;=</span><span class="n">jtot</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">190</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">prefactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">gamma</span><span class="o">*</span><span class="n">dt</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Pr</span><span class="p">)</span><span class="o">*</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Ra</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">191</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">coef_ym</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">/</span><span class="n">dy</span><span class="o">/</span><span class="n">dy</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">192</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">coef_yp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">/</span><span class="n">dy</span><span class="o">/</span><span class="n">dy</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">193</span><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">coef_y0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">coef_ym</span><span class="o">-</span><span class="n">coef_yp</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">194</span><span class="w">        </span><span class="n">TDM_L</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">   </span><span class="o">-</span><span class="n">prefactor</span><span class="o">*</span><span class="n">coef_ym</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">195</span><span class="w">        </span><span class="n">TDM_U</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">   </span><span class="o">-</span><span class="n">prefactor</span><span class="o">*</span><span class="n">coef_yp</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">196</span><span class="w">        </span><span class="n">TDM_C</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">-</span><span class="n">prefactor</span><span class="o">*</span><span class="n">coef_y0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">197</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This can be written as a linear system (whose size is <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">jtot</span><span class="w"></span></code>) for each <span class="math notranslate nohighlight">\(i\)</span> (<span class="math notranslate nohighlight">\(i\)</span> is omitted for simplicity):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\newcommand\ia{1}
+\newcommand\ib{2}
+\newcommand\ic{3}
+\newcommand\id{j-1}
+\newcommand\ie{j  }
+\newcommand\if{j+1}
+\newcommand\ig{\text{jtot}-2}
+\newcommand\ih{\text{jtot}-1}
+\newcommand\ii{\text{jtot}  }
+\begin{bmatrix}
+   c_{\ia} &amp; u_{\ia} &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; l_{ia}  \\
+   l_{\ib} &amp; c_{\ib} &amp; u_{\ib} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   0       &amp; l_{\ic} &amp; c_{\ic} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; c_{\id} &amp; u_{\id} &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; l_{\ie} &amp; c_{\ie} &amp; u_{\ie} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; l_{\if} &amp; c_{\if} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+   \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; c_{\ig} &amp; u_{\ig} &amp; 0       \\
+   0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; l_{\ih} &amp; c_{\ih} &amp; u_{\ih} \\
+   u_{\ii} &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; l_{\ii} &amp; c_{\ii}
+\end{bmatrix}
+\begin{bmatrix}
+   \vat{\delta T^{\prime\prime}}{\ia} \\
+   \vat{\delta T^{\prime\prime}}{\ib} \\
+   \vat{\delta T^{\prime\prime}}{\ic} \\
+   \vdots                             \\
+   \vat{\delta T^{\prime\prime}}{\id} \\
+   \vat{\delta T^{\prime\prime}}{\ie} \\
+   \vat{\delta T^{\prime\prime}}{\if} \\
+   \vdots                             \\
+   \vat{\delta T^{\prime\prime}}{\ig} \\
+   \vat{\delta T^{\prime\prime}}{\ih} \\
+   \vat{\delta T^{\prime\prime}}{\ii}
+\end{bmatrix}
+=
+\begin{bmatrix}
+   \vat{\delta T^{\prime}}{\ia} \\
+   \vat{\delta T^{\prime}}{\ib} \\
+   \vat{\delta T^{\prime}}{\ic} \\
+   \vdots                       \\
+   \vat{\delta T^{\prime}}{\id} \\
+   \vat{\delta T^{\prime}}{\ie} \\
+   \vat{\delta T^{\prime}}{\if} \\
+   \vdots                       \\
+   \vat{\delta T^{\prime}}{\ig} \\
+   \vat{\delta T^{\prime}}{\ih} \\
+   \vat{\delta T^{\prime}}{\ii}
+\end{bmatrix},\end{split}\]</div>
+<p>where the first matrix in the left-hand-side is the modified (i.e., periodic boundary) tri-diagonal matrix, which can be solved by the <a class="reference external" href="https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm">tri-diagonal matrix algorithm</a> with <a class="reference external" href="https://en.wikipedia.org/wiki/Sherman–Morrison_formula">Sherman–Morrison formula</a>.
+See <a class="reference internal" href="../linalg.html#linalg"><span class="std std-ref">src/linalg.c</span></a> for details.</p>
+<p>Since the coefficients are assigned, the linear system is ready to be solved:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">200</span><span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;=</span><span class="n">jtot</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">201</span><span class="w">        </span><span class="n">TDM_Q</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QY</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">202</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">203</span><span class="w">      </span><span class="n">my_dgtsv_p</span><span class="p">(</span><span class="n">jtot</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_l</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_c</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_u</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_q</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">204</span><span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;=</span><span class="n">jtot</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">205</span><span class="w">        </span><span class="n">QY</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TDM_Q</span><span class="p">(</span><span class="n">j</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">206</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>After all linear systems are solved, the <span class="math notranslate nohighlight">\(y\)</span>-aligned memory alignment is modified to the original <span class="math notranslate nohighlight">\(x\)</span>-aligned one by transposing the matrix again:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">218</span><span class="w">    </span><span class="n">parallel_transpose</span><span class="p">(</span><span class="n">jtot</span><span class="p">,</span><span class="w"> </span><span class="n">itot</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">),</span><span class="w"> </span><span class="n">MPI_DOUBLE</span><span class="p">,</span><span class="w"> </span><span class="n">qy</span><span class="p">,</span><span class="w"> </span><span class="n">qx</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Because of the two matrix transposes, MPI communications among all processors (the most expensive procedure in the code) are essential.
+In order to avoid unnecessary performance degenerations, the cost is evaluated in a function <a class="reference internal" href="../param/estimate_cost.html#param-estimate-cost"><span class="std std-ref">param_estimate_cost</span></a>, where an optimal diffusive treatment is decided.</p>
+</div>
+</details></li>
+<li><p>Update <span class="math notranslate nohighlight">\(T^k\)</span> to <span class="math notranslate nohighlight">\(T^{k+1}\)</span></p>
+<details>
+<summary>
+Details</summary><p>Now the increment is ready, which is added to the temperature <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">temp</span><span class="w"></span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">222</span><span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;=</span><span class="n">jsize</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">223</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">224</span><span class="w">      </span><span class="n">TEMP</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">QX</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">225</span><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">226</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</details></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/implementation/temperature/update.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

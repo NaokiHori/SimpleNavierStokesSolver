@@ -1,0 +1,465 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>parallel/transpose.c &#8212; Simple Navier-Stokes Solver 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script>window.MathJax = {"TeX": {"Macros": {"der": ["{\\frac{\\partial #1}{\\partial #2}}", 2], "dder": ["{\\frac{\\delta #1}{\\delta #2}}", 2], "mst": ["{\\gamma^{#1 #2}}", 2], "gx": ["{\\xi}"], "gy": ["{\\eta}"], "ux": ["{u_x}"], "uy": ["{u_y}"], "intrp": ["{\\overline{#1}^{#2}}", 2], "diffe": ["{\\delta_{#2} {#1}}", 2], "vat": ["{\\left. {#1} \\right|_{#2}}", 2], "ave": ["{\\left\\langle {#1} \\right\\rangle_{#2}}", 2], "pimm": ["i-1           "], "pim": ["i-\\frac{1}{2}"], "pic": ["i             "], "pip": ["i+\\frac{1}{2}"], "pipp": ["i+1           "], "pjmm": ["j-1           "], "pjm": ["j-\\frac{1}{2}"], "pjc": ["j             "], "pjp": ["j+\\frac{1}{2}"], "pjpp": ["j+1           "], "ximm": ["i-\\frac{1}{2}"], "xim": ["i             "], "xic": ["i+\\frac{1}{2}"], "xip": ["i+1           "], "xipp": ["i+\\frac{3}{2}"], "xjmm": ["j-1           "], "xjm": ["j-\\frac{1}{2}"], "xjc": ["j             "], "xjp": ["j+\\frac{1}{2}"], "xjpp": ["j+1           "], "yimm": ["i-1           "], "yim": ["i-\\frac{1}{2}"], "yic": ["i             "], "yip": ["i+\\frac{1}{2}"], "yipp": ["i+1           "], "yjmm": ["j-\\frac{1}{2}"], "yjm": ["j             "], "yjc": ["j+\\frac{1}{2}"], "yjp": ["j+1           "], "yjpp": ["j+\\frac{3}{2}"], "dintrpa": ["{\\overline{#1}^{#2}}", 2], "dintrpv": ["{\\widehat {#1}^{#2}}", 2], "dintrpu": ["{\\widetilde {#1}^{#2}}", 2]}}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="param/" href="../param/index.html" />
+    <link rel="prev" title="parallel/others.c" href="others.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Simple Navier-Stokes Solver</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleNavierStokesSolver&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../governing_equations/index.html">Governing equations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical_method/index.html">Numerical method</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Implementation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analyses.html">analyses.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../common.html">common.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fileio/main.html">fileio.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fluid/index.html">fluid/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../linalg.html">linalg.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">logging.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../main.html">main.c</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">parallel/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../param/index.html">param/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../save.html">save.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../simple_npyio.html">simple_npy_io.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../statistics/index.html">statistics/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../temperature/index.html">temperature/</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Implementation</a><ul>
+  <li><a href="index.html">parallel/</a><ul>
+      <li>Previous: <a href="others.html" title="previous chapter">parallel/others.c</a></li>
+      <li>Next: <a href="../param/index.html" title="next chapter">param/</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="parallel-transpose">
+<span id="id1"></span><h1><a class="reference external" href="https://github.com/NaokiHori/SimpleNavierStokesSolver/blob/main/src/parallel/transpose.c">parallel/transpose.c</a><a class="headerlink" href="#parallel-transpose" title="Permalink to this heading">¶</a></h1>
+<p>A function to transpose two-dimensional matrix</p>
+<section id="id2">
+<h2>parallel_transpose<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<section id="definition">
+<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">parallel_transpose</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">g_isize</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">g_jsize</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">dtypesize</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">MPI_Datatype</span><span class="w"> </span><span class="n">mpi_dtype</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">sendbuf</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">recvbuf</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>intent</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>g_isize</p></td>
+<td><p>in</p></td>
+<td><p>number of points in <span class="math notranslate nohighlight">\(x\)</span> direction</p></td>
+</tr>
+<tr class="row-odd"><td><p>g_jsize</p></td>
+<td><p>in</p></td>
+<td><p>number of points in <span class="math notranslate nohighlight">\(y\)</span> direction</p></td>
+</tr>
+<tr class="row-even"><td><p>dtypesize</p></td>
+<td><p>in</p></td>
+<td><p>size of an element of the matrix</p></td>
+</tr>
+<tr class="row-odd"><td><p>mpi_dtype</p></td>
+<td><p>in</p></td>
+<td><p>datatype of the matrix</p></td>
+</tr>
+<tr class="row-even"><td><p>sendbuf</p></td>
+<td><p>in</p></td>
+<td><p>pointer to the matrix to be transposed</p></td>
+</tr>
+<tr class="row-odd"><td><p>recvbuf</p></td>
+<td><p>out</p></td>
+<td><p>pointer to the transposed matrix</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h3>
+<p>In the fluid solver, a matrix which is aligned in <span class="math notranslate nohighlight">\(x\)</span> direction by default sometimes needs to be re-aligned to a <span class="math notranslate nohighlight">\(y\)</span>-aligned one:</p>
+<a class="reference internal image-reference" href="../../_images/transpose1.pdf"><img alt="../../_images/transpose1.pdf" src="../../_images/transpose1.pdf" style="width: 800px;" /></a>
+<p>in order to transpose the matrix (see <a class="reference internal" href="../fluid/update_velocity.html#fluid-update-velocity"><span class="std std-ref">src/fluid/update_velocity.c</span></a> and <a class="reference internal" href="../fluid/compute_potential.html#fluid-compute-potential"><span class="std std-ref">src/fluid/compute_potential.c</span></a>); This function takes on the role of this process.
+Note that the red arrows denote the contiguous directions of the memory, i.e., the memories are contiguous in <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> directions before and after the transpose, respectively.</p>
+<p>As an example to guide the discussion, we consider a matrix whose size in <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> directions are <span class="math notranslate nohighlight">\(7\)</span> and <span class="math notranslate nohighlight">\(11\)</span>, respectively, which is split in <span class="math notranslate nohighlight">\(y\)</span> direction with <span class="math notranslate nohighlight">\(3\)</span> processes by default:</p>
+<a class="reference internal image-reference" href="../../_images/transpose2.pdf"><img alt="../../_images/transpose2.pdf" src="../../_images/transpose2.pdf" style="width: 300px;" /></a>
+<p>Note that the value of each element shows the row (<span class="math notranslate nohighlight">\(x\)</span> location) and the column (<span class="math notranslate nohighlight">\(y\)</span> location), i.e., <span class="math notranslate nohighlight">\(\text{column} - \text{row}\)</span> for convenience.</p>
+<p>Since the domain is split in <span class="math notranslate nohighlight">\(y\)</span> direction originally, some information should be communicated in order to transpose the whole matrix, which can be achieved by using a function <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">MPI_Alltoall</span><span class="w"></span></code>:</p>
+<a class="reference internal image-reference" href="../../_images/transpose3.pdf"><img alt="../../_images/transpose3.pdf" src="../../_images/transpose3.pdf" style="width: 800px;" /></a>
+<p>where values <span class="math notranslate nohighlight">\(A_{ij}\)</span> are exchanged between process <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>.</p>
+<p>In our case, however, the information to be communicated is not a single value but a block including multiple values which are not contiguous in memory.
+To overcome this, for each block, we define an <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">MPI_Datatype</span><span class="w"></span></code> including all values and communicate them (as if the new datatype is a single value), which can be achieved by using an extended all-to-all function <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">MPI_Alltoallw</span><span class="w"></span></code>.</p>
+<p>Different datatypes should be created for each communication since the block sizes are different in general.
+For simplicity, we focus on the communication from process 0 (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">mpirank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span></code>) to process 1 (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">mpirank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span></code>), i.e., <span class="math notranslate nohighlight">\(A_{01}\)</span> block.</p>
+<p>First, we consider to create an intermediate datatype:</p>
+<a class="reference internal image-reference" href="../../_images/transpose4.pdf"><img alt="../../_images/transpose4.pdf" src="../../_images/transpose4.pdf" style="width: 300px;" /></a>
+<p>where the values in the first column (<span class="math notranslate nohighlight">\(0-2\)</span>, <span class="math notranslate nohighlight">\(1-2\)</span>, and <span class="math notranslate nohighlight">\(2-2\)</span>) are covered first.
+The implementation can be found here:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">29</span><span class="w">    </span><span class="n">MPI_Type_create_hvector</span><span class="p">(</span><span class="w"></span>
+<span class="linenos">30</span><span class="w">        </span><span class="cm">/* int count             */</span><span class="w"> </span><span class="n">xalign_block_jsize</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">31</span><span class="w">        </span><span class="cm">/* int blocklength       */</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">32</span><span class="w">        </span><span class="cm">/* MPI_Aint stride       */</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">g_isize</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">33</span><span class="w">        </span><span class="cm">/* MPI_Datatype oldtype  */</span><span class="w"> </span><span class="n">mpi_dtype</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">34</span><span class="w">        </span><span class="cm">/* MPI_Datatype *newtype */</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tmpdtype</span><span class="w"></span>
+<span class="linenos">35</span><span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="linenos">36</span><span class="w">    </span><span class="n">MPI_Type_commit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmpdtype</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where a new datatype <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tmpdtype</span><span class="w"></span></code> is created as an intermediate type.
+Note that the number of elements is <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xalign_block_jsize</span><span class="w"></span></code>, only <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">blocklength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span></code> column is considered for now, offset between two elements in the original array is <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">g_isize</span><span class="w"></span></code> (the unit is byte), datatype is the given one <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">oldtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpi_dtype</span><span class="w"></span></code>.
+Note that the memory ordering is swapped here, i.e., memory is contiguous in the red arrow direction originally, which is changed to the direction of the blue arrows.</p>
+<p>This datatype is used to define a new datatype by repeating in <span class="math notranslate nohighlight">\(x\)</span> direction:</p>
+<a class="reference internal image-reference" href="../../_images/transpose5.pdf"><img alt="../../_images/transpose5.pdf" src="../../_images/transpose5.pdf" style="width: 800px;" /></a>
+<p>where the blue rectangle denotes the intermediate datatype.
+The right one-dimensional container is a virtual buffer describing how the values are ordered and sent.
+The implementation is found here:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">38</span><span class="w">    </span><span class="n">MPI_Type_create_hvector</span><span class="p">(</span><span class="w"></span>
+<span class="linenos">39</span><span class="w">        </span><span class="cm">/* int count             */</span><span class="w"> </span><span class="n">xalign_block_isize</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">40</span><span class="w">        </span><span class="cm">/* int blocklength       */</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">41</span><span class="w">        </span><span class="cm">/* MPI_Aint stride       */</span><span class="w"> </span><span class="n">dtypesize</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">42</span><span class="w">        </span><span class="cm">/* MPI_Datatype oldtype  */</span><span class="w"> </span><span class="n">tmpdtype</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">43</span><span class="w">        </span><span class="cm">/* MPI_Datatype *newtype */</span><span class="w"> </span><span class="o">&amp;</span><span class="p">(</span><span class="n">sendtypes</span><span class="p">[</span><span class="n">n</span><span class="p">])</span><span class="w"></span>
+<span class="linenos">44</span><span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="linenos">45</span><span class="w">    </span><span class="c1">// the intermediate datatype is no longer used</span>
+<span class="linenos">46</span><span class="w">    </span><span class="n">MPI_Type_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmpdtype</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that the number of elements is <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xalign_block_isize</span><span class="w"></span></code>, only <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">blocklength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span></code> component is considered, offset between two elements in the original array is <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtypesize</span><span class="w"></span></code> (the unit is byte), datatype is the intermediate datatype <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">oldtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmpdtype</span><span class="w"></span></code>.</p>
+<p>This data is sent to the other process (it can be the same process), which should be <em>unpacked</em> to assign to the appropriate memory locations.
+To do so, a new datatype is created again:</p>
+<a class="reference internal image-reference" href="../../_images/transpose6.pdf"><img alt="../../_images/transpose6.pdf" src="../../_images/transpose6.pdf" style="width: 800px;" /></a>
+<p>whose implementation can be found here:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">48</span><span class="w">    </span><span class="n">MPI_Type_create_hvector</span><span class="p">(</span><span class="w"></span>
+<span class="linenos">49</span><span class="w">        </span><span class="cm">/* int count             */</span><span class="w"> </span><span class="n">yalign_block_isize</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">50</span><span class="w">        </span><span class="cm">/* int blocklength       */</span><span class="w"> </span><span class="n">yalign_block_jsize</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">51</span><span class="w">        </span><span class="cm">/* MPI_Aint stride       */</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">g_jsize</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">52</span><span class="w">        </span><span class="cm">/* MPI_Datatype oldtype  */</span><span class="w"> </span><span class="n">mpi_dtype</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">53</span><span class="w">        </span><span class="cm">/* MPI_Datatype *newtype */</span><span class="w"> </span><span class="o">&amp;</span><span class="p">(</span><span class="n">recvtypes</span><span class="p">[</span><span class="n">n</span><span class="p">])</span><span class="w"></span>
+<span class="linenos">54</span><span class="w">    </span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that the number of elements is <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yalign_block_isize</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">blocklength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yalign_block_jsize</span><span class="w"></span></code> components are assigned contiguously, offset between two blocks is <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">g_jsize</span><span class="w"></span></code> (the unit is byte), and the datatype is the given one <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">oldtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpi_dtype</span><span class="w"></span></code>.
+This created new type can be directly used.</p>
+<p>Since the new datatypes is designed to contain all values inside the block, the number of elements to be sent and received is <code class="code highlight c-lang c docutils literal highlight-c"><span class="mi">1</span><span class="w"></span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">56</span><span class="w">    </span><span class="n">sendcounts</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">57</span><span class="w">    </span><span class="n">recvcounts</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Also the offset of the pointers of data to be transposed can be obtained as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">59</span><span class="w">    </span><span class="n">sdispls</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">parallel_get_offset</span><span class="p">(</span><span class="n">g_isize</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">60</span><span class="w">    </span><span class="n">rdispls</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">parallel_get_offset</span><span class="p">(</span><span class="n">g_jsize</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>After the datatypes are committed:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">63</span><span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">&lt;</span><span class="n">mpisize</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">64</span><span class="w">    </span><span class="n">MPI_Type_commit</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">sendtypes</span><span class="p">[</span><span class="n">n</span><span class="p">]));</span><span class="w"></span>
+<span class="linenos">65</span><span class="w">    </span><span class="n">MPI_Type_commit</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">recvtypes</span><span class="p">[</span><span class="n">n</span><span class="p">]));</span><span class="w"></span>
+<span class="linenos">66</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The matrix is transposed:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">68</span><span class="w">  </span><span class="n">MPI_Alltoallw</span><span class="p">(</span><span class="w"></span>
+<span class="linenos">69</span><span class="w">      </span><span class="n">sendbuf</span><span class="p">,</span><span class="w"> </span><span class="n">sendcounts</span><span class="p">,</span><span class="w"> </span><span class="n">sdispls</span><span class="p">,</span><span class="w"> </span><span class="n">sendtypes</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">70</span><span class="w">      </span><span class="n">recvbuf</span><span class="p">,</span><span class="w"> </span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="n">rdispls</span><span class="p">,</span><span class="w"> </span><span class="n">recvtypes</span><span class="p">,</span><span class="w"></span>
+<span class="linenos">71</span><span class="w">      </span><span class="n">MPI_COMM_WORLD</span><span class="w"></span>
+<span class="linenos">72</span><span class="w">  </span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Finally the working arrays and created datatypes are deallocated:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">74</span><span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">&lt;</span><span class="n">mpisize</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">75</span><span class="w">    </span><span class="n">MPI_Type_free</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">sendtypes</span><span class="p">[</span><span class="n">n</span><span class="p">]));</span><span class="w"></span>
+<span class="linenos">76</span><span class="w">    </span><span class="n">MPI_Type_free</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">recvtypes</span><span class="p">[</span><span class="n">n</span><span class="p">]));</span><span class="w"></span>
+<span class="linenos">77</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">78</span><span class="w">  </span><span class="n">common_free</span><span class="p">(</span><span class="n">sendtypes</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">79</span><span class="w">  </span><span class="n">common_free</span><span class="p">(</span><span class="n">recvtypes</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">80</span><span class="w">  </span><span class="n">common_free</span><span class="p">(</span><span class="n">sendcounts</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">81</span><span class="w">  </span><span class="n">common_free</span><span class="p">(</span><span class="n">recvcounts</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">82</span><span class="w">  </span><span class="n">common_free</span><span class="p">(</span><span class="n">sdispls</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">83</span><span class="w">  </span><span class="n">common_free</span><span class="p">(</span><span class="n">rdispls</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>A working example can be found below.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;mpi.h&gt;</span><span class="cp"></span>
+
+
+<span class="cp">#define ALLOCATE(ptr, size){                      \</span>
+<span class="cp">  if(((ptr) = calloc(1, (size))) == NULL){        \</span>
+<span class="cp">    printf(&quot;memory allocation error: %s\n&quot;, #ptr);\</span>
+<span class="cp">    exit(EXIT_FAILURE);                           \</span>
+<span class="cp">  }                                               \</span>
+<span class="cp">}</span>
+
+<span class="cp">#define DEALLOCATE(ptr){\</span>
+<span class="cp">  free((ptr));          \</span>
+<span class="cp">  (ptr) = NULL;         \</span>
+<span class="cp">}</span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">parallel_get_size</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_total</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mpirank</span><span class="p">){</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/* ! number of grid points of the process ! 2 ! */</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">num_local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">num_total</span><span class="o">+</span><span class="n">mpirank</span><span class="p">)</span><span class="o">/</span><span class="n">mpisize</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">num_local</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">parallel_get_offset</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_total</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mpirank</span><span class="p">){</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/* ! sum up the number of grid points to the process ! 5 ! */</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">mpirank</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="n">offset</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">parallel_get_size</span><span class="p">(</span><span class="n">num_total</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">parallel_transpose</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">g_isize</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">g_jsize</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">dtypesize</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">MPI_Datatype</span><span class="w"> </span><span class="n">mpi_dtype</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">sendbuf</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">recvbuf</span><span class="p">){</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">mpirank</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">MPI_Datatype</span><span class="w"> </span><span class="o">*</span><span class="n">sendtypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">MPI_Datatype</span><span class="w"> </span><span class="o">*</span><span class="n">recvtypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">sendcounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">recvcounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">sdispls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rdispls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mpisize</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mpirank</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">ALLOCATE</span><span class="p">(</span><span class="n">sendtypes</span><span class="p">,</span><span class="w">  </span><span class="k">sizeof</span><span class="p">(</span><span class="n">MPI_Datatype</span><span class="p">)</span><span class="o">*</span><span class="n">mpisize</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">ALLOCATE</span><span class="p">(</span><span class="n">recvtypes</span><span class="p">,</span><span class="w">  </span><span class="k">sizeof</span><span class="p">(</span><span class="n">MPI_Datatype</span><span class="p">)</span><span class="o">*</span><span class="n">mpisize</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">ALLOCATE</span><span class="p">(</span><span class="n">sendcounts</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w">         </span><span class="o">*</span><span class="n">mpisize</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">ALLOCATE</span><span class="p">(</span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w">         </span><span class="o">*</span><span class="n">mpisize</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">ALLOCATE</span><span class="p">(</span><span class="n">sdispls</span><span class="p">,</span><span class="w">    </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w">         </span><span class="o">*</span><span class="n">mpisize</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">ALLOCATE</span><span class="p">(</span><span class="n">rdispls</span><span class="p">,</span><span class="w">    </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w">         </span><span class="o">*</span><span class="n">mpisize</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">&lt;</span><span class="n">mpisize</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">xalign_block_isize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parallel_get_size</span><span class="p">(</span><span class="n">g_isize</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">xalign_block_jsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parallel_get_size</span><span class="p">(</span><span class="n">g_jsize</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">mpirank</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">yalign_block_isize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parallel_get_size</span><span class="p">(</span><span class="n">g_isize</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">mpirank</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">yalign_block_jsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parallel_get_size</span><span class="p">(</span><span class="n">g_jsize</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Datatype</span><span class="w"> </span><span class="n">tmpdtype</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* ! datatype to be sent: contiguous in y direction ! 8 ! */</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Type_create_hvector</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* int count             */</span><span class="w"> </span><span class="n">xalign_block_jsize</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* int blocklength       */</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* MPI_Aint stride       */</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">g_isize</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* MPI_Datatype oldtype  */</span><span class="w"> </span><span class="n">mpi_dtype</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* MPI_Datatype *newtype */</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tmpdtype</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Type_commit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmpdtype</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* ! datatype to be sent: the datatype previously defined is repeated in x direction ! 9 ! */</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Type_create_hvector</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* int count             */</span><span class="w"> </span><span class="n">xalign_block_isize</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* int blocklength       */</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* MPI_Aint stride       */</span><span class="w"> </span><span class="n">dtypesize</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* MPI_Datatype oldtype  */</span><span class="w"> </span><span class="n">tmpdtype</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* MPI_Datatype *newtype */</span><span class="w"> </span><span class="o">&amp;</span><span class="p">(</span><span class="n">sendtypes</span><span class="p">[</span><span class="n">n</span><span class="p">])</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// the intermediate datatype is no longer used</span>
+<span class="w">    </span><span class="n">MPI_Type_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmpdtype</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* ! datatype to be received: the data is already aligned in y direction ! 7 ! */</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Type_create_hvector</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* int count             */</span><span class="w"> </span><span class="n">yalign_block_isize</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* int blocklength       */</span><span class="w"> </span><span class="n">yalign_block_jsize</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* MPI_Aint stride       */</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">g_jsize</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* MPI_Datatype oldtype  */</span><span class="w"> </span><span class="n">mpi_dtype</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* MPI_Datatype *newtype */</span><span class="w"> </span><span class="o">&amp;</span><span class="p">(</span><span class="n">recvtypes</span><span class="p">[</span><span class="n">n</span><span class="p">])</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* ! number of elements to be sent/received ! 2 ! */</span><span class="w"></span>
+<span class="w">    </span><span class="n">sendcounts</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">recvcounts</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* ! the offset of the pointers ! 2 ! */</span><span class="w"></span>
+<span class="w">    </span><span class="n">sdispls</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">parallel_get_offset</span><span class="p">(</span><span class="n">g_isize</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">rdispls</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtypesize</span><span class="o">*</span><span class="n">parallel_get_offset</span><span class="p">(</span><span class="n">g_jsize</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/* ! datatypes are created ! 4 ! */</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">&lt;</span><span class="n">mpisize</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Type_commit</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">sendtypes</span><span class="p">[</span><span class="n">n</span><span class="p">]));</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Type_commit</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">recvtypes</span><span class="p">[</span><span class="n">n</span><span class="p">]));</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/* ! matrix is transposed ! 11 ! */</span><span class="w"></span>
+<span class="w">  </span><span class="n">MPI_Alltoallw</span><span class="p">(</span><span class="w"></span>
+<span class="w">      </span><span class="n">sendbuf</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">sendcounts</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">sdispls</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">sendtypes</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">recvbuf</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">recvcounts</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">rdispls</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">recvtypes</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">MPI_COMM_WORLD</span><span class="w"></span>
+<span class="w">  </span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="cm">/* ! finalised ! 10 ! */</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">&lt;</span><span class="n">mpisize</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Type_free</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">sendtypes</span><span class="p">[</span><span class="n">n</span><span class="p">]));</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Type_free</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">recvtypes</span><span class="p">[</span><span class="n">n</span><span class="p">]));</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="n">DEALLOCATE</span><span class="p">(</span><span class="n">sendtypes</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">DEALLOCATE</span><span class="p">(</span><span class="n">recvtypes</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">DEALLOCATE</span><span class="p">(</span><span class="n">sendcounts</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">DEALLOCATE</span><span class="p">(</span><span class="n">recvcounts</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">DEALLOCATE</span><span class="p">(</span><span class="n">sdispls</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">DEALLOCATE</span><span class="p">(</span><span class="n">rdispls</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">mpirank</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">itot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">jtot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">11</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">MPI_Init</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mpisize</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mpirank</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">isize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parallel_get_size</span><span class="p">(</span><span class="n">itot</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">mpirank</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">jsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parallel_get_size</span><span class="p">(</span><span class="n">jtot</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">mpirank</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">ALLOCATE</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">*</span><span class="n">itot</span><span class="o">*</span><span class="n">jsize</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">ALLOCATE</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">*</span><span class="n">isize</span><span class="o">*</span><span class="n">jtot</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;</span><span class="n">jsize</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">joffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parallel_get_offset</span><span class="p">(</span><span class="n">jtot</span><span class="p">,</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">mpirank</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">      </span><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="o">*</span><span class="n">itot</span><span class="o">+</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100.</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="n">joffset</span><span class="p">)</span><span class="o">+</span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">&lt;</span><span class="n">mpisize</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mpirank</span><span class="p">){</span><span class="w"></span>
+<span class="w">      </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;rank %5d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;</span><span class="n">jsize</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">itot</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">          </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%04d%c&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="o">*</span><span class="n">itot</span><span class="o">+</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itot</span><span class="mi">-1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="sc">&#39; &#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="n">parallel_transpose</span><span class="p">(</span><span class="n">itot</span><span class="p">,</span><span class="w"> </span><span class="n">jtot</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span><span class="w"> </span><span class="n">MPI_INT</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">&lt;</span><span class="n">mpisize</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mpirank</span><span class="p">){</span><span class="w"></span>
+<span class="w">      </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;rank %5d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">isize</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;</span><span class="n">jtot</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">          </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%04d%c&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">jtot</span><span class="o">+</span><span class="n">j</span><span class="p">],</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">jtot</span><span class="mi">-1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="sc">&#39; &#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="n">DEALLOCATE</span><span class="p">(</span><span class="n">x</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">DEALLOCATE</span><span class="p">(</span><span class="n">y</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">MPI_Finalize</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/implementation/parallel/transpose.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

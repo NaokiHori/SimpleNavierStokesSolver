@@ -1,0 +1,1561 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Appendix: General coordinate system and energy-conserving scheme &#8212; Simple Navier-Stokes Solver 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script>window.MathJax = {"TeX": {"Macros": {"der": ["{\\frac{\\partial #1}{\\partial #2}}", 2], "dder": ["{\\frac{\\delta #1}{\\delta #2}}", 2], "mst": ["{\\gamma^{#1 #2}}", 2], "gx": ["{\\xi}"], "gy": ["{\\eta}"], "ux": ["{u_x}"], "uy": ["{u_y}"], "intrp": ["{\\overline{#1}^{#2}}", 2], "diffe": ["{\\delta_{#2} {#1}}", 2], "vat": ["{\\left. {#1} \\right|_{#2}}", 2], "ave": ["{\\left\\langle {#1} \\right\\rangle_{#2}}", 2], "pimm": ["i-1           "], "pim": ["i-\\frac{1}{2}"], "pic": ["i             "], "pip": ["i+\\frac{1}{2}"], "pipp": ["i+1           "], "pjmm": ["j-1           "], "pjm": ["j-\\frac{1}{2}"], "pjc": ["j             "], "pjp": ["j+\\frac{1}{2}"], "pjpp": ["j+1           "], "ximm": ["i-\\frac{1}{2}"], "xim": ["i             "], "xic": ["i+\\frac{1}{2}"], "xip": ["i+1           "], "xipp": ["i+\\frac{3}{2}"], "xjmm": ["j-1           "], "xjm": ["j-\\frac{1}{2}"], "xjc": ["j             "], "xjp": ["j+\\frac{1}{2}"], "xjpp": ["j+1           "], "yimm": ["i-1           "], "yim": ["i-\\frac{1}{2}"], "yic": ["i             "], "yip": ["i+\\frac{1}{2}"], "yipp": ["i+1           "], "yjmm": ["j-\\frac{1}{2}"], "yjm": ["j             "], "yjc": ["j+\\frac{1}{2}"], "yjp": ["j+1           "], "yjpp": ["j+\\frac{3}{2}"], "dintrpa": ["{\\overline{#1}^{#2}}", 2], "dintrpv": ["{\\widehat {#1}^{#2}}", 2], "dintrpu": ["{\\widetilde {#1}^{#2}}", 2]}}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Implementation" href="../../../implementation/index.html" />
+    <link rel="prev" title="Inconsistent results" href="inconsistent_results.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Simple Navier-Stokes Solver</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleNavierStokesSolver&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../governing_equations/index.html">Governing equations</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Numerical method</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../temporal_discretisation/index.html">Temporal discretisation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Spatial discretisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/index.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references.html">References</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Numerical method</a><ul>
+  <li><a href="../index.html">Spatial discretisation</a><ul>
+  <li><a href="index.html">Discrete governing equations</a><ul>
+      <li>Previous: <a href="inconsistent_results.html" title="previous chapter">Inconsistent results</a></li>
+      <li>Next: <a href="../../../implementation/index.html" title="next chapter">Implementation</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="appendix-strong-conservation"></span><section id="appendix-general-coordinate-system-and-energy-conserving-scheme">
+<h1>Appendix: General coordinate system and energy-conserving scheme<a class="headerlink" href="#appendix-general-coordinate-system-and-energy-conserving-scheme" title="Permalink to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Energy-conserving schemes are derived <a class="reference internal" href="index.html#discrete-governing-equations"><span class="std std-ref">here</span></a>.
+In this appendix, we bring the same conclusion using the other way.</p>
+</div>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
+<p>Because of the staggered grid arrangement where velocities and pressure are defined at different positions, variables are not necessarily defined where we need, when we need to interpolate them.</p>
+<p>When all variables are positioned equidistantly (uniform grid), interpolations of two quantities to the middle point is given by a simple arithmetic average and no ambiguity exist there, e.g.,</p>
+<div class="math notranslate nohighlight">
+\[\vat{\dintrpa{q}{x}}{\pic, \pjc}
+=
+\frac{1}{2} \vat{q}{\pip, \pjc}
++
+\frac{1}{2} \vat{q}{\pim, \pjc}.,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\dintrpa{q}{x}\)</span> indicates the arithmetic average in <span class="math notranslate nohighlight">\(x\)</span> direction using the surrounding two quantities.</p>
+<p>When the grid is stretched (non-uniform grid), an intuitive way might be to use linear interpolations, which sometimes brings undesirable outcomes.
+One of the most important properties which is influenced by that could be the conservation of the quadratic quantities <span class="math notranslate nohighlight">\(k\)</span> and <span class="math notranslate nohighlight">\(h\)</span>.</p>
+<p>As discussed in <a class="reference internal" href="../../../governing_equations/index.html#governing-equations"><span class="std std-ref">the governing equations</span></a>, in the continuous level, the kinetic energy conservation is implicitly fulfilled in the inviscid limit as long as the mass and momentum balances are satisfied.
+This relation, however, is easily destroyed when the equations are discretised without using appropriate interpolations (e.g., Morinishi et al., <em>J. Comput. Phys.</em> (<strong>143</strong>), 1998, Kajishima, Trans. <em>JSME</em> (<strong>65-633, 1607</strong>), 1999 (in Japanese), Ham et al., <em>J. Comput. Phys.</em> (<strong>177</strong>), 2002).
+As a result, the numerical solver continuously injects (or ejects) artificial energy through the advective terms, which can affect the stability of the solver and distort the physics behind.</p>
+<p>In order to obtain a scheme which is mass-, momentum-, and energy-consistent, we investigate the continuous governing equations again.
+The central idea is as follows.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Let’s consider to transform the original governing equations to a new coordinate system.
+Since this is a pure mathematical operation, no error is involved.
+The new coordinate system is designed so that all discrete points are uniformly located, in which arithmetic averages can be used for <em>all</em> interpolations without ambiguity.</p>
+</div>
+<p>This appendix is twofold.</p>
+<ol class="arabic simple">
+<li><p>Derivation of the governing equations in a new coordinate system <span class="math notranslate nohighlight">\(\xi_i\)</span>, so-called strong conservation form.</p></li>
+<li><p>Discretisation of equations described in the new coordinate system.</p></li>
+</ol>
+</section>
+<section id="strong-conservation-form">
+<h2>Strong conservation form<a class="headerlink" href="#strong-conservation-form" title="Permalink to this heading">¶</a></h2>
+<details>
+<summary>
+Derivations</summary><p>We consider to project the mass conservation, momentum balance, and the equation of the internal energy to a new coordinate system.</p>
+<p>For convenience, we take the incompressibility constraint</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial u_i}{\partial x_i}
+=
+\frac{\partial \ux}{\partial x}
++
+\frac{\partial \uy}{\partial y}
+=
+0\]</div>
+<p>as an example.</p>
+<p>As a first step, we try to replace derivatives <span class="math notranslate nohighlight">\(\partial / \partial x_i\)</span> with <span class="math notranslate nohighlight">\(\partial / \partial \xi^i\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \xi^j}{\partial x_i} \frac{\partial u_i}{\partial \xi^j}
+= \frac{\partial  \xi}{\partial x} \frac{\partial \ux}{\partial  \xi}
++ \frac{\partial \eta}{\partial x} \frac{\partial \ux}{\partial \eta}
++ \frac{\partial  \xi}{\partial y} \frac{\partial \uy}{\partial  \xi}
++ \frac{\partial \eta}{\partial y} \frac{\partial \uy}{\partial \eta}.\]</div>
+<p>Since this is not in a conservative form, we would like to make this conservative, i.e. <span class="math notranslate nohighlight">\(\partial / \partial \xi^j \left( \cdots \right)\)</span>.</p>
+<p>The relation between the old and new coordinate systems is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \begin{pmatrix}
+    \frac{\partial}{\partial x} \\
+    \frac{\partial}{\partial y}
+  \end{pmatrix}
+  =
+  \begin{pmatrix}
+    \frac{\partial \xi}{\partial x} &amp; \frac{\partial \eta}{\partial x} \\
+    \frac{\partial \xi}{\partial y} &amp; \frac{\partial \eta}{\partial y}
+  \end{pmatrix}
+  \begin{pmatrix}
+    \frac{\partial}{\partial  \xi} \\
+    \frac{\partial}{\partial \eta}
+  \end{pmatrix}
+\end{aligned}\end{split}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \begin{pmatrix}
+    \frac{\partial}{\partial  \xi} \\
+    \frac{\partial}{\partial \eta}
+  \end{pmatrix}
+  =
+  \begin{pmatrix}
+    \frac{\partial x}{\partial  \xi} &amp; \frac{\partial y}{\partial  \xi} \\
+    \frac{\partial x}{\partial \eta} &amp; \frac{\partial y}{\partial \eta}
+  \end{pmatrix}
+  \begin{pmatrix}
+    \frac{\partial}{\partial x} \\
+    \frac{\partial}{\partial y}
+  \end{pmatrix}.
+\end{aligned}\end{split}\]</div>
+<p>Since the second equation can be written as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \begin{pmatrix}
+    \frac{\partial}{\partial x} \\
+    \frac{\partial}{\partial y}
+  \end{pmatrix}
+  =
+  \frac{1}{\frac{\partial x}{\partial  \xi} \frac{\partial y}{\partial \eta} - \frac{\partial y}{\partial  \xi} \frac{\partial x}{\partial \eta}}
+  \begin{pmatrix}
+     \frac{\partial y}{\partial \eta} &amp; -\frac{\partial x}{\partial \eta} \\
+    -\frac{\partial y}{\partial  \xi} &amp;  \frac{\partial x}{\partial  \xi}
+  \end{pmatrix}
+  \begin{pmatrix}
+    \frac{\partial}{\partial  \xi} \\
+    \frac{\partial}{\partial \eta}
+  \end{pmatrix},
+\end{aligned}\end{split}\]</div>
+<p>by comparing two relations, we find</p>
+<div class="math notranslate nohighlight">
+\[\newcommand{ \xx}{\frac{\partial    x}{\partial  \xi}}
+\newcommand{ \xy}{\frac{\partial    x}{\partial \eta}}
+\newcommand{ \yx}{\frac{\partial    y}{\partial  \xi}}
+\newcommand{ \yy}{\frac{\partial    y}{\partial \eta}}
+\newcommand{\xxi}{\frac{\partial  \xi}{\partial    x}}
+\newcommand{\xyi}{\frac{\partial \eta}{\partial    x}}
+\newcommand{\yxi}{\frac{\partial  \xi}{\partial    y}}
+\newcommand{\yyi}{\frac{\partial \eta}{\partial    y}}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\frac{1}{\xx \yy - \xy \yx}
+\begin{pmatrix}
+   \yy &amp; -\xy \\
+  -\yx &amp;  \xx
+\end{pmatrix}
+=
+\begin{pmatrix}
+  \xxi &amp; \yxi \\
+  \xyi &amp; \yyi
+\end{pmatrix},\end{split}\]</div>
+<p>where the denominator <span class="math notranslate nohighlight">\(J \equiv \xx \yy - \xy \yx\)</span> is the determinant of the Jacobian matrix.</p>
+<p>As a result, the incompressibility constraint leads</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \frac{\partial \xi^j}{\partial x_i} \frac{\partial u_i}{\partial \xi^j}
+  &amp;= \xxi \frac{\partial \ux}{\partial  \xi}
+   + \xyi \frac{\partial \ux}{\partial \eta}
+   + \yxi \frac{\partial \uy}{\partial  \xi}
+   + \yyi \frac{\partial \uy}{\partial \eta} \\
+  &amp;= \frac{1}{J} \yy \frac{\partial \ux}{\partial  \xi}
+   - \frac{1}{J} \yx \frac{\partial \ux}{\partial \eta}
+   - \frac{1}{J} \xy \frac{\partial \uy}{\partial  \xi}
+   + \frac{1}{J} \xx \frac{\partial \uy}{\partial \eta}
+ \end{aligned}\end{split}\]</div>
+<p>Next, we consider to update the velocity, i.e., trying to write down the equation using the contravariant component <span class="math notranslate nohighlight">\(U^i\)</span>.
+By assigning the relation</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+  \ux \\
+  \uy
+\end{pmatrix}
+\equiv
+\begin{pmatrix}
+  \frac{\partial x}{\partial t} \\
+  \frac{\partial y}{\partial t}
+\end{pmatrix}
+=
+\begin{pmatrix}
+  \xx &amp; \xy \\
+  \yx &amp; \yy
+\end{pmatrix}
+\begin{pmatrix}
+  \frac{\partial  \xi}{\partial t} \\
+  \frac{\partial \eta}{\partial t}
+\end{pmatrix}
+=
+\begin{pmatrix}
+  \xx &amp; \xy \\
+  \yx &amp; \yy
+\end{pmatrix}
+\begin{pmatrix}
+  U^x \\
+  U^y
+\end{pmatrix}\end{split}\]</div>
+<p>to the incompressibility constraint, we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;+ \frac{1}{J} \yy \frac{\partial}{\partial  \xi} \left( \xx U^x + \xy U^y \right) \\
+  &amp;- \frac{1}{J} \yx \frac{\partial}{\partial \eta} \left( \xx U^x + \xy U^y \right) \\
+  &amp;- \frac{1}{J} \xy \frac{\partial}{\partial  \xi} \left( \yx U^x + \yy U^y \right) \\
+  &amp;+ \frac{1}{J} \xx \frac{\partial}{\partial \eta} \left( \yx U^x + \yy U^y \right)
+\end{aligned}.\end{split}\]</div>
+<p>Terms including <span class="math notranslate nohighlight">\(U\)</span> are</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;+ \frac{1}{J} \yy \frac{\partial}{\partial  \xi} \left( \xx U^x \right) \\
+  &amp;- \frac{1}{J} \yx \frac{\partial}{\partial \eta} \left( \xx U^x \right) \\
+  &amp;- \frac{1}{J} \xy \frac{\partial}{\partial  \xi} \left( \yx U^x \right) \\
+  &amp;+ \frac{1}{J} \xx \frac{\partial}{\partial \eta} \left( \yx U^x \right)
+\end{aligned}
+=
+\begin{aligned}
+  &amp;+ \frac{U^x}{J} \yy \frac{\partial}{\partial  \xi} \left( \xx \right) + \frac{1}{J} \yy \frac{\partial U^x}{\partial  \xi} \xx \\
+  &amp;- \frac{U^x}{J} \yx \frac{\partial}{\partial \eta} \left( \xx \right) - \frac{1}{J} \yx \frac{\partial U^x}{\partial \eta} \xx \\
+  &amp;- \frac{U^x}{J} \xy \frac{\partial}{\partial  \xi} \left( \yx \right) - \frac{1}{J} \xy \frac{\partial U^x}{\partial  \xi} \yx \\
+  &amp;+ \frac{U^x}{J} \xx \frac{\partial}{\partial \eta} \left( \yx \right) + \frac{1}{J} \xx \frac{\partial U^x}{\partial \eta} \yx
+\end{aligned}
+\equiv
+\begin{aligned}
+  &amp;\left( 1-1 \right) + \left( 1-2 \right) \\
+  &amp;\left( 2-1 \right) + \left( 2-2 \right) \\
+  &amp;\left( 3-1 \right) + \left( 3-2 \right) \\
+  &amp;\left( 4-1 \right) + \left( 4-2 \right)
+\end{aligned},\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\left( 1-2 \right) + \left( 3-2 \right) =
++ \frac{1}{J} \yy \frac{\partial U^x}{\partial  \xi} \xx
+- \frac{1}{J} \xy \frac{\partial U^x}{\partial  \xi} \yx
+= \frac{1}{J} \left( \xx \yy - \xy \yx \right) \frac{\partial U^x}{\partial \xi}
+= \frac{1}{J} J \frac{\partial U^x}{\partial \xi},\]</div>
+<div class="math notranslate nohighlight">
+\[\left( 2-2 \right) + \left( 4-2 \right) =
+- \frac{1}{J} \yx \frac{\partial U^x}{\partial \eta} \xx
++ \frac{1}{J} \xx \frac{\partial U^x}{\partial \eta} \yx
+= 0,\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp; \left( 1-1 \right) + \left( 2-1 \right) + \left( 3-1 \right) + \left( 4-1 \right)  \\
+  &amp; =
+  + \frac{U^x}{J} \yy \frac{\partial}{\partial  \xi} \left( \xx \right)
+  - \frac{U^x}{J} \yx \frac{\partial}{\partial \eta} \left( \xx \right)
+  - \frac{U^x}{J} \xy \frac{\partial}{\partial  \xi} \left( \yx \right)
+  + \frac{U^x}{J} \xx \frac{\partial}{\partial \eta} \left( \yx \right) \\
+  &amp; =
+  + \frac{U^x}{J} \yy \frac{\partial}{\partial  \xi} \left( \xx \right)
+  - \frac{U^x}{J} \yx \frac{\partial}{\partial  \xi} \left( \xy \right)
+  - \frac{U^x}{J} \xy \frac{\partial}{\partial  \xi} \left( \yx \right)
+  + \frac{U^x}{J} \xx \frac{\partial}{\partial  \xi} \left( \yy \right) \\
+  &amp; =
+  \frac{U^x}{J} \left[
+    + \xx \frac{\partial}{\partial  \xi} \left( \yy \right)
+    + \yy \frac{\partial}{\partial  \xi} \left( \xx \right)
+    - \xy \frac{\partial}{\partial  \xi} \left( \yx \right)
+    - \yx \frac{\partial}{\partial  \xi} \left( \xy \right)
+  \right] \\
+  &amp; =
+  \frac{U^x}{J} \left[
+    + \frac{\partial}{\partial  \xi} \left(
+      \xx \yy
+    \right)
+    - \frac{\partial}{\partial  \xi} \left(
+      \xy \yx
+    \right)
+  \right] \\
+  &amp; =
+  \frac{U^x}{J} \frac{\partial}{\partial \xi} \left( \xx \yy - \xy \yx \right)
+  = \frac{U^x}{J} \frac{\partial J}{\partial \xi},
+\end{aligned}\end{split}\]</div>
+<p>and as a result</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{J} \frac{\partial}{\partial \xi} \left( J U^x \right).\]</div>
+<p>Similarly we notice the terms involving <span class="math notranslate nohighlight">\(U^y\)</span> yields</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{J} \frac{\partial}{\partial \eta} \left( J U^y \right).\]</div>
+<p>Thus we have</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial u_i}{\partial x_i}
+=
+\frac{\partial \xi^j}{\partial x_i} \frac{\partial u_i}{\partial \xi^j}
+=
+\frac{1}{J} \frac{\partial}{\partial \xi^i} \left( J U^i \right)
+=
+0.\]</div>
+<p>Since</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+  U^x \\
+  U^y
+\end{pmatrix}
+=
+\frac{1}{J}
+\begin{pmatrix}
+   \yy &amp; -\xy \\
+  -\yx &amp;  \xx
+\end{pmatrix}
+\begin{pmatrix}
+  \ux \\
+  \uy
+\end{pmatrix}
+=
+\begin{pmatrix}
+  \xxi &amp; \yxi \\
+  \xyi &amp; \yyi
+\end{pmatrix}
+\begin{pmatrix}
+  \ux \\
+  \uy
+\end{pmatrix}\end{split}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[U^j = \frac{\partial \xi^j}{\partial x_i} u_i,\]</div>
+<p>we finally obtain</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial u_i}{\partial x_i}
+=
+\frac{\partial \xi^j}{\partial x_i} \frac{\partial u_i}{\partial \xi^j}
+=
+\frac{1}{J} \frac{\partial}{\partial \xi^j} \left( J \frac{\partial \xi^j}{\partial x_i} u_i \right)
+=
+0,\]</div>
+<p>which is the conservative form of the incompressibility constraint in the new coordinate system (strong conservation form).</p>
+<p>By comparing the second term with the third one, we notice</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \xi^j}{\partial x_i} \frac{\partial u_i}{\partial \xi^j}
+=
+\frac{1}{J} \left\{ \frac{\partial}{\partial \xi^j} \left( J \frac{\partial \xi^j}{\partial x_i} \right) \right\} u_i
++ \frac{1}{J} J \frac{\partial \xi^j}{\partial x_i} \frac{\partial u_i}{\partial \xi^j}
+=
+\frac{1}{J} \left\{ \frac{\partial}{\partial \xi^j} \left( J \frac{\partial \xi^j}{\partial x_i} \right) \right\} u_i
++ \frac{\partial \xi^j}{\partial x_i} \frac{\partial u_i}{\partial \xi^j}
+=
+0,\]</div>
+<p>and thus we find an important identity</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{J} \left\{ \frac{\partial}{\partial \xi^j} \left( J \frac{\partial \xi^j}{\partial x_i} \right) \right\} u_i = 0.\]</div>
+<p>By following the same procedure as above, we notice that this relation even holds for general tensors (not limited to first-order tensors), which can be used to derive the strong conservation forms of the momentum and internal energy balances.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Since the current projection keeps the original orthogonal relations, the Jacobian matrix is a diagonal matrix.
+Thus, <span class="math notranslate nohighlight">\(\der{\xi^j}{x_i}\)</span> can be reduced to <span class="math notranslate nohighlight">\(\der{\xi^i}{x_i}\)</span>.</p>
+</div>
+</details></section>
+<section id="continuous-governing-equations">
+<h2>Continuous governing equations<a class="headerlink" href="#continuous-governing-equations" title="Permalink to this heading">¶</a></h2>
+<p>Non-dimensional governing equations shown in <a class="reference internal" href="../../../governing_equations/index.html#governing-equations"><span class="std std-ref">the governing equations</span></a> are described as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left\{
+   \begin{alignedat}{2}
+      &amp; \frac{1}{J} \der{}{\xi^i} \left( J \der{\xi^i}{x_i} u_i \right) = 0, \\
+      &amp; \der{u_i}{t}
+      + \frac{1}{J} \der{}{\xi^j} \left\{ \left( J \der{\xi^j}{x_j} u_j \right) u_i \right\}
+      =
+      - \frac{1}{J} \der{}{\xi^i} \left( J \der{\xi^i}{x_i} p \right)
+      + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} \der{u_i}{\xi^j} \right)
+      + T \delta_{ix}, \\
+      &amp; \der{k}{t}
+      + \frac{1}{J} \der{}{\xi^i} \left\{ \left( J \der{\xi^i}{x_i} u_i \right) \left( k + p \right) \right\}
+      =
+      \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} u_i \der{u_i}{\xi^j} \right)
+      - \frac{\sqrt{Pr}}{\sqrt{Ra}} \mst{i}{i} \der{u_i}{\xi^j} \der{u_i}{\xi^j}
+      + u_i T \delta_{ix}, \\
+      &amp; \der{T}{t}
+      + \frac{1}{J} \der{}{\xi^i} \left\{ \left( J \der{\xi^i}{x_i} u_i \right) T \right\}
+      = \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J} \der{}{\xi^i} \left( \mst{i}{i} \der{T}{\xi^i} \right), \\
+      &amp; \der{h}{t}
+      + \frac{1}{J} \der{}{\xi^i} \left\{ \left( J \der{\xi^i}{x_i} u_i \right) h \right\}
+      =
+      \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J} \der{}{\xi^i} \left( \mst{i}{i} T \der{T}{\xi^i} \right)
+      - \frac{1}{\sqrt{Pr} \sqrt{Ra}} \mst{i}{i} \der{T}{\xi^j} \der{T}{\xi^j}
+   \end{alignedat}
+\right.\end{split}\]</div>
+<p>in strong conservation forms.
+Note that <span class="math notranslate nohighlight">\(\mst{i}{j} = J \der{\xi^i}{x_k} \der{\xi^j}{x_k}\)</span> is the mesh skewness tensor.</p>
+</section>
+<section id="discrete-governing-equations">
+<h2>Discrete governing equations<a class="headerlink" href="#discrete-governing-equations" title="Permalink to this heading">¶</a></h2>
+<p>The above continuous governing equations are directly discretised based on the following notes.
+For simplicity equations which are not treated numerically are omitted.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul>
+<li><p>Since the new cooridnate system is designed to satisfy <span class="math notranslate nohighlight">\(\Delta \xi \equiv \Delta \eta \equiv 1\)</span>, interpolations and differentiations are given as arithmetic averages and subtractions of two neighbouring points, respectively.</p></li>
+<li><p>Jacobian and scaling factors should be interpolated as well as variables.</p></li>
+<li><p>Mesh skewness tensors lead</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\mst{x}{x} = \frac{\Delta y}{\Delta x},
+\mst{y}{y} = \frac{\Delta x}{\Delta y}.\]</div>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<p>The incompressibility constraint evaluated at <span class="math notranslate nohighlight">\(\left( \pic, \pjc \right)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\frac{
+    \vat{\ux}{\pip,\pjc}
+  - \vat{\ux}{\pim,\pjc}
+}{\Delta x_{\pic}}
++ \frac{
+    \vat{\uy}{\pic,\pjp}
+  - \vat{\uy}{\pic,\pjm}
+}{\Delta y_{\pjc}}
+= 0.\]</div>
+<p>The equation of momentum balance in <span class="math notranslate nohighlight">\(x\)</span> direction evaluated at <span class="math notranslate nohighlight">\(\left( \xic, \xjc \right)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \der{\vat{\ux}{\xic,\xjc}}{t}
+  =
+  &amp; - \frac{
+      \vat{\intrp{\Delta y \ux}{\gx}}{\xip,\xjc} \vat{\intrp{\ux}{\gx}}{\xip,\xjc}
+    - \vat{\intrp{\Delta y \ux}{\gx}}{\xim,\xjc} \vat{\intrp{\ux}{\gx}}{\xim,\xjc}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; - \frac{
+      \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjp} \vat{\intrp{\ux}{\gy}}{\xic,\xjp}
+    - \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjm} \vat{\intrp{\ux}{\gy}}{\xic,\xjm}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; -\frac{
+      \vat{\Delta y p}{\xip,\xjc}
+    - \vat{\Delta y p}{\xim,\xjc}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{\ux}{\gx}}{\xip,\xjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{\ux}{\gx}}{\xim,\xjc}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{\ux}{\gy}}{\xic,\xjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{\ux}{\gy}}{\xic,\xjm}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; + \vat{\intrp{T}{\gx}}{\xic,\xjc}.
+\end{aligned}\end{split}\]</div>
+<p>The equation of momentum balance in <span class="math notranslate nohighlight">\(y\)</span> direction evaluated at <span class="math notranslate nohighlight">\(\left( \yic, \yjc \right)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \der{\vat{\uy}{\yic,\yjc}}{t}
+  =
+  &amp; - \frac{
+      \vat{\intrp{\Delta y \ux}{\gy}}{\yip,\yjc} \vat{\intrp{\uy}{\gx}}{\yip,\yjc}
+    - \vat{\intrp{\Delta y \ux}{\gy}}{\yim,\yjc} \vat{\intrp{\uy}{\gx}}{\yim,\yjc}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; - \frac{
+      \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjp} \vat{\intrp{\uy}{\gy}}{\yic,\yjp}
+    - \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjm} \vat{\intrp{\uy}{\gy}}{\yic,\yjm}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; -\frac{
+      \vat{\Delta x p}{\yic,\yjp}
+    - \vat{\Delta x p}{\yic,\yjm}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{\uy}{\gx}}{\yip,\yjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{\uy}{\gx}}{\yim,\yjc}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{\uy}{\gy}}{\yic,\yjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{\uy}{\gy}}{\yic,\yjm}
+  }{\Delta x_{\yic} \Delta y_{\yjc}}.
+\end{aligned}\end{split}\]</div>
+<p>The equation of internal energy evaluated at <span class="math notranslate nohighlight">\(\left( \pic, \pjc \right)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \der{\vat{T}{\pic,\pjc}}{t}
+  =
+  &amp; - \frac{
+      \vat{\Delta y \ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+    - \vat{\Delta y \ux}{\pim,\pjc} \vat{\intrp{T}{\gx}}{\pim,\pjc}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; - \frac{
+      \vat{\Delta x \uy}{\pic,\pjp} \vat{\intrp{T}{\gy}}{\pic,\pjp}
+    - \vat{\Delta x \uy}{\pic,\pjm} \vat{\intrp{T}{\gy}}{\pic,\pjm}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; + \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{T}{\gx}}{\pip,\pjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{T}{\gx}}{\pim,\pjc}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; + \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{T}{\gy}}{\pic,\pjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{T}{\gy}}{\pic,\pjm}
+  }{\Delta x_{\pic} \Delta y_{\pjc}}.
+\end{aligned}\end{split}\]</div>
+</section>
+<section id="nusselt-number-relations">
+<h2>Nusselt number relations<a class="headerlink" href="#nusselt-number-relations" title="Permalink to this heading">¶</a></h2>
+<section id="continuous-level">
+<h3>Continuous level<a class="headerlink" href="#continuous-level" title="Permalink to this heading">¶</a></h3>
+<details>
+<summary>
+Details</summary><p>By multiplying the momentum balance with <span class="math notranslate nohighlight">\(u_i\)</span> (i.e., taking the inner product), we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   u_i \der{u_i}{t} &amp;
+   + u_i \frac{1}{J} \der{}{\xi^j} \left\{ \left( J \der{\xi^j}{x_j} u_j \right) u_i \right\}
+   + u_i \frac{1}{J} \der{}{\xi^i} \left( J \der{\xi^i}{x_i} p \right) \\ &amp;
+   - u_i \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} \der{u_i}{\xi^j} \right)
+   - u_i f_i
+   = 0.
+\end{aligned}\end{split}\]</div>
+<p>Each term can be written differently:</p>
+<ol class="arabic">
+<li><p>Temporal derivative</p>
+<div class="math notranslate nohighlight">
+\[u_i \der{u_i}{t} = \der{}{t} \left( u_i u_i \right) - \der{u_i}{t} u_i\]</div>
+<p>and thus</p>
+<div class="math notranslate nohighlight">
+\[u_i \der{u_i}{t} = \der{k}{t},\]</div>
+<p>where <span class="math notranslate nohighlight">\(k \equiv \frac{1}{2} u_i u_i\)</span>.</p>
+</li>
+<li><p>Advection</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{J} \der{}{\xi^i} \left\{ \left( J \der{\xi^i}{x_i} u_i \right) k \right\}.\]</div>
+</li>
+<li><p>Pressure gradient</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{J} \der{}{\xi^i} \left( J \der{\xi^i}{x_i} u_i p \right)
+- p \frac{1}{J} \der{}{\xi^i} \left( J \der{\xi^i}{x_i} u_i \right),\]</div>
+<p>where the second term vanishes because of the incompressibility constraint.</p>
+</li>
+<li><p>Viscosity</p>
+<div class="math notranslate nohighlight">
+\[- \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} u_i \der{u_i}{\xi^j} \right)
++ \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \mst{j}{j} \der{u_i}{\xi^j} \der{u_i}{\xi^j}.\]</div>
+</li>
+<li><p>Body force</p>
+<p>This term remains as it is.</p>
+</li>
+</ol>
+<p>In summary, we have the equation of the kinetic energy balance as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   \der{k}{t} &amp;
+   + \frac{1}{J} \der{}{\xi^i} \left\{ \left( J \der{\xi^i}{x_i} u_i \right) k \right\}
+   + \frac{1}{J} \der{}{\xi^i} \left( J \der{\xi^i}{x_i} u_i p \right) \\ &amp;
+   - \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} u_i \der{u_i}{\xi^j} \right)
+   + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \mst{j}{j} \der{u_i}{\xi^j} \der{u_i}{\xi^j}
+   - u_i f_i
+   = 0.
+\end{aligned}\end{split}\]</div>
+<p>Similarly, by multiplying the equation of the internal energy by <span class="math notranslate nohighlight">\(T\)</span>, we obtain</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   \der{h}{t} &amp;
+   + \frac{1}{J} \der{}{\xi^i} \left\{ \left( J \der{\xi^i}{x_i} u_i \right) h \right\}
+   - \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} T \der{T}{\xi^j} \right) \\ &amp;
+   + \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J} \mst{j}{j} \der{T}{\xi^j} \der{T}{\xi^j}
+   = 0,
+\end{aligned}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(h \equiv \frac{1}{2} T^2\)</span>.</p>
+<p>Now we discuss the evolution of the total energies.
+The total kinetic energy inside the domain <span class="math notranslate nohighlight">\(K\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[\int k dx dy\]</div>
+<p>in the original coordinate system, while</p>
+<div class="math notranslate nohighlight">
+\[\int k J d\gx d\gy\]</div>
+<p>in the transformed coordinate system.</p>
+<p>The governing equation with respect to <span class="math notranslate nohighlight">\(K\)</span> can be obtained by integrating the equation of <span class="math notranslate nohighlight">\(k\)</span> inside the domain:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\der{K}{t} &amp;
++ \int \der{}{\xi^i} \left\{ \left( J \der{\xi^i}{x_i} u_i \right) k \right\} d\gx d\gy
++ \int \der{}{\xi^i} \left( J \der{\xi^i}{x_i} u_i p \right) d\gx d\gy \\ &amp;
+- \int \frac{\sqrt{Pr}}{\sqrt{Ra}} \der{}{\xi^j} \left( \mst{j}{j} u_i \der{u_i}{\xi^j} \right) d\gx d\gy
++ \int \frac{\sqrt{Pr}}{\sqrt{Ra}} \mst{j}{j} \der{u_i}{\xi^j} \der{u_i}{\xi^j} d\gx d\gy \\ &amp;
+- \int J u_i f_i d\gx d\gy
+= 0.\end{split}\]</div>
+<p>Regarding the second, third, and fourth terms, the integrated values are determined solely by the boundary fluxes because of the divergence theorem.
+In Rayleigh-Bénard systems we consider in this project, periodic boundary conditions or impermeable and no-slip walls (<span class="math notranslate nohighlight">\(u_i = 0\)</span>) are assumed, when all these terms vanish.
+Thus we have</p>
+<div class="math notranslate nohighlight">
+\[\der{K}{t}
++ \int \frac{\sqrt{Pr}}{\sqrt{Ra}} \mst{j}{j} \der{u_i}{\xi^j} \der{u_i}{\xi^j} d\gx d\gy
+- \int J u_i f_i d\gx d\gy
+= 0.\]</div>
+<p>When the system reaches the statistically-steady state <span class="math notranslate nohighlight">\(\ave{\partial K / \partial t}{t} = 0\)</span>, we notice that the energy injection by the body force is exactly balanced by the viscous dissipation.</p>
+<p>An analogous relation can be derived for <span class="math notranslate nohighlight">\(H = \int h dx dy = \int h J d\gx d\gy\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\der{H}{t} &amp;
++ \int \der{}{\xi^i} \left\{ \left( J \der{\xi^i}{x_i} u_i \right) h \right\} d\gx d\gy \\ &amp;
+- \int \frac{1}{\sqrt{Pr} \sqrt{Ra}} \der{}{\xi^j} \left( \mst{j}{j} T \der{T}{\xi^j} \right) d\gx d\gy
++ \int \frac{1}{\sqrt{Pr} \sqrt{Ra}} \mst{j}{j} \der{T}{\xi^j} \der{T}{\xi^j} d\gx d\gy
+= 0.\end{split}\]</div>
+<p>The second term vanishes because of the divergence theorem again.
+Regarding the third term, it remains here since the thermal energy is continuously injected by the conduction (<span class="math notranslate nohighlight">\(\partial T / \partial y\)</span>) through the walls.
+This injection is exactly dissipated by the last term in a statistical sense.</p>
+</details></section>
+<section id="discrete-level">
+<h3>Discrete level<a class="headerlink" href="#discrete-level" title="Permalink to this heading">¶</a></h3>
+<details>
+<summary>
+Details</summary><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We assume that <span class="math notranslate nohighlight">\(x\)</span> direction is the wall-normal direction, while <span class="math notranslate nohighlight">\(y\)</span> direction is the homogeneous direction.
+In the implementation, uniform grid spacings are assumed in <span class="math notranslate nohighlight">\(y\)</span> direction (<span class="math notranslate nohighlight">\(\Delta y_j \equiv \Delta y\)</span>).
+For generality, however, we here take into account the grid size variations also in <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+</div>
+<p>The discretised governing equations in strong conservation forms are as follows.</p>
+<p>Incompressibility constraint at cell center <span class="math notranslate nohighlight">\(\left( i, j \right)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\frac{\vat{\ux}{\pip,\pjc}-\vat{\ux}{\pim,\pjc}}{\Delta x_{\pic}}
++ \frac{\vat{\uy}{\pic,\pjp}-\vat{\uy}{\pic,\pjm}}{\Delta y_{\pjc}}
+= 0.\]</div>
+<p>Momentum balance in <span class="math notranslate nohighlight">\(x\)</span> direction at cell face <span class="math notranslate nohighlight">\(\left( \xic, \xjc \right)\)</span> (<span class="math notranslate nohighlight">\(\ux\)</span> are defined):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \der{\vat{\ux}{\xic,\xjc}}{t}
+  =
+  &amp; - \frac{
+      \vat{\intrp{\Delta y \ux}{\gx}}{\xip,\xjc} \vat{\intrp{\ux}{\gx}}{\xip,\xjc}
+    - \vat{\intrp{\Delta y \ux}{\gx}}{\xim,\xjc} \vat{\intrp{\ux}{\gx}}{\xim,\xjc}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; - \frac{
+      \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjp} \vat{\intrp{\ux}{\gy}}{\xic,\xjp}
+    - \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjm} \vat{\intrp{\ux}{\gy}}{\xic,\xjm}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; -\frac{
+      \vat{\Delta y p}{\xip,\xjc}
+    - \vat{\Delta y p}{\xim,\xjc}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{\ux}{\gx}}{\xip,\xjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{\ux}{\gx}}{\xim,\xjc}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{\ux}{\gy}}{\xic,\xjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{\ux}{\gy}}{\xic,\xjm}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; + \vat{\intrp{T}{\gx}}{\xic,\xjc}.
+\end{aligned}\end{split}\]</div>
+<p>Momentum balance in <span class="math notranslate nohighlight">\(y\)</span> direction at cell face <span class="math notranslate nohighlight">\(\left( \yic, \yjc \right)\)</span> (<span class="math notranslate nohighlight">\(\uy\)</span> are defined):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \der{\vat{\uy}{\yic,\yjc}}{t}
+  =
+  &amp; - \frac{
+      \vat{\intrp{\Delta y \ux}{\gy}}{\yip,\yjc} \vat{\intrp{\uy}{\gx}}{\yip,\yjc}
+    - \vat{\intrp{\Delta y \ux}{\gy}}{\yim,\yjc} \vat{\intrp{\uy}{\gx}}{\yim,\yjc}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; - \frac{
+      \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjp} \vat{\intrp{\uy}{\gy}}{\yic,\yjp}
+    - \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjm} \vat{\intrp{\uy}{\gy}}{\yic,\yjm}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; -\frac{
+      \vat{\Delta x p}{\yic,\yjp}
+    - \vat{\Delta x p}{\yic,\yjm}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{\uy}{\gx}}{\yip,\yjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{\uy}{\gx}}{\yim,\yjc}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{\uy}{\gy}}{\yic,\yjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{\uy}{\gy}}{\yic,\yjm}
+  }{\Delta x_{\yic} \Delta y_{\yjc}}.
+\end{aligned}\end{split}\]</div>
+<p>Equation of internal energy balance at cell center <span class="math notranslate nohighlight">\(\left( \pic, \pjc \right)\)</span> (<span class="math notranslate nohighlight">\(p,T\)</span> are defined):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \der{\vat{T}{\pic,\pjc}}{t}
+  =
+  &amp; - \frac{
+      \vat{\Delta y \ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+    - \vat{\Delta y \ux}{\pim,\pjc} \vat{\intrp{T}{\gx}}{\pim,\pjc}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; - \frac{
+      \vat{\Delta x \uy}{\pic,\pjp} \vat{\intrp{T}{\gy}}{\pic,\pjp}
+    - \vat{\Delta x \uy}{\pic,\pjm} \vat{\intrp{T}{\gy}}{\pic,\pjm}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; + \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{T}{\gx}}{\pip,\pjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{T}{\gx}}{\pim,\pjc}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; + \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{T}{\gy}}{\pic,\pjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{T}{\gy}}{\pic,\pjm}
+  }{\Delta x_{\pic} \Delta y_{\pjc}}.
+\end{aligned}\end{split}\]</div>
+<p>Based on these equations, we consider the energy balances <em>after being discretised</em>.</p>
+<p>We consider to multiply the momentum balance equation in <span class="math notranslate nohighlight">\(x\)</span> direction by <span class="math notranslate nohighlight">\(\vat{\ux}{\xic,\xjc}\)</span>, yielding</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \vat{\ux}{\xic,\xjc} \der{\vat{\ux}{\xic,\xjc}}{t}
+  =
+  &amp; - \vat{\ux}{\xic,\xjc} \frac{
+      \vat{\intrp{\Delta y \ux}{\gx}}{\xip,\xjc} \vat{\intrp{\ux}{\gx}}{\xip,\xjc}
+    - \vat{\intrp{\Delta y \ux}{\gx}}{\xim,\xjc} \vat{\intrp{\ux}{\gx}}{\xim,\xjc}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; - \vat{\ux}{\xic,\xjc} \frac{
+      \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjp} \vat{\intrp{\ux}{\gy}}{\xic,\xjp}
+    - \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjm} \vat{\intrp{\ux}{\gy}}{\xic,\xjm}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; - \vat{\ux}{\xic,\xjc} \frac{
+      \vat{\Delta y p}{\xip,\xjc}
+    - \vat{\Delta y p}{\xim,\xjc}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; + \vat{\ux}{\xic,\xjc} \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{\ux}{\gx}}{\xip,\xjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{\ux}{\gx}}{\xim,\xjc}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; + \vat{u}{\xic,\xjc} \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{\ux}{\gy}}{\xic,\xjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{\ux}{\gy}}{\xic,\xjm}
+  }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+  &amp; + \vat{\ux}{\xic,\xjc} \vat{\intrp{T}{\gx}}{\xic,\xjc}.
+\end{aligned}\end{split}\]</div>
+<p>Similarly, the momentum balance in <span class="math notranslate nohighlight">\(y\)</span> direction is multiplied by <span class="math notranslate nohighlight">\(\vat{\uy}{\yic,\yjc}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \vat{\uy}{\yic,\yjc} \der{\vat{\uy}{\yic,\yjc}}{t}
+  =
+  &amp; - \vat{\uy}{\yic,\yjc} \frac{
+      \vat{\intrp{\Delta y \ux}{\gy}}{\yip,\yjc} \vat{\intrp{\uy}{\gx}}{\yip,\yjc}
+    - \vat{\intrp{\Delta y \ux}{\gy}}{\yim,\yjc} \vat{\intrp{\uy}{\gx}}{\yim,\yjc}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; - \vat{\uy}{\yic,\yjc} \frac{
+      \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjp} \vat{\intrp{\uy}{\gy}}{\yic,\yjp}
+    - \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjm} \vat{\intrp{\uy}{\gy}}{\yic,\yjm}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; - \vat{\uy}{\yic,\yjc} \frac{
+      \vat{\Delta x p}{\yic,\yjp}
+    - \vat{\Delta x p}{\yic,\yjm}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; + \vat{\uy}{\yic,\yjc} \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{\uy}{\gx}}{\yip,\yjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{\uy}{\gx}}{\yim,\yjc}
+  }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+  &amp; + \vat{\uy}{\yic,\yjc} \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{\uy}{\gy}}{\yic,\yjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{\uy}{\gy}}{\yic,\yjm}
+  }{\Delta x_{\yic} \Delta y_{\yjc}}.
+\end{aligned}\end{split}\]</div>
+<p>The left-hand-side terms give the change of <span class="math notranslate nohighlight">\(1/2 \ux^2\)</span> and <span class="math notranslate nohighlight">\(1/2 \uy^2\)</span> in time, which are obviously relevant to the discrete kinetic energy.</p>
+<p>Also the equation of the squared temperature leads</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \vat{T}{\pic,\pjc} \der{\vat{T}{\pic,\pjc}}{t}
+  =
+  &amp; - \vat{T}{\pic,\pjc} \frac{
+      \vat{\Delta y \ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+    - \vat{\Delta y \ux}{\pim,\pjc} \vat{\intrp{T}{\gx}}{\pim,\pjc}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; - \vat{T}{\pic,\pjc} \frac{
+      \vat{\Delta x \uy}{\pic,\pjp} \vat{\intrp{T}{\gy}}{\pic,\pjp}
+    - \vat{\Delta x \uy}{\pic,\pjm} \vat{\intrp{T}{\gy}}{\pic,\pjm}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; + \vat{T}{\pic,\pjc} \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{T}{\gx}}{\pip,\pjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{T}{\gx}}{\pim,\pjc}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; + \vat{T}{\pic,\pjc} \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{T}{\gy}}{\pic,\pjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{T}{\gy}}{\pic,\pjm}
+  }{\Delta x_{\pic} \Delta y_{\pjc}}.
+\end{aligned}\end{split}\]</div>
+<ul>
+<li><p>Discrete energy conservation (inviscid limit)</p>
+<blockquote>
+<div><p>First we consider the case without viscosity (<span class="math notranslate nohighlight">\(Ra / Pr \rightarrow \infty\)</span>) and buoyancy, when the kinetic energy should be conserved physically since there are no sources nor sinks.
+Even after being discretised, this property should be kept.
+In this part, we derive this; namely, the advective and pressure gradient terms do nothing for the energy increase/decrease.</p>
+<p>Since velocity components are located at different positions, kinetic energy cannot be defined uniquely.
+Here, we compute the squared velocities (<span class="math notranslate nohighlight">\(\ux^2\)</span> and <span class="math notranslate nohighlight">\(\uy^2\)</span>) separately at positions where they are defined.</p>
+<p>In <span class="math notranslate nohighlight">\(x\)</span> direction, the advection terms at <span class="math notranslate nohighlight">\(\left( \xic, \xjc \right)\)</span> lead</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; - \frac{
+       \vat{\intrp{\Delta y \ux}{\gx}}{\xip,\xjc} \frac{\vat{\ux}{\xipp,\xjc } \vat{\ux}{\xic ,\xjc }}{2}
+     - \vat{\intrp{\Delta y \ux}{\gx}}{\xim,\xjc} \frac{\vat{\ux}{\xic ,\xjc } \vat{\ux}{\ximm,\xjc }}{2}
+   }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+   &amp; - \frac{
+       \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjp} \frac{\vat{\ux}{\xic ,\xjpp} \vat{\ux}{\xic ,\xjc }}{2}
+     - \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjm} \frac{\vat{\ux}{\xic ,\xjc } \vat{\ux}{\xic ,\xjmm}}{2}
+   }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+   &amp; - \frac{\vat{\ux^2}{\xic,\xjc}}{2} \frac{
+        \vat{\intrp{\Delta y \ux}{\gx}}{\xip,\xjc}
+      - \vat{\intrp{\Delta y \ux}{\gx}}{\xim,\xjc}
+      + \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjp}
+      - \vat{\intrp{\Delta x \uy}{\gx}}{\xic,\xjm}
+   }{\Delta x_{\xic} \Delta y_{\xjc}} \\
+   &amp; = \\
+   &amp; -\frac{1}{J_{\xic,\xjc}} \left\{ \diffe{}{\gx} \left(
+      \intrp{\Delta y \ux}{\gx} \frac{{\widehat{\ux^2}}^{\gx}}{2}
+   \right) \right\}_{\xic,\xjc}
+   - \frac{1}{J_{\xic,\xjc}} \left\{ \diffe{}{\gy} \left(
+      \intrp{\Delta x \uy}{\gx} \frac{{\widehat{\ux^2}}^{\gy}}{2}
+   \right) \right\}_{\xic,\xjc} \\
+   &amp; - \frac{\vat{u^2}{\xic,\xjc}}{2} \frac{1}{J_{\xic,\xjc}} \left\{
+      \frac{J_{\xim,\xjc}}{2} \left(
+        \frac{
+            \vat{\ux}{\xic, \xjc}
+          - \vat{\ux}{\ximm,\xjc}
+        }{\Delta x_{\xim}}
+        + \frac{
+            \vat{\uy}{\xim,\xjp}
+          - \vat{\uy}{\xim,\xjm}
+        }{\Delta y_{\xjc}}
+      \right)
+      + \frac{J_{\xip,\xjc}}{2} \left(
+        \frac{
+            \vat{\ux}{\xipp,\xjc}
+          - \vat{\ux}{\xic, \xjc}
+        }{\Delta x_{\xip}}
+        + \frac{
+            \vat{\uy}{\xip,\xjp}
+          - \vat{\uy}{\xip,\xjm}
+        }{\Delta y_{\xjc}}
+      \right)
+   \right\},
+\end{aligned}\end{split}\]</div>
+<p>while in <span class="math notranslate nohighlight">\(y\)</span> direction at <span class="math notranslate nohighlight">\(\left( \yic, \yjc \right)\)</span>, we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; - \frac{
+       \vat{\intrp{\Delta y \ux}{\gy}}{\yip,\yjc} \frac{\vat{\uy}{\yipp,\yjc } \vat{\uy}{\yic, \yjc }}{2}
+     - \vat{\intrp{\Delta y \ux}{\gy}}{\yim,\yjc} \frac{\vat{\uy}{\yic ,\yjc } \vat{\uy}{\yimm,\yjc }}{2}
+   }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+   &amp; - \frac{
+       \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjp} \frac{\vat{\uy}{\yic ,\yjpp} \vat{\uy}{\yic ,\yjc }}{2}
+     - \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjm} \frac{\vat{\uy}{\yic ,\yjc } \vat{\uy}{\yic ,\yjmm}}{2}
+   }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+   &amp; - \frac{\vat{v^2}{\yic,\yjc}}{2} \frac{
+        \vat{\intrp{\Delta y \ux}{\gy}}{\yip,\yjc}
+      - \vat{\intrp{\Delta y \ux}{\gy}}{\yim,\yjc}
+      + \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjp}
+      - \vat{\intrp{\Delta x \uy}{\gy}}{\yic,\yjm}
+   }{\Delta x_{\yic} \Delta y_{\yjc}} \\
+   &amp; = \\
+   &amp; -\frac{1}{J_{\yic,\yjc}} \left\{ \diffe{}{\gx} \left(
+      \intrp{\Delta y \ux}{\gx} \frac{{\widehat{\uy^2}}^{\gx}}{2}
+   \right) \right\}_{\yic,\yjc}
+   - \frac{1}{J_{\yic,\yjc}} \left\{ \diffe{}{\gy} \left(
+      \intrp{\Delta x \uy}{\gx} \frac{{\widehat{\uy^2}}^{\gy}}{2}
+   \right) \right\}_{\yic,\yjc} \\
+   &amp; - \frac{\vat{\uy^2}{\yic,\yjc}}{2} \frac{1}{J_{\yic,\yjc}} \left\{
+      \frac{J_{\yic,\yjm}}{2} \left(
+        \frac{
+            \vat{\ux}{\yim,\yjm}
+          - \vat{\ux}{\yip,\yjm}
+        }{\Delta x_{\yic}}
+        + \frac{
+            \vat{\uy}{\yic,\yjmm}
+          - \vat{\uy}{\yic,\yjc }
+        }{\Delta y_{\yjm}}
+      \right)
+      + \frac{J_{\yic,\yjp}}{2} \left(
+        \frac{
+            \vat{\ux}{\yim,\yjp}
+          - \vat{\ux}{\yip,\yjp}
+        }{\Delta x_{\yic}}
+        + \frac{
+            \vat{\uy}{\yic,\yjpp}
+          - \vat{\uy}{\yic,\yjc }
+        }{\Delta y_{\yjp}}
+      \right)
+   \right\}.
+\end{aligned}\end{split}\]</div>
+<p>Note that the last terms are the volumetric averages of incompressibility constraints, giving null.</p>
+<p>Here new symbols are introduced (quadratic quantities, which are the pseudo kinetic energies):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp; \vat{\widehat{\ux^2}^{\gx}}{\xip,\xjc} \equiv \vat{\ux}{\xic,\xjc} \vat{\ux}{\xipp,\xjc }, \\
+  &amp; \vat{\widehat{\ux^2}^{\gy}}{\xic,\xjp} \equiv \vat{\ux}{\xic,\xjc} \vat{\ux}{\xic ,\xjpp},
+\end{aligned}\end{split}\]</div>
+<p>in <span class="math notranslate nohighlight">\(x\)</span> direction, while</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp; \vat{\widehat{\uy^2}^{\gx}}{\yip,\yjc} \equiv \vat{\uy}{\yic,\yjc} \vat{v}{\yipp,\yjc }, \\
+  &amp; \vat{\widehat{\uy^2}^{\gy}}{\yic,\yjp} \equiv \vat{\uy}{\yic,\yjc} \vat{v}{\yic ,\yjpp},
+\end{aligned}\end{split}\]</div>
+<p>in <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+<p>The pressure gradient terms remain as they are, and the other terms are null now since we consider the inviscid limit <span class="math notranslate nohighlight">\(Ra / Pr \rightarrow \infty\)</span> and the buoyancy forcing is decoupled.</p>
+<p>Now we integrate and sum up these two equations in the whole domain (surface integral).
+The surface integral of a quantity <span class="math notranslate nohighlight">\(q\)</span></p>
+<div class="math notranslate nohighlight">
+\[\int q dx dy = \int q J d\gx d\gy\]</div>
+<p>is discretised as</p>
+<div class="math notranslate nohighlight">
+\[\sum q_{i,j} \Delta x_i \Delta y_j = \sum q_{i,j} J_{i,j} \Delta \gx_i \Delta \gy_j = \sum q_{i,j} J_{i,j} \,\,\, \left( \because \Delta \gx_i \equiv \Delta \gy_j \equiv 1 \right).\]</div>
+<p>Thus <span class="math notranslate nohighlight">\(\der{K}{t}\)</span>, which is the evolution of the <strong>total</strong> (global) discrete kinetic energy <span class="math notranslate nohighlight">\(K\)</span>, is given as the sum of</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\sum_{\forall \ux \text{positions}, \left( \xic, \xjc \right)} \der{}{t} \left( \frac{1}{2} J \ux^2 \right)_{\xic,\xjc}
+\equiv
+\sum_{\forall \ux \text{positions}, \left( \xic, \xjc \right)}
+\left[
+   \begin{aligned}
+      &amp; - \left\{ \diffe{}{\gx} \left(
+         \intrp{\Delta y \ux}{\gx} \frac{{\widehat{\ux^2}}^{\gx}}{2}
+      \right) \right\}_{\xic,\xjc} \\
+      &amp; - \left\{ \diffe{}{\gy} \left(
+         \intrp{\Delta x \uy}{\gx} \frac{{\widehat{\ux^2}}^{\gy}}{2}
+      \right) \right\}_{\xic,\xjc} \\
+      &amp; - \vat{\ux}{\xic,\xjc} \Delta y_{\xjc} \left(
+          \vat{p}{\xip,\xjc}
+        - \vat{p}{\xim,\xjc}
+      \right) \\
+   \end{aligned}
+\right]\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\sum_{\forall \uy \text{positions}, \left( \yic, \yjc \right)} \der{}{t} \left( \frac{1}{2} J \uy^2 \right)_{\yic,\yjc}
+\equiv
+\sum_{\forall \uy \text{positions}, \left( \yic, \yjc \right)}
+\left[
+   \begin{aligned}
+      &amp; - \left\{ \diffe{}{\gx} \left(
+         \intrp{\Delta y \ux}{\gx} \frac{{\widehat{\uy^2}}^{\gx}}{2}
+      \right) \right\}_{\yic,\yjc} \\
+      &amp; - \left\{ \diffe{}{\gy} \left(
+         \intrp{\Delta x \uy}{\gx} \frac{{\widehat{\uy^2}}^{\gy}}{2}
+      \right) \right\}_{\yic,\yjc} \\
+      &amp; - \vat{\uy}{\yic,\yjc} \Delta x_{\yic} \left(
+          \vat{p}{\yic,\yjp}
+        - \vat{p}{\yic,\yjm}
+      \right) \\
+   \end{aligned}
+\right].\end{split}\]</div>
+<p>In each summation, the first two terms vanish because of their conservative forms, i.e., the values cancel out to each other for neighbouring cells and we have periodic boundaries and impermeable walls (<span class="math notranslate nohighlight">\(u_i = 0\)</span>) at the edges.</p>
+<p>Regarding the pressure gradient terms, they can be re-ordered as</p>
+<div class="math notranslate nohighlight">
+\[\sum_{\forall p \text{positions}, \left( \pic, \pjc \right)} \vat{p}{\pic,\pjc} \Delta y_j \left( \vat{\ux}{\pip,\pjc} - \vat{\ux}{\pim,\pjc} \right)
++ \sum_{\forall p \text{positions}, \left( \pic, \pjc \right)} \vat{p}{\pic,\pjc} \Delta x_i \left( \vat{\uy}{\pic,\pjp} - \vat{\uy}{\pic,\pjm} \right),\]</div>
+<p>which is</p>
+<div class="math notranslate nohighlight">
+\[\sum_{\forall p \text{positions}, \left( \pic, \pjc \right)} \vat{p J}{\pic,\pjc} \left(
+    \frac{\vat{\ux}{\pip,\pjc} - \vat{\ux}{\pim,\pjc}}{\Delta x_i}
+  + \frac{\vat{\uy}{\pic,\pjp} - \vat{\uy}{\pic,\pjm}}{\Delta y_j}
+\right),\]</div>
+<p>and thus null because of the incompressibility constraint.</p>
+<p>Similarly, the advection terms of the internal energy equation leads</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; - \frac{
+       \vat{\left( \Delta y \ux \right)}{\pip,\pjc} \frac{\vat{T}{\pic ,\pjc } \vat{T}{\pipp,\pjc }}{2}
+     - \vat{\left( \Delta y \ux \right)}{\pim,\pjc} \frac{\vat{T}{\pimm,\pjc } \vat{T}{\pic ,\pjc }}{2}
+   }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+   &amp; - \frac{
+       \vat{\left( \Delta x \uy \right)}{\pic,\pjp} \frac{\vat{T}{\pic ,\pjc } \vat{T}{\pic ,\pjpp}}{2}
+     - \vat{\left( \Delta x \uy \right)}{\pic,\pjm} \frac{\vat{T}{\pic ,\pjmm} \vat{T}{\pic ,\pjc }}{2}
+   }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+   &amp; - \frac{\vat{T^2}{\pic,\pjc}}{2} \left(
+      \frac{
+          \vat{\Delta y \ux}{\pip,\pjc}
+        - \vat{\Delta y \ux}{\pim,\pjc}
+      }{\Delta x_{\pic} \Delta y_{\pjc}}
+      + \frac{
+          \vat{\Delta x \uy}{\pic,\pjp}
+        - \vat{\Delta x \uy}{\pic,\pjm}
+      }{\Delta x_{\pic} \Delta y_{\pjc}}
+   \right) \\
+   &amp; = \\
+   &amp; - \frac{1}{J_{\pic,\pjc}} \left\{ \diffe{}{\gx} \left( \Delta y \ux \frac{\widehat{T^2}^{\gx}}{2} \right) \right\}_{\pic,\pjc}
+     - \frac{1}{J_{\pic,\pjc}} \left\{ \diffe{}{\gy} \left( \Delta x \uy \frac{\widehat{T^2}^{\gy}}{2} \right) \right\}_{\pic,\pjc} \\
+   &amp; - \frac{\vat{T^2}{\pic,\pjc}}{2} \left(
+      \frac{
+          \vat{\ux}{\pip,\pjc}
+        - \vat{\ux}{\pim,\pjc}
+      }{\Delta x_{\pic}}
+      + \frac{
+          \vat{\uy}{\pic,\pjp}
+        - \vat{\uy}{\pic,\pjm}
+      }{\Delta y_{\pjc}}
+   \right),
+\end{aligned}\end{split}\]</div>
+<p>where the last term is null because of the incompressibility constraint.
+The first two terms are in conservative forms and thus do not contribute to the change in the total <span class="math notranslate nohighlight">\(T^2\)</span>.
+Note that similar quadratic quantities are defined:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \vat{\widehat{T^2}^{\gx}}{\pip,\pjc} = \vat{T}{\pic,\pjc} \vat{T}{\pipp,\pjc}, \\
+  \vat{\widehat{T^2}^{\gy}}{\pic,\pjp} = \vat{T}{\pic,\pjc} \vat{T}{\pic,\pjpp}.
+\end{aligned}\end{split}\]</div>
+<p>In conclusion, we notice that the current advective and pressure gradient schemes do not contribute to the changes in the total energies (<span class="math notranslate nohighlight">\(K\)</span> and <span class="math notranslate nohighlight">\(H\)</span>), i.e., the current discretisations are indeed energy-conserving.</p>
+</div></blockquote>
+</li>
+<li><p>Viscous dissipation and its discretisation</p>
+<blockquote>
+<div><p>Regarding the terms contributing to the momentum diffusion, through the analyses in the continuous level, we already found that this term can be decomposed into two terms, 1. transportation and 2. dissipation of the kinetic energy; the latter is an important factor when computing the kinetic energy dissipation rate (and Nusselt number).
+In order to obtain a consistent discretisation, we follow the same procedure here, i.e., in the continuous level, the viscous dissipation arising from the momentum equation in <span class="math notranslate nohighlight">\(x\)</span> direction is given as</p>
+<div class="math notranslate nohighlight">
+\[\frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \mst{j}{j} \der{\ux}{\xi^j} \der{\ux}{\xi^j}
+= \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} \ux \der{\ux}{\xi^j} \right)
+- \ux \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} \der{\ux}{\xi^j} \right).\]</div>
+<p>This relation is directly discretised:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+    &amp;   \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left\{
+        \vat{\left( \mst{x}{x} \intrp{\ux}{\gx} \right) \diffe{\ux}{\gx}}{\xip,\xjc}
+      - \vat{\left( \mst{x}{x} \intrp{\ux}{\gx} \right) \diffe{\ux}{\gx}}{\xim,\xjc}
+    \right\}
+      + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left\{
+        \vat{\left( \mst{y}{y} \intrp{\ux}{\gy} \right) \diffe{\ux}{\gy}}{\xic,\xjp}
+      - \vat{\left( \mst{y}{y} \intrp{\ux}{\gy} \right) \diffe{\ux}{\gy}}{\xic,\xjm}
+    \right\} \\
+    &amp; - \vat{\ux}{\xic,\xjc} \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left\{
+        \vat{\left( \mst{x}{x} \diffe{\ux}{\gx} \right)}{\xip,\xjc}
+      - \vat{\left( \mst{x}{x} \diffe{\ux}{\gx} \right)}{\xim,\xjc}
+    \right\}
+      - \vat{\ux}{\xic,\xjc} \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left\{
+        \vat{\left( \mst{y}{y} \diffe{\ux}{\gy} \right)}{\xic,\xjp}
+      - \vat{\left( \mst{y}{y} \diffe{\ux}{\gy} \right)}{\xic,\xjm}
+    \right\} \\
+    =
+    &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left( \vat{\intrp{\ux}{\gx}}{\xip,\xjc} - \vat{\ux}{\xic,\xjc} \right) \vat{\left( \mst{x}{x} \diffe{\ux}{\gx} \right)}{\xip,\xjc}
+      - \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left( \vat{\intrp{\ux}{\gx}}{\xim,\xjc} - \vat{\ux}{\xic,\xjc} \right) \vat{\left( \mst{x}{x} \diffe{\ux}{\gx} \right)}{\xim,\xjc} \\
+    &amp; + \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left( \vat{\intrp{\ux}{\gy}}{\xic,\xjp} - \vat{\ux}{\xic,\xjc} \right) \vat{\left( \mst{y}{y} \diffe{\ux}{\gy} \right)}{\xic,\xjp}
+      - \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left( \vat{\intrp{\ux}{\gy}}{\xic,\xjm} - \vat{\ux}{\xic,\xjc} \right) \vat{\left( \mst{y}{y} \diffe{\ux}{\gy} \right)}{\xic,\xjm}.
+\end{aligned}\end{split}\]</div>
+<p>Since we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp; \vat{\intrp{\ux}{\gx}}{\xip,\xjc} - \vat{\ux}{\xic,\xjc}
+    = \frac{\vat{\ux}{\xipp,\xjc} + \vat{\ux}{\xic ,\xjc}}{2} - \vat{\ux}{\xic,\xjc}
+    = + \frac{\vat{\ux}{\xipp,\xjc} - \vat{\ux}{\xic ,\xjc}}{2}
+    = + \frac{1}{2} \vat{\diffe{\ux}{\gx}}{\xip,\xjc} \\
+  &amp; \vat{\intrp{\ux}{\gx}}{\xim,\xjc} - \vat{\ux}{\xic,\xjc}
+    = \frac{\vat{\ux}{\xic ,\xjc} + \vat{\ux}{\ximm,\xjc}}{2} - \vat{\ux}{\xic,\xjc}
+    = - \frac{\vat{\ux}{\xic ,\xjc} - \vat{\ux}{\ximm,\xjc}}{2}
+    = - \frac{1}{2} \vat{\diffe{\ux}{\gx}}{\xim,\xjc} \\
+  &amp; \vat{\intrp{\ux}{\gy}}{\xic,\xjp} - \vat{\ux}{\xic,\xjc}
+    = \frac{\vat{\ux}{\xic,\xjpp} + \vat{\ux}{\xic,\xjc }}{2} - \vat{\ux}{\xic,\xjc}
+    = + \frac{\vat{\ux}{\xic,\xjpp} - \vat{\ux}{\xic,\xjc }}{2}
+    = + \frac{1}{2} \vat{\diffe{\ux}{\gy}}{\xic,\xjp} \\
+  &amp; \vat{\intrp{\ux}{\gy}}{\xic,\xjm} - \vat{\ux}{\xic,\xjc}
+    = \frac{\vat{\ux}{\xic,\xjc } + \vat{\ux}{\xic,\xjmm}}{2} - \vat{\ux}{\xic,\xjc}
+    = - \frac{\vat{\ux}{\xic,\xjc } - \vat{\ux}{\xic,\xjmm}}{2}
+    = - \frac{1}{2} \vat{\diffe{\ux}{\gy}}{\xic,\xjm}
+\end{aligned}\end{split}\]</div>
+<p>in the bulk, we finally notice that the viscous dissipation arising from the momentum equation in <span class="math notranslate nohighlight">\(x\)</span> direction leads</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left[
+      \frac{
+          \vat{\left\{ \mst{x}{x} \left( \diffe{\ux}{\gx} \right)^2 \right\}}{\xip,\xjc}
+        + \vat{\left\{ \mst{x}{x} \left( \diffe{\ux}{\gx} \right)^2 \right\}}{\xim,\xjc}
+      }{2}
+      + \frac{
+          \vat{\left\{ \mst{y}{y} \left( \diffe{\ux}{\gy} \right)^2 \right\}}{\xic,\xjp}
+        + \vat{\left\{ \mst{y}{y} \left( \diffe{\ux}{\gy} \right)^2 \right\}}{\xic,\xjm}
+      }{2}
+   \right] \\
+   =
+   &amp; \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\xic,\xjc}} \left\{
+        \frac{1}{2} J_{\xip,\xjc} \left( \vat{\frac{\diffe{\ux}{\gx}}{\Delta x}}{\xip,\xjc} \right)^2
+      + \frac{1}{2} J_{\xim,\xjc} \left( \vat{\frac{\diffe{\ux}{\gx}}{\Delta x}}{\xim,\xjc} \right)^2
+      + \frac{1}{2} J_{\xic,\xjp} \left( \vat{\frac{\diffe{\ux}{\gy}}{\Delta y}}{\xic,\xjp} \right)^2
+      + \frac{1}{2} J_{\xic,\xjm} \left( \vat{\frac{\diffe{\ux}{\gy}}{\Delta y}}{\xic,\xjm} \right)^2
+   \right\}
+\end{aligned}\end{split}\]</div>
+<p>at <span class="math notranslate nohighlight">\(\left( \xic, \xjc \right).\)</span></p>
+<p>Following a similar manner, by using the relation</p>
+<div class="math notranslate nohighlight">
+\[\frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \mst{j}{j} \der{\uy}{\xi^j} \der{\uy}{\xi^j}
+= \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} \uy \der{\uy}{\xi^j} \right)
+- \uy \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J} \der{}{\xi^j} \left( \mst{j}{j} \der{\uy}{\xi^j} \right),\]</div>
+<p>we can derive the viscous dissipation coming from the momentum equation in <span class="math notranslate nohighlight">\(y\)</span> direction as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\yic,\yjc}} \left[
+      \frac{
+          \vat{\left\{ \mst{x}{x} \left( \diffe{\uy}{\gx} \right)^2 \right\}}{\yip,\yjc}
+        + \vat{\left\{ \mst{x}{x} \left( \diffe{\uy}{\gx} \right)^2 \right\}}{\yim,\yjc}
+      }{2}
+      + \frac{
+          \vat{\left\{ \mst{y}{y} \left( \diffe{\uy}{\gy} \right)^2 \right\}}{\yic,\yjp}
+        + \vat{\left\{ \mst{y}{y} \left( \diffe{\uy}{\gy} \right)^2 \right\}}{\yic,\yjm}
+      }{2}
+   \right] \\
+   =
+   &amp; \frac{\sqrt{Pr}}{\sqrt{Ra}} \frac{1}{J_{\yic,\yjc}} \left\{
+        \frac{1}{2} J_{\yip,\yjc} \left( \vat{\frac{\diffe{\uy}{\gx}}{\Delta x}}{\yip,\yjc} \right)^2
+      + \frac{1}{2} J_{\yim,\yjc} \left( \vat{\frac{\diffe{\uy}{\gx}}{\Delta x}}{\yim,\yjc} \right)^2
+      + \frac{1}{2} J_{\yic,\yjp} \left( \vat{\frac{\diffe{\uy}{\gy}}{\Delta y}}{\yic,\yjp} \right)^2
+      + \frac{1}{2} J_{\yic,\yjm} \left( \vat{\frac{\diffe{\uy}{\gy}}{\Delta y}}{\yic,\yjm} \right)^2
+   \right\}
+\end{aligned}\end{split}\]</div>
+<p>at <span class="math notranslate nohighlight">\(\left( \yic, \yjc \right).\)</span></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For <span class="math notranslate nohighlight">\(y\)</span> velocities, in the vicinity of the walls, the coefficient <span class="math notranslate nohighlight">\(1/2\)</span> should be corrected to unity since <span class="math notranslate nohighlight">\(\uy\)</span> is defined exactly on the walls.
+See <a class="reference internal" href="../../../implementation/logging.html#logging"><span class="std std-ref">src/logging.c</span></a> for details.</p>
+</div>
+<p>Similar analyses can be made for <span class="math notranslate nohighlight">\(T^2\)</span>.
+The local thermal energy dissipation <span class="math notranslate nohighlight">\(\dfrac{1}{J} \mst{i}{i} \der{T}{\gx^i} \der{T}{\gx^i}\)</span> in the continuous level is given as</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J} \der{}{\gx^i} \left( \mst{i}{i} T \der{T}{\gx^i} \right)
+-
+\frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J} T \der{}{\xi^i} \left( \mst{i}{i} \der{T}{\gx^i} \right).\]</div>
+<p>The first conservative term is discretised as</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J_{\pic,\pjc}} \left\{
+    \vat{\left( \mst{x}{x} T \diffe{T}{\gx} \right)}{\pip,\pjc}
+  - \vat{\left( \mst{x}{x} T \diffe{T}{\gx} \right)}{\pim,\pjc}
+\right\}
++
+\frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J_{\pic,\pjc}} \left\{
+    \vat{\left( \mst{y}{y} T \diffe{T}{\gy} \right)}{\pic,\pjp}
+  - \vat{\left( \mst{y}{y} T \diffe{T}{\gy} \right)}{\pic,\pjm}
+\right\},\]</div>
+<p>while the other term leads</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J_{\pic,\pjc}} \vat{T}{\pic,\pjc} \left\{
+    \vat{\left( \mst{x}{x} \diffe{T}{\gx} \right)}{\pip,\pjc}
+  - \vat{\left( \mst{x}{x} \diffe{T}{\gx} \right)}{\pim,\pjc}
+\right\}
++
+\frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J_{\pic,\pjc}} \vat{T}{\pic,\pjc} \left\{
+    \vat{\left( \mst{y}{y} \diffe{T}{\gy} \right)}{\pic,\pjp}
+  - \vat{\left( \mst{y}{y} \diffe{T}{\gy} \right)}{\pic,\pjm}
+\right\}.\]</div>
+<p>Since</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp; + \vat{\left( \intrp{T}{\gx} \diffe{T}{\gx} \right)}{\pip,\pjc} - \vat{T}{\pic,\pjc} \vat{\diffe{T}{\gx}}{\pip,\pjc} = \left( + \vat{\intrp{T}{\gx}}{\pip,\pjc} - \vat{T}{\pic,\pjc} \right) \vat{\diffe{T}{\gx}}{\pip,\pjc} = \frac{1}{2} \vat{\left( \diffe{T}{\gx} \right)^2}{\pip,\pjc}, \\
+  &amp; - \vat{\left( \intrp{T}{\gx} \diffe{T}{\gx} \right)}{\pim,\pjc} + \vat{T}{\pic,\pjc} \vat{\diffe{T}{\gx}}{\pim,\pjc} = \left( - \vat{\intrp{T}{\gx}}{\pim,\pjc} + \vat{T}{\pic,\pjc} \right) \vat{\diffe{T}{\gx}}{\pim,\pjc} = \frac{1}{2} \vat{\left( \diffe{T}{\gx} \right)^2}{\pim,\pjc}, \\
+  &amp; + \vat{\left( \intrp{T}{\gy} \diffe{T}{\gy} \right)}{\pic,\pjp} - \vat{T}{\pic,\pjc} \vat{\diffe{T}{\gy}}{\pic,\pjp} = \left( + \vat{\intrp{T}{\gy}}{\pic,\pjp} - \vat{T}{\pic,\pjc} \right) \vat{\diffe{T}{\gy}}{\pic,\pjp} = \frac{1}{2} \vat{\left( \diffe{T}{\gy} \right)^2}{\pic,\pjp}, \\
+  &amp; - \vat{\left( \intrp{T}{\gy} \diffe{T}{\gy} \right)}{\pic,\pjm} + \vat{T}{\pic,\pjc} \vat{\diffe{T}{\gy}}{\pic,\pjm} = \left( - \vat{\intrp{T}{\gy}}{\pic,\pjm} + \vat{T}{\pic,\pjc} \right) \vat{\diffe{T}{\gy}}{\pic,\pjm} = \frac{1}{2} \vat{\left( \diffe{T}{\gy} \right)^2}{\pic,\pjm},
+\end{aligned}\end{split}\]</div>
+<p>the difference of these two terms is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J_{\pic,\pjc}} \left[
+      \frac{
+          \vat{\left\{ \mst{x}{x} \left( \diffe{T}{\gx} \right)^2 \right\}}{\pip,\pjc}
+        + \vat{\left\{ \mst{x}{x} \left( \diffe{T}{\gx} \right)^2 \right\}}{\pim,\pjc}
+      }{2}
+      +
+      \frac{
+          \vat{\left\{ \mst{y}{y} \left( \diffe{T}{\gy} \right)^2 \right\}}{\pic,\pjp}
+        + \vat{\left\{ \mst{y}{y} \left( \diffe{T}{\gy} \right)^2 \right\}}{\pic,\pjm}
+      }{2}
+   \right] \\
+   =
+   &amp; \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J_{\pic,\pjc}} \left\{
+        \frac{1}{2} J_{\pip,\pjc} \left( \vat{\frac{\diffe{T}{\gx}}{\Delta x}}{\pip,\pjc} \right)^2
+      + \frac{1}{2} J_{\pim,\pjc} \left( \vat{\frac{\diffe{T}{\gx}}{\Delta x}}{\pim,\pjc} \right)^2
+      + \frac{1}{2} J_{\pic,\pjp} \left( \vat{\frac{\diffe{T}{\gy}}{\Delta y}}{\pic,\pjp} \right)^2
+      + \frac{1}{2} J_{\pic,\pjm} \left( \vat{\frac{\diffe{T}{\gy}}{\Delta y}}{\pic,\pjm} \right)^2
+   \right\},
+\end{aligned}\end{split}\]</div>
+<p>which is the local thermal energy dissipation rate.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the vicinity of the walls, the coefficient <span class="math notranslate nohighlight">\(1/2\)</span> should be corrected to unity since <span class="math notranslate nohighlight">\(T\)</span> is defined exactly on the walls.</p>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</details></section>
+</section>
+<section id="id1">
+<h2>Nusselt number relations<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<details>
+<summary>
+Details</summary><p>Nusselt number, which is the non-dimensional number telling the heat transfer enhancement (<span class="math notranslate nohighlight">\(Nu = 1\)</span> when no flow exists), is defined as the thermal conduction at the walls:</p>
+<div class="math notranslate nohighlight">
+\[Nu
+\equiv
+- \ave{\vat{\der{T}{x}}{\text{wall}}}{y,t}
+=
+- \ave{\frac{\int \vat{\der{T}{x}}{\text{wall}} dy}{\int dy}}{t}
+=
+- \ave{\frac{\int \der{\gx}{x} \vat{\der{T}{\gx}}{\text{wall}} \der{y}{\gy} d\gy}{\int \der{y}{\gy} d\gy}}{t}.\]</div>
+<p>After being discretised, we have</p>
+<div class="math notranslate nohighlight">
+\[- \ave{\frac{\sum_j \frac{1}{\Delta x_{\text{wall}}} \vat{\diffe{T}{\gx}}{\text{wall}} \Delta y_j }{\sum_j \Delta y_j}}{t}
+=
+- \frac{1}{l_y} \ave{\sum_j \frac{1}{\Delta x_{\text{wall}}} \vat{\diffe{T}{\gx}}{\text{wall}} \Delta y_j}{t},\]</div>
+<p>where <span class="math notranslate nohighlight">\(l_y\)</span> is the domain size in <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+<p>In this part, we find three additional relations which hold in Rayleigh-Bénard systems.</p>
+<ol class="arabic">
+<li><p>Heat flux</p>
+<details>
+<summary>
+Details</summary><p>We consider to average the equation of the internal energy balance:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \der{\vat{T}{\pic,\pjc}}{t}
+  &amp; + \frac{
+      \vat{\Delta y \ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+    - \vat{\Delta y \ux}{\pim,\pjc} \vat{\intrp{T}{\gx}}{\pim,\pjc}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; + \frac{
+      \vat{\Delta x \uy}{\pic,\pjp} \vat{\intrp{T}{\gy}}{\pic,\pjp}
+    - \vat{\Delta x \uy}{\pic,\pjm} \vat{\intrp{T}{\gy}}{\pic,\pjm}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; - \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
+      \vat{\frac{\Delta y}{\Delta x} \diffe{T}{\gx}}{\pip,\pjc}
+    - \vat{\frac{\Delta y}{\Delta x} \diffe{T}{\gx}}{\pim,\pjc}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} \\
+  &amp; - \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{
+      \vat{\frac{\Delta x}{\Delta y} \diffe{T}{\gy}}{\pic,\pjp}
+    - \vat{\frac{\Delta x}{\Delta y} \diffe{T}{\gy}}{\pic,\pjm}
+  }{\Delta x_{\pic} \Delta y_{\pjc}} = 0
+\end{aligned}\end{split}\]</div>
+<p>in <span class="math notranslate nohighlight">\(y\)</span> direction and in time.</p>
+<p>In the physical domain <span class="math notranslate nohighlight">\(\left( x, y \right)\)</span>, integrating a quantity <span class="math notranslate nohighlight">\(q\)</span> in <span class="math notranslate nohighlight">\(y\)</span> direction is written as</p>
+<div class="math notranslate nohighlight">
+\[\int q dy,\]</div>
+<p>which is</p>
+<div class="math notranslate nohighlight">
+\[\int q \der{y}{\gy} d\gy\]</div>
+<p>in the computational domain <span class="math notranslate nohighlight">\(\left( \gx, \gy \right)\)</span>.
+When being discretised, it is</p>
+<div class="math notranslate nohighlight">
+\[\sum_j q_j \Delta y_j.\]</div>
+<p>Based on this relation, we consider to average the equation of the internal energy balance.</p>
+<p>The first term vanishes since we are interested in the statistically-steady state.</p>
+<p>The third and fifth terms lead</p>
+<div class="math notranslate nohighlight">
+\[\sum_j \left(
+    \vat{\uy}{\pic,\pjp} \vat{\intrp{T}{\gy}}{\pic,\pjp}
+  - \vat{\uy}{\pic,\pjm} \vat{\intrp{T}{\gy}}{\pic,\pjm}
+\right)\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\sum_j - \frac{1}{\sqrt{Pr} \sqrt{Ra}} \left(
+    \vat{\frac{1}{\Delta y} \diffe{T}{\gy}}{\pic,\pjp}
+  - \vat{\frac{1}{\Delta y} \diffe{T}{\gy}}{\pic,\pjm}
+\right),\]</div>
+<p>which are null because of the periodicity in <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+<p>Thus we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; \frac{1}{l_y} \sum_{\pjc} \frac{\Delta y_{\pjc}}{\Delta x_{\pic}} \left\{
+      \left(
+          \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+        - \vat{\ux}{\pim,\pjc} \vat{\intrp{T}{\gx}}{\pim,\pjc}
+      \right)
+   \right\} \\
+   &amp; = \frac{1}{l_y} \sum_{\pjc} \frac{\Delta y_{\pjc}}{\Delta x_{\pic}} \left\{
+      \frac{1}{\sqrt{Pr} \sqrt{Ra}}
+      \left(
+          \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\pip,\pjc}
+        - \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\pim,\pjc}
+      \right)
+   \right\}.
+\end{aligned}\end{split}\]</div>
+<p>Now we integrate this relation in <span class="math notranslate nohighlight">\(x\)</span> direction (<span class="math notranslate nohighlight">\(\int q dx \approx \sum_i q_i \Delta x_i\)</span>) to a specific position <span class="math notranslate nohighlight">\(i = i\)</span>, yielding</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; \frac{1}{l_y} \sum_{\pic = 1}^{I} \sum_{\pjc} \Delta y_{\pjc} \left\{
+      \sqrt{Pr} \sqrt{Ra} \left(
+          \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+        - \vat{\ux}{\pim,\pjc} \vat{\intrp{T}{\gx}}{\pim,\pjc}
+      \right)
+      - \left(
+          \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\pip,\pjc}
+        - \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\pim,\pjc}
+      \right)
+   \right\} \\
+   &amp; =
+   \frac{1}{l_y} \sum_{\pjc} \Delta y_{\pjc} \left\{
+      \sqrt{Pr} \sqrt{Ra} \left(
+          \vat{\ux}{\pip        ,\pjc} \vat{\intrp{T}{\gx}}{\pip        ,\pjc}
+        - \vat{\ux}{\frac{1}{2},\pjc} \vat{\intrp{T}{\gx}}{\frac{1}{2},\pjc}
+      \right)
+      - \left(
+          \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\pip        ,\pjc}
+        - \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\frac{1}{2},\pjc}
+      \right)
+   \right\} = 0,
+\end{aligned}\end{split}\]</div>
+<p>i.e.,</p>
+<div class="math notranslate nohighlight">
+\[\begin{aligned}
+   \frac{1}{l_y} \sum_{\pjc} \Delta y_{\pjc} \left(
+      \sqrt{Pr} \sqrt{Ra} \, \vat{u}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+      - \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\pip,\pjc}
+   \right)
+   =
+   \frac{1}{l_y} \sum_{\pjc} \Delta y_{\pjc} \left(
+     \sqrt{Pr} \sqrt{Ra} \, \vat{u}{\frac{1}{2},\pjc} \vat{\intrp{T}{\gx}}{\frac{1}{2},\pjc}
+      - \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\frac{1}{2},\pjc}
+   \right).
+\end{aligned}\]</div>
+<p>Note that this relation holds for all <span class="math notranslate nohighlight">\(i\)</span>.</p>
+<p>The left-hand-side denotes the value at a specific wall-normal location (<span class="math notranslate nohighlight">\(x\)</span> cell faces where <span class="math notranslate nohighlight">\(u_x\)</span> are defined), while the right-hand-side describes the value on the left wall.
+Since we assume the walls are impermeable, the first term (temperature advection) vanishes and thus we finally notice</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   Nu
+   &amp; =
+   \frac{1}{l_y} \sum_{\pjc} \Delta y_{\pjc} \left(
+      - \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\text{wall},\pjc}
+   \right) \\
+   &amp; =
+   \frac{1}{l_y} \sum_{\pjc} \Delta y_{\pjc} \left(
+      \sqrt{Pr} \sqrt{Ra} \, \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+      - \vat{\frac{1}{\Delta x} \diffe{T}{\gx}}{\pip,\pjc}
+   \right) \\
+   &amp; =
+   const,
+\end{aligned}\end{split}\]</div>
+<p>which is the <strong>Nusselt number based on the local heat flux</strong>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the continuous level, this Nusselt constancy in the wall-normal direction holds for all <span class="math notranslate nohighlight">\(x\)</span> locations.
+After being discretised, on the other hand, this relation is satisfied only where <span class="math notranslate nohighlight">\(u_x\)</span> is defined.</p>
+</div>
+</details></li>
+<li><p>Energy injection by buoyancy</p>
+<details>
+<summary>
+Details</summary><p>We further consider to average the above equation in <span class="math notranslate nohighlight">\(x\)</span> direction, from the left to the right walls, yielding</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   Nu &amp;= \frac{1}{l_x l_y} \sum_{\pic} \sum_{\pjc} \left(
+      \Delta x_{\pip} \Delta y_{\pjc} \sqrt{Pr} \sqrt{Ra} \, \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+   \right) \\
+   &amp; - \frac{1}{l_x l_y} \sum_{\pjc} \left(
+        \Delta y_{\pjc} \vat{T}{\text{right wall},\pjc}
+      - \Delta y_{\pjc} \vat{T}{\text{left  wall},\pjc}
+   \right).
+\end{aligned}\end{split}\]</div>
+<p>Because of the normalisations, <span class="math notranslate nohighlight">\(l_x\)</span> and <span class="math notranslate nohighlight">\(\vat{T}{\text{left  wall},\pjc} - \vat{T}{\text{right wall},\pjc}\)</span> are unity.
+Thus we have</p>
+<div class="math notranslate nohighlight">
+\[Nu = \frac{1}{l_x l_y} \sum_{\pic} \sum_{\pjc} \left(
+   \Delta x_{\pip} \Delta y_{\pjc} \sqrt{Pr} \sqrt{Ra} \, \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+\right)
++ 1,\]</div>
+<p>or equivalently</p>
+<div class="math notranslate nohighlight">
+\[Nu = \frac{1}{l_x l_y} \sum_{\forall \ux \text{positions}, \left( \pip, \pjc \right)} \left(
+   \sqrt{Pr} \sqrt{Ra} \, J_{\pip,\pjc} \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+\right)
++ 1,\]</div>
+<p>which is the <strong>Nusselt number based on the energy injection by buoyancy force</strong>.</p>
+</details></li>
+<li><p>Kinetic energy dissipation</p>
+<details>
+<summary>
+Details</summary><p>Next, we move on to the kinetic energy equation to find the other relation.
+As discussed above, we have the equation of the total kinetic energy <span class="math notranslate nohighlight">\(\der{K}{t}\)</span>, which is increased by the energy injection by the buoyancy force:</p>
+<div class="math notranslate nohighlight">
+\[\sum_{\forall \ux \text{positions}, \left( \pip, \pjc \right)} J_{\pip,\pjc} \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc},\]</div>
+<p>while reduced by the viscous dissipation coming from the momentum equation in <span class="math notranslate nohighlight">\(x\)</span> direction:</p>
+<div class="math notranslate nohighlight">
+\[\sum_{\forall \ux \text{positions}, \left( \xic, \xjc \right)} \frac{\sqrt{Pr}}{\sqrt{Ra}} \left\{
+     \frac{1}{2} J_{\xip,\xjc} \left( \vat{\frac{\diffe{\ux}{\gx}}{\Delta x}}{\xip,\xjc} \right)^2
+   + \frac{1}{2} J_{\xim,\xjc} \left( \vat{\frac{\diffe{\ux}{\gx}}{\Delta x}}{\xim,\xjc} \right)^2
+   + \frac{1}{2} J_{\xic,\xjp} \left( \vat{\frac{\diffe{\ux}{\gy}}{\Delta y}}{\xic,\xjp} \right)^2
+   + \frac{1}{2} J_{\xic,\xjm} \left( \vat{\frac{\diffe{\ux}{\gy}}{\Delta y}}{\xic,\xjm} \right)^2
+\right\}\]</div>
+<p>and the one in <span class="math notranslate nohighlight">\(y\)</span> direction:</p>
+<div class="math notranslate nohighlight">
+\[\sum_{\forall \uy \text{positions}, \left( \yic, \yjc \right)} \frac{\sqrt{Pr}}{\sqrt{Ra}} \left\{
+     \frac{1}{2} J_{\yip,\yjc} \left( \vat{\frac{\diffe{\uy}{\gx}}{\Delta x}}{\yip,\yjc} \right)^2
+   + \frac{1}{2} J_{\yim,\yjc} \left( \vat{\frac{\diffe{\uy}{\gx}}{\Delta x}}{\yim,\yjc} \right)^2
+   + \frac{1}{2} J_{\yic,\yjp} \left( \vat{\frac{\diffe{\uy}{\gy}}{\Delta y}}{\yic,\yjp} \right)^2
+   + \frac{1}{2} J_{\yic,\yjm} \left( \vat{\frac{\diffe{\uy}{\gy}}{\Delta y}}{\yic,\yjm} \right)^2
+\right\}.\]</div>
+<p>Again, we consider to average this equation in the whole domain and in time.</p>
+<p>The evolution of <span class="math notranslate nohighlight">\(K\)</span> vanishes as usual since we are interested in the statistically-steady state.
+The buoyancy forcing leads</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{l_x l_y} \sum_{\forall \ux \text{positions}, \left( \pip, \pjc \right)} J_{\pip,\pjc} \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}.\]</div>
+<p>The total viscous dissipation is given as the sum of</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{l_x l_y} \sum_{\forall \ux \text{positions}, \left( \xic, \xjc \right)} \frac{\sqrt{Pr}}{\sqrt{Ra}} \left\{
+     \frac{1}{2} J_{\xip,\xjc} \left( \vat{\frac{\diffe{\ux}{\gx}}{\Delta x}}{\xip,\xjc} \right)^2
+   + \frac{1}{2} J_{\xim,\xjc} \left( \vat{\frac{\diffe{\ux}{\gx}}{\Delta x}}{\xim,\xjc} \right)^2
+   + \frac{1}{2} J_{\xic,\xjp} \left( \vat{\frac{\diffe{\ux}{\gy}}{\Delta y}}{\xic,\xjp} \right)^2
+   + \frac{1}{2} J_{\xic,\xjm} \left( \vat{\frac{\diffe{\ux}{\gy}}{\Delta y}}{\xic,\xjm} \right)^2
+\right\}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{l_x l_y} \sum_{\forall \uy \text{positions}, \left( \yic, \yjc \right)} \frac{\sqrt{Pr}}{\sqrt{Ra}} \left\{
+     \frac{1}{2} J_{\yip,\yjc} \left( \vat{\frac{\diffe{\uy}{\gx}}{\Delta x}}{\yip,\yjc} \right)^2
+   + \frac{1}{2} J_{\yim,\yjc} \left( \vat{\frac{\diffe{\uy}{\gx}}{\Delta x}}{\yim,\yjc} \right)^2
+   + \frac{1}{2} J_{\yic,\yjp} \left( \vat{\frac{\diffe{\uy}{\gy}}{\Delta y}}{\yic,\yjp} \right)^2
+   + \frac{1}{2} J_{\yic,\yjm} \left( \vat{\frac{\diffe{\uy}{\gy}}{\Delta y}}{\yic,\yjm} \right)^2
+\right\}.\]</div>
+<p>Note that this summation is nothing else but the (discretised) kinetic dissipation rate <span class="math notranslate nohighlight">\(\ave{\epsilon_k}{x,y,t}\)</span>, i.e., <span class="math notranslate nohighlight">\(\left\langle s_{ij} s_{ij} \right\rangle_{S,t}\)</span> in the continuous level.</p>
+<p>Finally we find</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{l_x l_y} \sum_{\forall \ux \text{positions}, \left( \pip, \pjc \right)} J_{\pip,\pjc} \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+=
+\ave{\epsilon_k}{x,y,t},\]</div>
+<p>and, by using the relation we obtained in the previous Nusselt definition:</p>
+<div class="math notranslate nohighlight">
+\[Nu = \frac{1}{l_x l_y} \sum_{\forall \ux \text{positions}, \left( \pip, \pjc \right)} \left(
+   \sqrt{Pr} \sqrt{Ra} \, J_{\pip,\pjc} \vat{\ux}{\pip,\pjc} \vat{\intrp{T}{\gx}}{\pip,\pjc}
+\right)
++ 1,\]</div>
+<p>we obtain</p>
+<div class="math notranslate nohighlight">
+\[Nu = \sqrt{Pr} \sqrt{Ra} \ave{\epsilon_k}{x,y,t} + 1,\]</div>
+<p>which is the <strong>Nusselt number based on the kinetic energy dissipation rate</strong>.</p>
+</details></li>
+<li><p>Thermal energy dissipation</p>
+<details>
+<summary>
+Details</summary><p>Again we focus on the thermal energy equation; in particular we consider the equation of the <strong>total</strong> thermal energy <span class="math notranslate nohighlight">\(\der{H}{t}\)</span>.
+As discussed above, this quantity is increased by the thermal conduction on the walls:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; \int \frac{1}{\sqrt{Pr} \sqrt{Ra}} \der{}{\xi^j} \left( \mst{j}{j} T \der{T}{\xi^j} \right) d\gx d\gy \\
+   \approx
+   &amp; \sum_i \sum_j \frac{1}{\sqrt{Pr} \sqrt{Ra}} \left\{
+       \vat{\left( \mst{x}{x} T \diffe{T}{\gx} \right)}{\pip,\pjc}
+     - \vat{\left( \mst{x}{x} T \diffe{T}{\gx} \right)}{\pim,\pjc}
+     + \vat{\left( \mst{y}{y} T \diffe{T}{\gy} \right)}{\pic,\pjp}
+     - \vat{\left( \mst{y}{y} T \diffe{T}{\gy} \right)}{\pic,\pjm}
+   \right\} \\
+   =
+   &amp; \sum_i \sum_j \frac{1}{\sqrt{Pr} \sqrt{Ra}} \left\{
+       \vat{\left( \mst{x}{x} T \diffe{T}{\gx} \right)}{\pip,\pjc}
+     - \vat{\left( \mst{x}{x} T \diffe{T}{\gx} \right)}{\pim,\pjc}
+   \right\} \\
+   =
+   &amp; \sum_j \frac{1}{\sqrt{Pr} \sqrt{Ra}} \left\{
+       \vat{\left( \mst{x}{x} T \diffe{T}{\gx} \right)}{\text{right wall},\pjc}
+     - \vat{\left( \mst{x}{x} T \diffe{T}{\gx} \right)}{\text{left  wall},\pjc}
+   \right\}, \\
+   =
+   &amp; - \sum_j \frac{1}{\sqrt{Pr} \sqrt{Ra}} \vat{\left( \frac{\Delta y_j}{\Delta x_{\text{left wall}}} \diffe{T}{\gx} \right)}{\text{left wall},\pjc},
+\end{aligned}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(T_{\text{left wall}} \equiv 1\)</span> and <span class="math notranslate nohighlight">\(T_{\text{right wall}} \equiv 0\)</span> are used.</p>
+<p>On the other hand, <span class="math notranslate nohighlight">\(H\)</span> is reduced by the dissipation:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+   &amp; \int \frac{1}{\sqrt{Pr} \sqrt{Ra}} \der{}{\xi^j} \left( \mst{j}{j} T \der{T}{\xi^j} \right) d\gx d\gy \\
+   \approx
+   &amp; \sum_i \sum_j \frac{1}{\sqrt{Pr} \sqrt{Ra}} \frac{1}{J_{\pic,\pjc}} \left\{
+        \frac{1}{2} J_{\pip,\pjc} \left( \vat{\frac{\diffe{T}{\gx}}{\Delta x}}{\pip,\pjc} \right)^2
+      + \frac{1}{2} J_{\pim,\pjc} \left( \vat{\frac{\diffe{T}{\gx}}{\Delta x}}{\pim,\pjc} \right)^2
+      + \frac{1}{2} J_{\pic,\pjp} \left( \vat{\frac{\diffe{T}{\gy}}{\Delta y}}{\pic,\pjp} \right)^2
+      + \frac{1}{2} J_{\pic,\pjm} \left( \vat{\frac{\diffe{T}{\gy}}{\Delta y}}{\pic,\pjm} \right)^2
+   \right\}.
+\end{aligned}\end{split}\]</div>
+<p>Again, we average this equation in the whole domain and in time.</p>
+<p>The evolution of <span class="math notranslate nohighlight">\(H\)</span> vanishes as usual since we are interested in the statistically-steady state.</p>
+<p>The thermal conduction leads</p>
+<div class="math notranslate nohighlight">
+\[- \frac{1}{l_x l_y} \sum_j \frac{1}{\sqrt{Pr} \sqrt{Ra}} \vat{\left( \frac{\Delta y_j}{\Delta x_{\text{left wall}}} \diffe{T}{\gx} \right)}{\text{left wall},\pjc} = Nu \,\, \left( \because l_x \equiv 1 \right),\]</div>
+<p>while the dissipation leads</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{l_x l_y} \sum_i \sum_j \frac{1}{\sqrt{Pr} \sqrt{Ra}} \left\{
+     \frac{1}{2} J_{\pip,\pjc} \left( \vat{\frac{\diffe{T}{\gx}}{\Delta x}}{\pip,\pjc} \right)^2
+   + \frac{1}{2} J_{\pim,\pjc} \left( \vat{\frac{\diffe{T}{\gx}}{\Delta x}}{\pim,\pjc} \right)^2
+   + \frac{1}{2} J_{\pic,\pjp} \left( \vat{\frac{\diffe{T}{\gy}}{\Delta y}}{\pic,\pjp} \right)^2
+   + \frac{1}{2} J_{\pic,\pjm} \left( \vat{\frac{\diffe{T}{\gy}}{\Delta y}}{\pic,\pjm} \right)^2
+\right\},\]</div>
+<p>which is the thermal dissipation rate <span class="math notranslate nohighlight">\(\ave{\epsilon_h}{x,y,t} = \ave{\der{T}{x_i} \der{T}{x_i}}{S,t}\)</span> in the continuous level.</p>
+<p>Thus we notice</p>
+<div class="math notranslate nohighlight">
+\[Nu = \sqrt{Pr} \sqrt{Ra} \ave{\epsilon_h}{x,y,t},\]</div>
+<p>which is the <strong>Nusselt number based on the thermal energy dissipation rate</strong>.</p>
+</details></li>
+</ol>
+</details></section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/numerical_method/spatial_discretisation/discrete_governing_equations/appendix_general_coordinate.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

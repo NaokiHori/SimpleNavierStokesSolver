@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>parallel/ &#8212; Simple Navier-Stokes Solver 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="parallel/finalise.c" href="finalise.html" />
+    <link rel="prev" title="main.c" href="../main.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Simple Navier-Stokes Solver</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleNavierStokesSolver&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../governing_equations/index.html">Governing equations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical_method/index.html">Numerical method</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Implementation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analyses.html">analyses.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../common.html">common.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fileio/main.html">fileio.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fluid/index.html">fluid/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../linalg.html">linalg.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">logging.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../main.html">main.c</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">parallel/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../param/index.html">param/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../save.html">save.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../simple_npyio.html">simple_npy_io.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../statistics/index.html">statistics/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../temperature/index.html">temperature/</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Implementation</a><ul>
+      <li>Previous: <a href="../main.html" title="previous chapter">main.c</a></li>
+      <li>Next: <a href="finalise.html" title="next chapter">parallel/finalise.c</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="parallel">
+<h1>parallel/<a class="headerlink" href="#parallel" title="Permalink to this heading">¶</a></h1>
+<p>Directory <code class="docutils literal notranslate"><span class="pre">src/parallel</span></code> contains source files which are relevant to MPI procedures.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="finalise.html">parallel/finalise.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="halo.html">parallel/halo.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">parallel/init.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="others.html">parallel/others.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transpose.html">parallel/transpose.c</a></li>
+</ul>
+</div>
+<section id="parallel-t">
+<h2>parallel_t<a class="headerlink" href="#parallel-t" title="Permalink to this heading">¶</a></h2>
+<p>A structure <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">parallel_t</span><span class="w"></span></code> is defined in <a class="reference external" href="https://github.com/NaokiHori/SimpleNavierStokesSolver/blob/main/include/parallel.h">include/parallel.h</a>, which contains parameters which are relevant to the parallelisation:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">10</span><span class="k">struct</span><span class="w"> </span><span class="nc">parallel_t_</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">11</span><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">mpisize</span><span class="p">,</span><span class="w"> </span><span class="n">mpirank</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">12</span><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">ymrank</span><span class="p">,</span><span class="w"> </span><span class="n">yprank</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">13</span><span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The meanings of each member are as follows:</p>
+<ol class="arabic">
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">mpisize</span><span class="w"></span></code></p>
+<p>Number of total processors, which is given in <code class="docutils literal notranslate"><span class="pre">exec.sh</span></code> as e.g., <code class="code highlight sh docutils literal highlight-sh">mpirun -n <span class="m">64</span> ./a.out</code></p>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">mpirank</span><span class="w"></span></code></p>
+<p>Process ID to identify each process (i.e., all processes have different numbers)</p>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">ymrank</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">ymrank</span><span class="w"></span></code></p>
+<p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">parallel</span><span class="o">-&gt;</span><span class="n">mpirank</span><span class="w"></span></code> of the neighbouring processes</p>
+</li>
+</ol>
+<p>Also see <a class="reference internal" href="init.html#parallel-init"><span class="std std-ref">src/parallel/init.c</span></a> to see how they are initialised.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/implementation/parallel/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,764 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>linalg.c &#8212; Simple Navier-Stokes Solver 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script>window.MathJax = {"TeX": {"Macros": {"der": ["{\\frac{\\partial #1}{\\partial #2}}", 2], "dder": ["{\\frac{\\delta #1}{\\delta #2}}", 2], "mst": ["{\\gamma^{#1 #2}}", 2], "gx": ["{\\xi}"], "gy": ["{\\eta}"], "ux": ["{u_x}"], "uy": ["{u_y}"], "intrp": ["{\\overline{#1}^{#2}}", 2], "diffe": ["{\\delta_{#2} {#1}}", 2], "vat": ["{\\left. {#1} \\right|_{#2}}", 2], "ave": ["{\\left\\langle {#1} \\right\\rangle_{#2}}", 2], "pimm": ["i-1           "], "pim": ["i-\\frac{1}{2}"], "pic": ["i             "], "pip": ["i+\\frac{1}{2}"], "pipp": ["i+1           "], "pjmm": ["j-1           "], "pjm": ["j-\\frac{1}{2}"], "pjc": ["j             "], "pjp": ["j+\\frac{1}{2}"], "pjpp": ["j+1           "], "ximm": ["i-\\frac{1}{2}"], "xim": ["i             "], "xic": ["i+\\frac{1}{2}"], "xip": ["i+1           "], "xipp": ["i+\\frac{3}{2}"], "xjmm": ["j-1           "], "xjm": ["j-\\frac{1}{2}"], "xjc": ["j             "], "xjp": ["j+\\frac{1}{2}"], "xjpp": ["j+1           "], "yimm": ["i-1           "], "yim": ["i-\\frac{1}{2}"], "yic": ["i             "], "yip": ["i+\\frac{1}{2}"], "yipp": ["i+1           "], "yjmm": ["j-\\frac{1}{2}"], "yjm": ["j             "], "yjc": ["j+\\frac{1}{2}"], "yjp": ["j+1           "], "yjpp": ["j+\\frac{3}{2}"], "dintrpa": ["{\\overline{#1}^{#2}}", 2], "dintrpv": ["{\\widehat {#1}^{#2}}", 2], "dintrpu": ["{\\widetilde {#1}^{#2}}", 2]}}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="logging.c" href="logging.html" />
+    <link rel="prev" title="fluid/update_velocity.c" href="fluid/update_velocity.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Simple Navier-Stokes Solver</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleNavierStokesSolver&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../governing_equations/index.html">Governing equations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical_method/index.html">Numerical method</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Implementation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="analyses.html">analyses.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">common.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileio/main.html">fileio.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fluid/index.html">fluid/</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">linalg.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">logging.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel/index.html">parallel/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="param/index.html">param/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="save.html">save.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simple_npyio.html">simple_npy_io.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="statistics/index.html">statistics/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temperature/index.html">temperature/</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Implementation</a><ul>
+      <li>Previous: <a href="fluid/update_velocity.html" title="previous chapter">fluid/update_velocity.c</a></li>
+      <li>Next: <a href="logging.html" title="next chapter">logging.c</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="linalg">
+<span id="id1"></span><h1><a class="reference external" href="https://github.com/NaokiHori/SimpleNavierStokesSolver/blob/main/src/linalg.c">linalg.c</a><a class="headerlink" href="#linalg" title="Permalink to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">linalg.c</span></code> contains functions which handle <strong>lin</strong> ear <strong>alg</strong> ebraic operations such as matrix manipulations.
+For now only three functions, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">my_dgtsv_b</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">my_dgtsv_p</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">my_zgtsv_b</span><span class="w"></span></code>, which are used to solve tri-diagonal linear systems are included, whose names come from functions included in <a class="reference external" href="http://www.netlib.org/lapack/">LAPACK</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>No pivotting operations are included for simplicity, which is different from the functions defined in LAPACK.
+In this application, however, all systems to be solved are diagonally dominant and thus no performance degenerations are observed.
+Some functions implemented here are used to solve linear systems which are singular because of the Neumann or periodic boundary conditions, whose treatments are also different from what are included in LAPACK.</p>
+</div>
+<section id="my-dgtsv-b-my-zgtsv-b">
+<h2>my_dgtsv_b,my_zgtsv_b<a class="headerlink" href="#my-dgtsv-b-my-zgtsv-b" title="Permalink to this heading">¶</a></h2>
+<section id="definition">
+<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">my_dgtsv_b</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_l</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_c</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_u</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_q</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">my_zgtsv_b</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_l</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_c</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_u</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">fftw_complex</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_q</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>intent</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>n</p></td>
+<td><p>in</p></td>
+<td><p>matrix size</p></td>
+</tr>
+<tr class="row-odd"><td><p>tdm_l</p></td>
+<td><p>in</p></td>
+<td><p>lower diagonal part</p></td>
+</tr>
+<tr class="row-even"><td><p>tdm_c</p></td>
+<td><p>in</p></td>
+<td><p>center diagonal part</p></td>
+</tr>
+<tr class="row-odd"><td><p>tdm_u</p></td>
+<td><p>in</p></td>
+<td><p>upper diagonal part</p></td>
+</tr>
+<tr class="row-even"><td><p>tdm_q</p></td>
+<td><p>in/out</p></td>
+<td><p>right-hand-side &amp; answer</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h3>
+<p>Note that the difference between <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">my_dgtsv_b</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">my_zgtsv_b</span><span class="w"></span></code> are only the datatype of <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_q</span><span class="w"></span></code>.</p>
+<p>These functions solve a tri-diagonal system by means of <a class="reference external" href="https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm">the tri-diagonal matrix algorithm</a> whose size is <span class="math notranslate nohighlight">\(n\)</span> and boundaries are bounded (non-periodic, the suffix <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">_b</span><span class="w"></span></code> comes from <strong>b</strong> ounded):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  c_0    &amp; u_0    &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  l_1    &amp; c_1    &amp; u_1    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0      &amp; l_2    &amp; c_2    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; c_{i-1} &amp; u_{i-1} &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; l_{i  } &amp; c_{i  } &amp; u_{i  } &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; l_{i+1} &amp; c_{i+1} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  \vdots &amp; \vdots &amp; \vdots &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; c_{n-3} &amp; u_{n-3} &amp; 0       \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; l_{n-2} &amp; c_{n-2} &amp; u_{n-2} \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; l_{n-1} &amp; c_{n-1}
+\end{bmatrix}
+\begin{bmatrix}
+x_0     \\
+x_1     \\
+x_2     \\
+\vdots  \\
+x_{i-1} \\
+x_{i  } \\
+x_{i+1} \\
+\vdots  \\
+x_{n-3} \\
+x_{n-2} \\
+x_{n-1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+q_0     \\
+q_1     \\
+q_2     \\
+\vdots  \\
+q_{i-1} \\
+q_{i  } \\
+q_{i+1} \\
+\vdots  \\
+q_{n-3} \\
+q_{n-2} \\
+q_{n-1}
+\end{bmatrix},\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(x\)</span> is the answer to be computed.
+Note that <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_l</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_c</span><span class="w"></span></code>, and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_u</span><span class="w"></span></code> all have length <span class="math notranslate nohighlight">\(n\)</span> for simplicity, although <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_u</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="w"></span></code> are not used (see the above equation).
+Also note that <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_q</span><span class="w"></span></code> is used as the output (solution <span class="math notranslate nohighlight">\(x\)</span>) of the linear system as well as an input (right-hand-side) of the system.</p>
+<p>The algorithm will be discussed below.</p>
+</section>
+</section>
+<section id="my-dgtsv-p">
+<h2>my_dgtsv_p<a class="headerlink" href="#my-dgtsv-p" title="Permalink to this heading">¶</a></h2>
+<section id="id2">
+<h3>Definition<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">my_dgtsv_p</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_l</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_c</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_u</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tdm_q</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>intent</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>n</p></td>
+<td><p>in</p></td>
+<td><p>matrix size</p></td>
+</tr>
+<tr class="row-odd"><td><p>tdm_l</p></td>
+<td><p>in</p></td>
+<td><p>lower diagonal part</p></td>
+</tr>
+<tr class="row-even"><td><p>tdm_c</p></td>
+<td><p>in</p></td>
+<td><p>center diagonal part</p></td>
+</tr>
+<tr class="row-odd"><td><p>tdm_u</p></td>
+<td><p>in</p></td>
+<td><p>upper diagonal part</p></td>
+</tr>
+<tr class="row-even"><td><p>tdm_q</p></td>
+<td><p>in/out</p></td>
+<td><p>right-hand-side &amp; answer</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id3">
+<h3>Description<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<p>This function is identical to <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">my_dgtsv_b</span><span class="w"></span></code> except the boundary condition; here periodicity (the suffix <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">_p</span><span class="w"></span></code> comes from <strong>p</strong> eriodic) is assumed:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  c_0     &amp; u_0    &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; l_0     \\
+  l_1     &amp; c_1    &amp; u_1    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0       &amp; l_2    &amp; c_2    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  \vdots  &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; c_{i-1} &amp; u_{i-1} &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; l_{i  } &amp; c_{i  } &amp; u_{i  } &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; l_{i+1} &amp; c_{i+1} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  \vdots  &amp; \vdots &amp; \vdots &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; c_{n-3} &amp; u_{n-3} &amp; 0       \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; l_{n-2} &amp; c_{n-2} &amp; u_{n-2} \\
+  u_{n-1} &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; l_{n-1} &amp; c_{n-1}
+\end{bmatrix}
+\begin{bmatrix}
+x_0     \\
+x_1     \\
+x_2     \\
+\vdots  \\
+x_{i-1} \\
+x_{i  } \\
+x_{i+1} \\
+\vdots  \\
+x_{n-3} \\
+x_{n-2} \\
+x_{n-1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+q_0     \\
+q_1     \\
+q_2     \\
+\vdots  \\
+q_{i-1} \\
+q_{i  } \\
+q_{i+1} \\
+\vdots  \\
+q_{n-3} \\
+q_{n-2} \\
+q_{n-1}
+\end{bmatrix},\end{split}\]</div>
+<p>where top-right and bottom-left corners have non-zero values.
+The algorithm will be discussed below.</p>
+</section>
+</section>
+<section id="algorithm">
+<h2>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this heading">¶</a></h2>
+<section id="bounded-case">
+<h3>Bounded case<a class="headerlink" href="#bounded-case" title="Permalink to this heading">¶</a></h3>
+<p>First we merge the tri-diagonal matrix and the right-hand-side:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  c_0    &amp; u_0    &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; q_0     \\
+  l_1    &amp; c_1    &amp; u_1    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; q_1     \\
+  0      &amp; l_2    &amp; c_2    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; q_2     \\
+  \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; c_{i-1} &amp; u_{i-1} &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; q_{i-1} \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; l_{i  } &amp; c_{i  } &amp; u_{i  } &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; q_{i  } \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; l_{i+1} &amp; c_{i+1} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; q_{i+1} \\
+  \vdots &amp; \vdots &amp; \vdots &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; c_{n-3} &amp; u_{n-3} &amp; 0       &amp; q_{n-3} \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; l_{n-2} &amp; c_{n-2} &amp; u_{n-2} &amp; q_{n-2} \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; l_{n-1} &amp; c_{n-1} &amp; q_{n-1}
+\end{bmatrix}\end{split}\]</div>
+<p>for convenience.
+Our objective is to eliminate the non-diagonal parts of the matrix, i.e, to convert the above matrix to</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  1      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; x_0     \\
+  0      &amp; 1      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; x_1     \\
+  0      &amp; 0      &amp; 1      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; x_2     \\
+  \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 1       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; x_{i-1} \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 1       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; x_{i  } \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 1       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; x_{i+1} \\
+  \vdots &amp; \vdots &amp; \vdots &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 1       &amp; 0       &amp; 0       &amp; x_{n-3} \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 1       &amp; 0       &amp; x_{n-2} \\
+  0      &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 1       &amp; x_{n-1}
+\end{bmatrix}\end{split}\]</div>
+<p>using <a class="reference external" href="https://en.wikipedia.org/wiki/gaussian_elimination">gaussian elimination</a>.</p>
+<ol class="arabic">
+<li><p>Forward substitution</p>
+<details>
+<summary>
+Click here to expand text</summary><p>First we try to eliminate the lower-diagonal components <span class="math notranslate nohighlight">\(l_i\)</span>, where <span class="math notranslate nohighlight">\(i \in \left[ 1 : n-1 \right]\)</span>.
+As a starting point, we focus on the top two rows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  c_0 &amp; u_0 &amp; 0   &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_0 \\
+  l_1 &amp; c_1 &amp; u_1 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_1
+\end{bmatrix}.\end{split}\]</div>
+<p>Dividing the first row by <span class="math notranslate nohighlight">\(c_1\)</span> yields</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;\begin{bmatrix}
+    1   &amp; u_0 / c_0 &amp; 0   &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_0 / c_0 \\
+    l_1 &amp; c_1       &amp; u_1 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_1
+  \end{bmatrix} \\
+  &amp;= \\
+  &amp;\begin{bmatrix}
+    1   &amp; u_0^{\prime} &amp; 0   &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_0^{\prime} \\
+    l_1 &amp; c_1          &amp; u_1 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_1
+  \end{bmatrix},
+\end{aligned}\end{split}\]</div>
+<p>where we define <span class="math notranslate nohighlight">\(u_0^{\prime} \equiv u_0 / c_0\)</span> and <span class="math notranslate nohighlight">\(q_0^{\prime} \equiv q_{0} / c_0\)</span>.
+The implementation can be found here:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">11</span><span class="w">  </span><span class="n">tdm_u</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_u</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">tdm_c</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">12</span><span class="w">  </span><span class="n">tdm_q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">tdm_c</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_u</span><span class="w"></span></code> is overridden, which requests to re-initialise <span class="math notranslate nohighlight">\(u_i\)</span> before calling linear solvers every time.</p>
+<p>Next, we subtract the first row after multiplied by <span class="math notranslate nohighlight">\(l_1\)</span> from the second row to eliminate <span class="math notranslate nohighlight">\(l_1\)</span>, which yields</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  1 &amp; u_0^{\prime}           &amp; 0   &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_0^{\prime} \\
+  0 &amp; c_1 - l_1 u_0^{\prime} &amp; u_1 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_1 - l_1 q_0^{\prime}
+\end{bmatrix}.\end{split}\]</div>
+<p>to make <span class="math notranslate nohighlight">\(c_1 - l_1 u_0^{\prime} \rightarrow 1\)</span>, we divide the second row by <span class="math notranslate nohighlight">\(c_1 - l_1 u_0^{\prime}\)</span>, which yields</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;\begin{bmatrix}
+    1 &amp; u_0^{\prime} &amp; 0                                  &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_0^{\prime} \\
+    0 &amp; 1            &amp; \frac{u_1}{c_1 - l_1 u_0^{\prime}} &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \frac{q_1 - l_1 q_0^{\prime}}{c_1 - l_1 u_0^{\prime}}
+  \end{bmatrix}, \\
+  &amp;= \\
+  &amp;\begin{bmatrix}
+    1 &amp; u_0^{\prime} &amp; 0            &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_0^{\prime} \\
+    0 &amp; 1            &amp; u_1^{\prime} &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_1^{\prime}
+  \end{bmatrix}.
+\end{aligned}\end{split}\]</div>
+<p>This process can be generalised for updating <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">i</span><span class="w"></span></code>-th row using the updated <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">i</span><span class="mi">-1</span><span class="w"></span></code>-th row; we focus on the <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">i</span><span class="mi">-1</span><span class="w"></span></code>-th and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">i</span><span class="w"></span></code>-th rows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  0 &amp; 0 &amp; 0 &amp; \cdots &amp; 1   &amp; u_{i-1}^{\prime} &amp; 0   &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_{i-1}^{\prime} \\
+  0 &amp; 0 &amp; 0 &amp; \cdots &amp; l_i &amp; c_i              &amp; u_i &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_{i}
+\end{bmatrix},\end{split}\]</div>
+<p>where the upper row (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">i</span><span class="mi">-1</span><span class="w"></span></code>-th row) is already updated, while the bottom row (<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">i</span><span class="w"></span></code>-th row) is to be updated now.</p>
+<p>applying the same procedure leads</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  0 &amp; 0 &amp; 0 &amp; \cdots &amp; 1   &amp; u_{i-1}^{\prime}           &amp; 0   &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_{i-1}^{\prime} \\
+  0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0   &amp; c_i - l_i u_{i-1}^{\prime} &amp; u_i &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_{i} - l_i q_{i-1}^{\prime}
+\end{bmatrix},\end{split}\]</div>
+<p>and dividing the <span class="math notranslate nohighlight">\(i\)</span>-th row by <span class="math notranslate nohighlight">\(c_i - l_i u_{i-1}^{\prime}\)</span> (to make <span class="math notranslate nohighlight">\(c_i = 1\)</span>) yields:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;\begin{bmatrix}
+    0 &amp; 0 &amp; 0 &amp; \cdots &amp; 1   &amp; u_{i-1}^{\prime} &amp; 0                                      &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_{i-1}^{\prime} \\
+    0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0   &amp; 1                &amp; \frac{u_i}{c_i - l_i u_{i-1}^{\prime}} &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; \frac{q_{i} - l_i q_{i-1}^{\prime}}{c_i - l_i u_{i-1}^{\prime}}
+  \end{bmatrix} \\
+  &amp;= \\
+  &amp;\begin{bmatrix}
+    0 &amp; 0 &amp; 0 &amp; \cdots &amp; 1   &amp; u_{i-1}^{\prime} &amp; 0              &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_{i-1}^{\prime} \\
+    0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0   &amp; 1                &amp; u_{i}^{\prime} &amp; \cdots &amp; 0 &amp; 0 &amp; 0 &amp; q_{i}^{\prime}
+  \end{bmatrix}.
+\end{aligned}\end{split}\]</div>
+<p>This procedure is repeated to <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="mi">-1</span><span class="w"></span></code>, whose implementation can be found here:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">14</span><span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">15</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">tdm_l</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">tdm_u</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">16</span><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">DBL_EPSILON</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">17</span><span class="w">      </span><span class="n">tdm_u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">18</span><span class="w">      </span><span class="n">tdm_q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">19</span><span class="w">    </span><span class="p">}</span><span class="k">else</span><span class="p">{</span><span class="w"></span>
+<span class="linenos">20</span><span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="o">/</span><span class="n">val</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">21</span><span class="w">      </span><span class="n">tdm_u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">val</span><span class="o">*</span><span class="w"> </span><span class="n">tdm_u</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">22</span><span class="w">      </span><span class="n">tdm_q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">val</span><span class="o">*</span><span class="p">(</span><span class="n">tdm_q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">tdm_l</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">tdm_q</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]);</span><span class="w"></span>
+<span class="linenos">23</span><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">24</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>It should be noted that, for the last row <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="mi">-1</span><span class="w"></span></code>, the denominator <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">val</span><span class="w"></span></code> can be <span class="math notranslate nohighlight">\(0\)</span> (i.e., the rank of the matrix is <span class="math notranslate nohighlight">\(n-1\)</span>), especially when the Nuemann boundary condition is imposed and equally-spaced grid is used.
+In order to avoid the resulting zero division, we have a special treatment in the implementation, i.e., checking the denominator first, and assign <code class="code highlight c-lang c docutils literal highlight-c"><span class="mi">0</span><span class="w"></span></code> when is it is very small.</p>
+</details></li>
+<li><p>Backward substitution</p>
+<details>
+<summary>
+Click here to expand text</summary><p>Now we have the following system:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  1      &amp; u_0^{\prime} &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 0                \\
+  0      &amp; 1            &amp; u_1^{\prime} &amp; \cdots &amp; 0       &amp; 0                &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 0                \\
+  0      &amp; 0            &amp; 1            &amp; \cdots &amp; 0       &amp; 0                &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 0                \\
+  \vdots &amp; \vdots       &amp; \vdots       &amp; \ddots &amp; \vdots  &amp; \vdots           &amp; \vdots       &amp;        &amp; \vdots  &amp; \vdots           &amp; \vdots           \\
+  0      &amp; 0            &amp; 0            &amp; \cdots &amp; 1       &amp; u_{i-1}^{\prime} &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 0                \\
+  0      &amp; 0            &amp; 0            &amp; \cdots &amp; 0       &amp; 1                &amp; u_i^{\prime} &amp; \cdots &amp; 0       &amp; 0                &amp; 0                \\
+  0      &amp; 0            &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 1            &amp; \cdots &amp; 0       &amp; 0                &amp; 0                \\
+  \vdots &amp; \vdots       &amp; \vdots       &amp;        &amp; \vdots  &amp; \vdots           &amp; \vdots       &amp; \ddots &amp; \vdots  &amp; \vdots           &amp; \vdots           \\
+  0      &amp; 0            &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 0            &amp; \cdots &amp; 1       &amp; u_{n-3}^{\prime} &amp; 0                \\
+  0      &amp; 0            &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 0            &amp; \cdots &amp; 0       &amp; 1                &amp; u_{n-2}^{\prime} \\
+  0      &amp; 0            &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 0            &amp; \cdots &amp; 0       &amp; 0                &amp; 1
+\end{bmatrix}
+\begin{bmatrix}
+  x_0     \\
+  x_1     \\
+  x_2     \\
+  \vdots  \\
+  x_{i-1} \\
+  x_{i  } \\
+  x_{i+1} \\
+  \vdots  \\
+  x_{n-3} \\
+  x_{n-2} \\
+  x_{n-1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+  q_0^{\prime}     \\
+  q_1^{\prime}     \\
+  q_2^{\prime}     \\
+  \vdots           \\
+  q_{i-1}^{\prime} \\
+  q_{i  }^{\prime} \\
+  q_{i+1}^{\prime} \\
+  \vdots           \\
+  q_{n-3}^{\prime} \\
+  q_{n-2}^{\prime} \\
+  q_{n-1}^{\prime}
+\end{bmatrix},\end{split}\]</div>
+<p>where we immediately notice (in the last row)</p>
+<div class="math notranslate nohighlight">
+\[x_{n-1} = q_{n-1}^{\prime},\]</div>
+<p>which is already assigned in the implementation since we share <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_q</span><span class="w"></span></code>.</p>
+<p>since we have a relation:</p>
+<div class="math notranslate nohighlight">
+\[x_i = q_i^{\prime} - u_i^{\prime} x_{i+1},\]</div>
+<p>we can obtain <span class="math notranslate nohighlight">\(x_i\)</span> one after another (sequentially from <span class="math notranslate nohighlight">\(i = n-2\)</span> to <span class="math notranslate nohighlight">\(i = 0\)</span>), which is implemented here:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">26</span><span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="n">n</span><span class="mi">-2</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">--</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">27</span><span class="w">    </span><span class="n">tdm_q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">tdm_u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">tdm_q</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">28</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</details></li>
+</ol>
+<p>Note again that <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_q</span><span class="w"></span></code> is shared among <span class="math notranslate nohighlight">\(x_i\)</span> and <span class="math notranslate nohighlight">\(q_i\)</span> in the implementation.</p>
+</section>
+<section id="periodic-case">
+<h3>Periodic case<a class="headerlink" href="#periodic-case" title="Permalink to this heading">¶</a></h3>
+<p>When the periodicity is assumed, we have a linear system:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  c_0     &amp; u_0    &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; l_0     \\
+  l_1     &amp; c_1    &amp; u_1    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0       &amp; l_2    &amp; c_2    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  \vdots  &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; c_{i-1} &amp; u_{i-1} &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; l_{i  } &amp; c_{i  } &amp; u_{i  } &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; l_{i+1} &amp; c_{i+1} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  \vdots  &amp; \vdots &amp; \vdots &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; c_{n-3} &amp; u_{n-3} &amp; 0       \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; l_{n-2} &amp; c_{n-2} &amp; u_{n-2} \\
+  u_{n-1} &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; l_{n-1} &amp; c_{n-1}
+\end{bmatrix}
+\begin{bmatrix}
+x_0     \\
+x_1     \\
+x_2     \\
+\vdots  \\
+x_{i-1} \\
+x_{i  } \\
+x_{i+1} \\
+\vdots  \\
+x_{n-3} \\
+x_{n-2} \\
+x_{n-1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+q_0     \\
+q_1     \\
+q_2     \\
+\vdots  \\
+q_{i-1} \\
+q_{i  } \\
+q_{i+1} \\
+\vdots  \\
+q_{n-3} \\
+q_{n-2} \\
+q_{n-1}
+\end{bmatrix},\end{split}\]</div>
+<p>which is no longer a tri-diagonal matrix because of the two non-zero values.
+This matrix, however, still can be inversed by using a similar algorithm described above by using <a class="reference external" href="https://en.wikipedia.org/wiki/Sherman–Morrison_formula">Sherman–Morrison formula</a> as follows.</p>
+<p>Since we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{alignat}{5}
+  &amp; c_0     x_0     &amp; &amp; + u_0     x_1     &amp; &amp; + l_0     x_{n-1} &amp; &amp; = q_0     &amp; \,\,\, &amp;        0           \text{th row} \\
+  &amp; l_{n-2} x_{n-3} &amp; &amp; + c_{n-2} x_{n-2} &amp; &amp; + u_{n-2} x_{n-1} &amp; &amp; = q_{n-2} &amp; \,\,\, &amp; \left( n-2 \right) \text{th row}
+\end{alignat}\end{split}\]</div>
+<p>i.e.,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{alignat}{3}
+  &amp; c_0     x_0     &amp; &amp; + u_0     x_1     &amp; &amp; = q_0     - l_0     x_{n-1} \\
+  &amp; l_{n-2} x_{n-3} &amp; &amp; + c_{n-2} x_{n-2} &amp; &amp; = q_{n-2} - u_{n-2} x_{n-1}
+\end{alignat}\end{split}\]</div>
+<p>the first <span class="math notranslate nohighlight">\(n-2\)</span>-th rows and <span class="math notranslate nohighlight">\(n-2\)</span>-th columns can be extracted as another linear system (whose size is <span class="math notranslate nohighlight">\(\left( n-1 \right) \times \left( n-1 \right)\)</span> ):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  c_0     &amp; u_0    &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  l_1     &amp; c_1    &amp; u_1    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0       &amp; l_2    &amp; c_2    &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  \vdots  &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; c_{i-1} &amp; u_{i-1} &amp; 0       &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; l_{i  } &amp; c_{i  } &amp; u_{i  } &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; l_{i+1} &amp; c_{i+1} &amp; \cdots &amp; 0       &amp; 0       &amp; 0       \\
+  \vdots  &amp; \vdots &amp; \vdots &amp;        &amp; \vdots  &amp; \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  &amp; \vdots  &amp; \vdots  \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; c_{n-4} &amp; u_{n-4} &amp; 0       \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; l_{n-3} &amp; c_{n-3} &amp; u_{n-3} \\
+  0       &amp; 0      &amp; 0      &amp; \cdots &amp; 0       &amp; 0       &amp; 0       &amp; \cdots &amp; 0       &amp; l_{n-2} &amp; c_{n-2}
+\end{bmatrix}
+\begin{bmatrix}
+x_0     \\
+x_1     \\
+x_2     \\
+\vdots  \\
+x_{i-1} \\
+x_{i  } \\
+x_{i+1} \\
+\vdots  \\
+x_{n-4} \\
+x_{n-3} \\
+x_{n-2}
+\end{bmatrix}
+=
+\begin{bmatrix}
+q_0 - l_0 x_{n-1} \\
+q_1               \\
+q_2               \\
+\vdots            \\
+q_{i-1}           \\
+q_{i  }           \\
+q_{i+1}           \\
+\vdots            \\
+q_{n-4}           \\
+q_{n-3}           \\
+q_{n-2} - u_{n-2} x_{n-1}
+\end{bmatrix},\end{split}\]</div>
+<p>or for convenience we write this as</p>
+<div class="math notranslate nohighlight">
+\[\underline{\underline{A}} \, \underline{x} = \underline{q},\]</div>
+<p>where terms including <span class="math notranslate nohighlight">\(x_{n-1}\)</span> is moved to the right-hand-side.
+This treatment removes the additional components in the original matrix coming from the periodic boundary condition, and as a result we can recover a tri-diagonal system again.</p>
+<p>The new system, however, includes an unknown <span class="math notranslate nohighlight">\(x_{n-1}\)</span>, which prevents to directly apply the tri-diagonal matrix algorithm (since we need it to start the forward substitution).
+In order to overcome this issue, we consider to split this system into two systems using the linearity:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  {\underline{\underline{A}}} \, {\underline{x}}^0 &amp; = {\underline{q}}^0, \\
+  {\underline{\underline{A}}} \, {\underline{x}}^1 &amp; = {\underline{q}}^1,
+\end{aligned}\end{split}\]</div>
+<p>where we let</p>
+<div class="math notranslate nohighlight">
+\[\underline{q}^0 =
+\begin{bmatrix}
+  q_0     &amp;
+  q_1     &amp;
+  q_2     &amp;
+  \cdots  &amp;
+  q_{i-1} &amp;
+  q_{i  } &amp;
+  q_{i+1} &amp;
+  \cdots  &amp;
+  q_{n-4} &amp;
+  q_{n-3} &amp;
+  q_{n-2}
+\end{bmatrix}^T\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\underline{q}^1 =
+\begin{bmatrix}
+  - l_0  &amp;
+  0      &amp;
+  0      &amp;
+  \cdots &amp;
+  0      &amp;
+  0      &amp;
+  0      &amp;
+  \cdots &amp;
+  0      &amp;
+  0      &amp;
+  - u_{n-2}
+\end{bmatrix}^T,\]</div>
+<p>Note that the superscripts are used to distinguish two systems and do not mean exponents.
+Also note that we have <span class="math notranslate nohighlight">\({\underline{q}} = {\underline{q}}^0 + x_{n-1} {\underline{q}}^1\)</span>.</p>
+<p>By solving these two tri-diagonal systems, we can obtain the solution of the original system <span class="math notranslate nohighlight">\(\underline{x}\)</span> by</p>
+<div class="math notranslate nohighlight">
+\[{\underline{x}} = {\underline{x}}^0 + x_{n-1} \times {\underline{x}}^1.\]</div>
+<p>Finally, regarding <span class="math notranslate nohighlight">\(x_{n-1}\)</span>, we use the relation</p>
+<div class="math notranslate nohighlight">
+\[u_{n-1} x_0 + l_{n-1} x_{n-2} + c_{n-1} x_{n-1} = q_{n-1},\]</div>
+<p>which can be seen from the last row of the original (<span class="math notranslate nohighlight">\(n \times n\)</span>) system.</p>
+<p>Because of</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  x_0     &amp; = x_0^0     + x_{n-1} \times x_0^1,     \\
+  x_{n-2} &amp; = x_{n-2}^0 + x_{n-1} \times x_{n-2}^1, \\
+\end{aligned}\end{split}\]</div>
+<p>we have</p>
+<div class="math notranslate nohighlight">
+\[\left( u_{n-1} x_0^0 + l_{n-1} x_{n-2}^0           \right)
++ \left( u_{n-1} x_0^1 + l_{n-1} x_{n-2}^1 + c_{n-1} \right) x_{n-1}
+= q_{n-1},\]</div>
+<p>from which <span class="math notranslate nohighlight">\(x_{n-1}\)</span> can be computed after solving the two linear systems <span class="math notranslate nohighlight">\({\underline{\underline{A}}} \, {\underline{x}}^0 = {\underline{q}}^0\)</span> and <span class="math notranslate nohighlight">\({\underline{\underline{A}}} \, {\underline{x}}^1 = {\underline{q}}^1\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[x_{n-1} =
+  \frac{q_{n-1} - u_{n-1} x_0^0 - l_{n-1} x_{n-2}^0}
+  {c_{n-1} + u_{n-1} x_0^1 + l_{n-1} x_{n-2}^1}.\]</div>
+<p>In summary, the procedure is as follows:</p>
+<ol class="arabic simple">
+<li><p>Solve <span class="math notranslate nohighlight">\({\underline{\underline{A}}} \, {\underline{x}}^0 = {\underline{q}}^0\)</span> and <span class="math notranslate nohighlight">\({\underline{\underline{A}}} \, {\underline{x}}^1 = {\underline{q}}^1\)</span> using non-periodic tri-diagonal matrix solver:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">89</span><span class="w">  </span><span class="n">my_dgtsv_b</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_l0</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_c0</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_u0</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_q0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">90</span><span class="w">  </span><span class="n">my_dgtsv_b</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_l1</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_c1</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_u1</span><span class="p">,</span><span class="w"> </span><span class="n">tdm_q1</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where the matrix and the right-hand-side are created here for the first small linear system <span class="math notranslate nohighlight">\({\underline{\underline{A}}} \, {\underline{x}}^0 = {\underline{q}}^0\)</span>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">64</span><span class="w">  </span><span class="n">tdm_l0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">common_calloc</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">65</span><span class="w">  </span><span class="n">tdm_c0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">common_calloc</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">66</span><span class="w">  </span><span class="n">tdm_u0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">common_calloc</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">67</span><span class="w">  </span><span class="n">tdm_q0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">common_calloc</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">68</span><span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">69</span><span class="w">    </span><span class="n">tdm_l0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_l</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">70</span><span class="w">    </span><span class="n">tdm_c0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_c</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">71</span><span class="w">    </span><span class="n">tdm_u0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_u</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">72</span><span class="w">    </span><span class="n">tdm_q0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_q</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">73</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>and for the second small linear system <span class="math notranslate nohighlight">\({\underline{\underline{A}}} \, {\underline{x}}^1 = {\underline{q}}^1\)</span>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">75</span><span class="w">  </span><span class="n">tdm_l1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">common_calloc</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">76</span><span class="w">  </span><span class="n">tdm_c1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">common_calloc</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">77</span><span class="w">  </span><span class="n">tdm_u1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">common_calloc</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">78</span><span class="w">  </span><span class="n">tdm_q1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">common_calloc</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span><span class="w"></span>
+<span class="linenos">79</span><span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">80</span><span class="w">    </span><span class="n">tdm_l1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_l</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">81</span><span class="w">    </span><span class="n">tdm_c1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_c</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">82</span><span class="w">    </span><span class="n">tdm_u1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_u</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">83</span><span class="w">    </span><span class="n">tdm_q1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"></span>
+<span class="linenos">84</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w">   </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="o">-</span><span class="n">tdm_l</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"></span>
+<span class="linenos">85</span><span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">n</span><span class="mi">-2</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="o">-</span><span class="n">tdm_u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"></span>
+<span class="linenos">86</span><span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="mf">0.</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">87</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Compute <span class="math notranslate nohighlight">\(x_{n-1} = \frac{q_{n-1} - u_{n-1} x_0^0 - l_{n-1} x_{n-2}^0}{c_{n-1} + u_{n-1} x_0^1 + l_{n-1} x_{n-2}^1}\)</span>:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">92</span><span class="w">  </span><span class="n">tdm_q</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="w"></span>
+<span class="linenos">93</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tdm_q</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="o">-</span><span class="n">tdm_u</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="o">*</span><span class="n">tdm_q0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">tdm_l</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="o">*</span><span class="n">tdm_q0</span><span class="p">[</span><span class="n">n</span><span class="mi">-2</span><span class="p">])</span><span class="w"></span>
+<span class="linenos">94</span><span class="w">    </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">tdm_c</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="o">+</span><span class="n">tdm_u</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="o">*</span><span class="n">tdm_q1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">tdm_l</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="o">*</span><span class="n">tdm_q1</span><span class="p">[</span><span class="n">n</span><span class="mi">-2</span><span class="p">]);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_q</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="w"></span></code> is used to store the solution <span class="math notranslate nohighlight">\(x_{n-1}\)</span> as well as the right-hand-side of the system <span class="math notranslate nohighlight">\(q_{n-1}\)</span>; the original <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">tdm_q</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="w"></span></code> contains the right-hand-side, which will be overridden and the answer is assigned.</p>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Compute the solution of the original linear system <span class="math notranslate nohighlight">\({\underline{\underline{A}}} \, {\underline{x}} = {\underline{q}}\)</span>:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">96</span><span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="mi">-2</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="linenos">97</span><span class="w">    </span><span class="n">tdm_q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tdm_q0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">tdm_q</span><span class="p">[</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="o">*</span><span class="n">tdm_q1</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">98</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/implementation/linalg.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

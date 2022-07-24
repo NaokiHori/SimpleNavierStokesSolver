@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>param/ &#8212; Simple Navier-Stokes Solver 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script>window.MathJax = {"TeX": {"Macros": {"der": ["{\\frac{\\partial #1}{\\partial #2}}", 2], "dder": ["{\\frac{\\delta #1}{\\delta #2}}", 2], "mst": ["{\\gamma^{#1 #2}}", 2], "gx": ["{\\xi}"], "gy": ["{\\eta}"], "ux": ["{u_x}"], "uy": ["{u_y}"], "intrp": ["{\\overline{#1}^{#2}}", 2], "diffe": ["{\\delta_{#2} {#1}}", 2], "vat": ["{\\left. {#1} \\right|_{#2}}", 2], "ave": ["{\\left\\langle {#1} \\right\\rangle_{#2}}", 2], "pimm": ["i-1           "], "pim": ["i-\\frac{1}{2}"], "pic": ["i             "], "pip": ["i+\\frac{1}{2}"], "pipp": ["i+1           "], "pjmm": ["j-1           "], "pjm": ["j-\\frac{1}{2}"], "pjc": ["j             "], "pjp": ["j+\\frac{1}{2}"], "pjpp": ["j+1           "], "ximm": ["i-\\frac{1}{2}"], "xim": ["i             "], "xic": ["i+\\frac{1}{2}"], "xip": ["i+1           "], "xipp": ["i+\\frac{3}{2}"], "xjmm": ["j-1           "], "xjm": ["j-\\frac{1}{2}"], "xjc": ["j             "], "xjp": ["j+\\frac{1}{2}"], "xjpp": ["j+1           "], "yimm": ["i-1           "], "yim": ["i-\\frac{1}{2}"], "yic": ["i             "], "yip": ["i+\\frac{1}{2}"], "yipp": ["i+1           "], "yjmm": ["j-\\frac{1}{2}"], "yjm": ["j             "], "yjc": ["j+\\frac{1}{2}"], "yjp": ["j+1           "], "yjpp": ["j+\\frac{3}{2}"], "dintrpa": ["{\\overline{#1}^{#2}}", 2], "dintrpv": ["{\\widehat {#1}^{#2}}", 2], "dintrpu": ["{\\widetilde {#1}^{#2}}", 2]}}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="param/decide_dt.c" href="decide_dt.html" />
+    <link rel="prev" title="parallel/transpose.c" href="../parallel/transpose.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Simple Navier-Stokes Solver</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=NaokiHori&repo=SimpleNavierStokesSolver&type=true&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../governing_equations/index.html">Governing equations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical_method/index.html">Numerical method</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Implementation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analyses.html">analyses.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../common.html">common.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fileio/main.html">fileio.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fluid/index.html">fluid/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../linalg.html">linalg.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">logging.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../main.html">main.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../parallel/index.html">parallel/</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">param/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../save.html">save.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../simple_npyio.html">simple_npy_io.c</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../statistics/index.html">statistics/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../temperature/index.html">temperature/</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Implementation</a><ul>
+      <li>Previous: <a href="../parallel/transpose.html" title="previous chapter">parallel/transpose.c</a></li>
+      <li>Next: <a href="decide_dt.html" title="next chapter">param/decide_dt.c</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="param">
+<span id="id1"></span><h1>param/<a class="headerlink" href="#param" title="Permalink to this heading">¶</a></h1>
+<p>Directory <code class="docutils literal notranslate"><span class="pre">src/param</span></code> contains source files which treat general parameters widely used.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="decide_dt.html">param/decide_dt.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimate_cost.html">param/estimate_cost.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="finalise.html">param/finalise.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">param/init.c</a></li>
+</ul>
+</div>
+<section id="param-t">
+<h2>param_t<a class="headerlink" href="#param-t" title="Permalink to this heading">¶</a></h2>
+<p>A structure <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">param_t</span><span class="w"></span></code> is defined in <a class="reference external" href="https://github.com/NaokiHori/SimpleNavierStokesSolver/blob/main/include/param.h">include/param.h</a>, which contains general parameters which are referred to by other functions:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos">28</span><span class="k">struct</span><span class="w"> </span><span class="nc">param_t_</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">29</span><span class="w">  </span><span class="c1">// restart / initialise</span>
+<span class="linenos">30</span><span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">load_flow_field</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">31</span><span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">dirname_restart</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">32</span><span class="w">  </span><span class="c1">// fluid-temperature coupling</span>
+<span class="linenos">33</span><span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">with_temperature</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">34</span><span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">with_thermal_forcing</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">35</span><span class="w">  </span><span class="c1">// domain sizes</span>
+<span class="linenos">36</span><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">itot</span><span class="p">,</span><span class="w"> </span><span class="n">jtot</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">37</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">lx</span><span class="p">,</span><span class="w"> </span><span class="n">ly</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">38</span><span class="w">  </span><span class="c1">// grid sizes</span>
+<span class="linenos">39</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">stretch</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">40</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">xf</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">xc</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">41</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">dxf</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">dxc</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">42</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">yf</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">yc</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">43</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">dy</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">44</span><span class="w">  </span><span class="c1">// non-dimensional params</span>
+<span class="linenos">45</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">Ra</span><span class="p">,</span><span class="w"> </span><span class="n">Pr</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">46</span><span class="w">  </span><span class="c1">// temporal integration</span>
+<span class="linenos">47</span><span class="w">  </span><span class="n">rkcoef_t</span><span class="w"> </span><span class="n">rkcoefs</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">48</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">dt</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">49</span><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">step</span><span class="p">,</span><span class="w"> </span><span class="n">implicitx</span><span class="p">,</span><span class="w"> </span><span class="n">implicity</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">50</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">expimp_wtimes</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">51</span><span class="w">  </span><span class="c1">// when to stop, when to write log, etc.</span>
+<span class="linenos">52</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">timemax</span><span class="p">,</span><span class="w"> </span><span class="n">wtimemax</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">53</span><span class="w">  </span><span class="n">schedule_t</span><span class="w"> </span><span class="n">log</span><span class="p">,</span><span class="w"> </span><span class="n">save</span><span class="p">,</span><span class="w"> </span><span class="n">stat</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">54</span><span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The meanings of each member are as follows:</p>
+<ol class="arabic">
+<li><p>Initialisation: <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">load_flow_field</span><span class="w"></span></code></p>
+<p>Whether flow fields (velocity, temperature, etc.) are loaded (<code class="code highlight c-lang c docutils literal highlight-c"><span class="nb">true</span><span class="w"></span></code>) or not (<code class="code highlight c-lang c docutils literal highlight-c"><span class="nb">false</span><span class="w"></span></code>).
+If not, they are initialised; otherwise loaded from a specified directory <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">param</span><span class="o">-&gt;</span><span class="n">dirname_restart</span><span class="w"></span></code>.</p>
+</li>
+<li><p>Temperature coupling</p>
+<ul>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">with_temperature</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Whether the temperature field is solved (<code class="code highlight c-lang c docutils literal highlight-c"><span class="nb">true</span><span class="w"></span></code>) or not (<code class="code highlight c-lang c docutils literal highlight-c"><span class="nb">false</span><span class="w"></span></code>) as well as the flow fields (velocity and pressure).</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">with_thermal_forcing</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Whether the buoyancy force is added (<code class="code highlight c-lang c docutils literal highlight-c"><span class="nb">true</span><span class="w"></span></code>) or not (<code class="code highlight c-lang c docutils literal highlight-c"><span class="nb">false</span><span class="w"></span></code>) to the momentum balance in <span class="math notranslate nohighlight">\(x\)</span> direction (see <a class="reference internal" href="../../governing_equations/index.html#governing-equations"><span class="std std-ref">the governing equations</span></a>).
+If not, the temperature is a passive scalar merely transported (advected and diffused) by the fluid motion.</p>
+</div></blockquote>
+</li>
+</ul>
+</li>
+<li><p>Domain size and coordinates</p>
+<ul>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">itot</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">jtot</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Numbers of cell centers (where pressure and temperature are defined) in <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> directions, respectively.</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">lx</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">ly</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Physical domain sizes (lengths) in <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> directions, respectively.
+<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">lx</span><span class="w"></span></code> is fixed to 1 since the governing equations assume <span class="math notranslate nohighlight">\(l_x \equiv 1\)</span> when being normalised (see <a class="reference internal" href="../../governing_equations/index.html#governing-equations"><span class="std std-ref">the governing equations</span></a>).</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">stretch</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>The amount of distortion of the grid in <span class="math notranslate nohighlight">\(x\)</span> direction.
+Roughly, the smaller (minimum is 0) this number is, the more stretched the grid is and more points exist in the vicinity of the walls.
+See <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">set_coordinate</span><span class="w"></span></code> in <a class="reference internal" href="init.html#param-init"><span class="std std-ref">src/param/init.c</span></a>.</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">xf</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">xc</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Coordinates in <span class="math notranslate nohighlight">\(x\)</span> direction.
+<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">xf</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">xc</span><span class="w"></span></code> are used to define cell-face and cell-center locations, respectively.
+See <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">set_coordinate</span><span class="w"></span></code> in <a class="reference internal" href="init.html#param-init"><span class="std std-ref">src/param/init.c</span></a>.</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">dxf</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">dxc</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Distance between neighbouring <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">param</span><span class="o">-&gt;</span><span class="n">xf</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">param</span><span class="o">-&gt;</span><span class="n">xc</span><span class="w"></span></code>, respectively.
+See <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">set_coordinate</span><span class="w"></span></code> in <a class="reference internal" href="init.html#param-init"><span class="std std-ref">src/param/init.c</span></a>.</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">dy</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Grid size in <span class="math notranslate nohighlight">\(y\)</span> direction.
+Since only uniform grid arrangements are allowed for now, a scalar value is sufficient.
+<code class="code highlight c-lang c docutils literal highlight-c"><span class="n">yf</span><span class="w"></span></code> and <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">yc</span><span class="w"></span></code> are, however, defined since they are useful for post-processings.</p>
+</div></blockquote>
+</li>
+</ul>
+</li>
+<li><p>Non-dimensional parameters</p>
+<ul>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">Ra</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Rayleigh number (see <a class="reference internal" href="../../governing_equations/index.html#governing-equations"><span class="std std-ref">the governing equations</span></a>)</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">Pr</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Prandtl number (see <a class="reference internal" href="../../governing_equations/index.html#governing-equations"><span class="std std-ref">the governing equations</span></a>)</p>
+</div></blockquote>
+</li>
+</ul>
+</li>
+<li><p>Parameters relevant to temporal integration</p>
+<ul>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">rkcoefs</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Coefficients of Runge-Kutta scheme <span class="math notranslate nohighlight">\(\alpha,\beta,\gamma\)</span> (see <a class="reference internal" href="../../numerical_method/temporal_discretisation/index.html#temporal-discretisation"><span class="std std-ref">Temporal discretisation</span></a>)</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">time</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Simulation time (not wall time)</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">dt</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Time step size</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">step</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Number of steps (how many iterations have been done up to now)</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">implicitx</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">implicity</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Whether the diffusive terms in each direction are treated implicitly (<code class="code highlight c-lang c docutils literal highlight-c"><span class="mi">1</span><span class="w"></span></code>) or not (<code class="code highlight c-lang c docutils literal highlight-c"><span class="mi">0</span><span class="w"></span></code>).
+See <a class="reference internal" href="../../numerical_method/temporal_discretisation/index.html#temporal-discretisation"><span class="std std-ref">the temporal discretisation</span></a> and <a class="reference internal" href="decide_dt.html#param-decide-dt"><span class="std std-ref">src/param/decide_dt.c</span></a>.</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">expimp_wtimes</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Variable to store wall times which are needed to complete the whole procedures with explicit or implicit treatments of the diffusive terms.
+See <a class="reference internal" href="estimate_cost.html#param-estimate-cost"><span class="std std-ref">src/param/estimate_cost.c</span></a>.</p>
+</div></blockquote>
+</li>
+</ul>
+</li>
+<li><p>Schedulers</p>
+<ul>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">timemax</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Maximum simulation time (in simulation time units).
+Simulation is terminated if <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">param</span><span class="o">-&gt;</span><span class="n">time</span><span class="w"></span></code> exceeds this parameter (see <a class="reference internal" href="../main.html#main"><span class="std std-ref">src/main.c</span></a>).</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">wtimemax</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Maximum simulation time (in wall time).
+Simulation is terminated if <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">param</span><span class="o">-&gt;</span><span class="n">wtime</span><span class="w"></span></code> exceeds this parameter (see <a class="reference internal" href="../main.html#main"><span class="std std-ref">src/main.c</span></a>).</p>
+</div></blockquote>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">log</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">save</span><span class="w"></span></code>, <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">stat</span><span class="w"></span></code></p>
+<blockquote>
+<div><p>Decide timings of logging, saving flow fields, and collecting statistics, respectively.
+Each member has three values:</p>
+<ol class="arabic">
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">rate</span><span class="w"></span></code></p>
+<p>This process is repeated in each <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">rate</span><span class="w"></span></code> time units.
+This is needed since (generally) we do not want to dump flow fields (MB or GB in sizes) every time step.</p>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">after</span><span class="w"></span></code></p>
+<p>This process is only executed after <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">after</span><span class="w"></span></code> time units.
+This is needed since (generally) we are only interested in flow statistics after the flow reaches the statistically-steady state.</p>
+</li>
+<li><p><code class="code highlight c-lang c docutils literal highlight-c"><span class="n">next</span><span class="w"></span></code></p>
+<p>This process will be executed at <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">next</span><span class="w"></span></code>.
+This is used as a timer to trigger the next event.</p>
+</li>
+</ol>
+</div></blockquote>
+</li>
+</ul>
+</li>
+</ol>
+<p>Although default values are assigned, these parameters can be specified as environmental variables and one can easily override them (see <code class="docutils literal notranslate"><span class="pre">exec.sh</span></code>).
+When being given, the parameters are loaded by <code class="code highlight c-lang c docutils literal highlight-c"><span class="n">load_config</span><span class="w"></span></code> in <a class="reference internal" href="init.html#param-init"><span class="std std-ref">src/param/init.c</span></a>.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, Naoki Hori.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/implementation/param/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
